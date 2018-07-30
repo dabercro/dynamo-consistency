@@ -14,7 +14,7 @@ import subprocess
 import logging
 import json
 
-from CMSToolBox.siteinfo import get_domain
+from cmstoolbox.siteinfo import get_domain
 
 LOG = logging.getLogger(__name__)
 CONFIG_FILE = 'consistency_config.json'
@@ -57,7 +57,7 @@ def config_dict(make_dir=True):
                     'Set the value of config.CONFIG_FILE to avoid receiving this message',
                     location)
         location = os.path.join(os.path.dirname(__file__),
-                                'test', CONFIG_FILE)
+                                CONFIG_FILE)
         LOG.warning('Falling back to test configuration: %s', location)
 
     # If file exists, load it
