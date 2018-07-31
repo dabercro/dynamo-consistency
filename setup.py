@@ -3,7 +3,7 @@ import setuptools
 setuptools.setup(
     name='dynamo-consistency',
     version='1.2.1',
-    packages=['dynamo_consistency'],
+    packages=setuptools.find_packages(),
     author='Daniel Abercrombie',
     author_email='dabercro@mit.edu',
     description='Consistency plugin for Dynamo',

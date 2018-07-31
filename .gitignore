@@ -1,5 +1,7 @@
 *~
 *.pyc
+dist/*
+dynamo_consistency.egg-info/*
 
 test/cache/*
 

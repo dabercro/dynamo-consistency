@@ -16,8 +16,8 @@ matrix:
       env: CHECKDOC=true
 install:
   - if [ "$PYLINTER" = "old" ]; then pip install "astroid<1.3" "pylint<1.4"; fi
-  - git clone https://github.com/CMSCompOps/OpsSpace.git
+  - python setup.py install
 
 script:
   - if [ "$CHECKDOC" = "true" ]; then test/build_standalone_docs.sh; fi
-  - OpsSpace/test/package_test.sh
+  - for t in test/test_*; do $t; done

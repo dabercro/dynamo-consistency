@@ -1,2 +1,0 @@
-class InventoryManager(object):
-    pass
