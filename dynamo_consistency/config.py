@@ -38,9 +38,8 @@ If this is set to a list of directories, it overrides the
 This prevents the tool from attempting to list directories that are not there.
 """
 
-def config_dict(make_dir=True):
+def config_dict():
     """
-    :param bool make_dir: Create the cache directory if it's missing
     :returns: the configuration file in a dictionary
     :rtype: str
     :raises IOError: when it cannot find the configuration file
