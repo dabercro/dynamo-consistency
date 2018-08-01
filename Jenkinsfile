@@ -20,7 +20,6 @@ pipeline {
       steps {
         sh 'ls'
         sh '$VENV; python setup.py install'
-        sh '$VENV; pip install -r test/requirements.txt'
       }
     }
 

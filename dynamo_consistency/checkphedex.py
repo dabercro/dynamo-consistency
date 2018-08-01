@@ -12,8 +12,6 @@ import logging
 
 from cmstoolbox.webtools import get_json
 from . import config
-from . import datatypes
-from . import cache_tree
 
 LOG = logging.getLogger(__name__)
 
