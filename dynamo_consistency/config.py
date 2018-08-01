@@ -72,17 +72,6 @@ def config_dict(make_dir=True):
     for key in output.keys():
         output[key] = os.environ.get(key, output[key])
 
-    for key in ['CacheLocation', 'LogLocation']:
-        location = output.get(key)
-
-        # Create the directory holding the cache
-        if location:
-            if not os.path.exists(location) and make_dir:
-                os.makedirs(location)
-        else:
-            raise KeyError('Configuration dictionary does not have a %s set. '
-                           'Using dictionary at %s' % (key, location))
-
     output['DirectoryList'] = DIRECTORYLIST or output['DirectoryList']
 
     return output

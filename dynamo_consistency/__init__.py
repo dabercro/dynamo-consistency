@@ -40,10 +40,14 @@ def cache_tree(config_age, location_suffix):
         @wraps(func)
         def do_function(site, callback=None, **kwargs):
 
+            # Make cache directory if it doesn't exist first
+            cache_dir = os.path.join(config.config_dict()['CacheLocation'], site)
+            if not os.path.exists(cache_dir):
+                os.makedirs(cache_dir)
+
             # Overwrite location_suffix if that's desired
             cache_location = os.path.join(
-                config.config_dict()['CacheLocation'],
-                '%s_%s.pkl' % (site, kwargs.get('cache', location_suffix)))
+                cache_dir, '%s_%s.pkl' % kwargs.get('cache', location_suffix))
 
             LOG.info('Checking for cache at %s', cache_location)
 
