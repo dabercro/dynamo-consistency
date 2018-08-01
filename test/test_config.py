@@ -18,7 +18,7 @@ class TestConfiguration(unittest.TestCase):
         config.CONFIG_FILE = os.path.join(os.path.dirname(__file__),
                                           'config.yml')
         config.LOADER = yaml
-        self.yml_config = config.config_dict(False)
+        self.yml_config = config.config_dict()
 
     def test_configs_are_same(self):
         self.maxDiff = None
@@ -30,7 +30,7 @@ class TestConfiguration(unittest.TestCase):
 
             config.CONFIG_FILE = os.path.join(os.path.dirname(__file__),
                                           config_file)
-            json_config = config.config_dict(False)
+            json_config = config.config_dict()
 
             for key in json_config.keys():
                 self.assertTrue(str(key) in self.yml_config.keys())
