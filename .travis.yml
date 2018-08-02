@@ -1,23 +1,15 @@
 language: python
 cache: pip
-# This broke with IPv6 update for some reason
-#addons:
-#  apt:
-#    sources: debian-sid
-#    packages: shellcheck
 matrix:
   include:
     - python: 2.6
-      env: PYLINTER=old
+      env: nodoc=true
     - python: 2.7
+      env: nodoc=true
     - dist: trusty
       sudo: required
       python: 2.7
-      env: CHECKDOC=true
 install:
-  - if [ "$PYLINTER" = "old" ]; then pip install "astroid<1.3" "pylint<1.4"; fi
-  - git clone --branch v0.7 https://github.com/CMSCompOps/OpsSpace.git
-
+  - python setup.py install
 script:
-  - if [ "$CHECKDOC" = "true" ]; then test/build_standalone_docs.sh; fi
-  - OpsSpace/test/package_test.sh
+  - opsspace-test

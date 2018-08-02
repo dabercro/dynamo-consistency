@@ -10,7 +10,7 @@ A script that updates the summary database to not run on sites failing SAM tests
 import sys
 import sqlite3
 
-from CMSToolBox.samstatus import is_sam_good
+from cmstoolbox.samstatus import is_sam_good
 
 def main(database, sites):
     """

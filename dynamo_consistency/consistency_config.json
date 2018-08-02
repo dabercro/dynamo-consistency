@@ -1,0 +1,44 @@
+{
+  "Timeout": 60,
+  "Retries": 1,
+  "InventoryAge": 5e-05,
+  "NumThreads": 1,
+  "GFALThreads": 32,
+  "ListAge": 5e-05,
+  "IgnoreAge": 1,
+  "RedirectorAge": 1,
+  "CacheLocation": "cache",
+  "LogLocation": "logs",
+  "Redirectors": {
+    "T3_CH_PSI": "t3se01.psi.ch",
+    "T3_US_MIT": "t3serv006.mit.edu"
+  },
+  "PathPrefix": {
+    "T2_UK_London_Brunel": "/cms"
+  },
+  "AccessMethod": {
+    "T2_FR_GRIF_LLR" : "SRM"
+  }, 
+  "DirectoryList": [
+    "mc",
+    "data",
+    "hidata"
+  ],
+  "IgnoreDirectories": [
+  ],
+  "GlobalRedirectors": [
+    "xrootd-redic.pi.infn.it",
+    "cmsxrootd1.fnal.gov"
+  ],
+  "SaveCache": 0,
+  "UseLoadBalancer": [
+    "T2_US_Vanderbilt"
+  ],
+  "WebDir": "www",
+  "MaxMissing": 100,
+  "MaxOrphan": 1000,
+  "Unmerged": [
+    "T2_US_MIT"
+  ],
+  "UnmergedLogsAge": 60
+}

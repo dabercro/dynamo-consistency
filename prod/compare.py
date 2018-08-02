@@ -82,7 +82,7 @@ import datetime
 
 from collections import defaultdict
 
-import ListDeletable
+from cmstoolbox.unmergedcleaner import listdeletable
 
 from dynamo_consistency import config
 
@@ -117,7 +117,7 @@ from dynamo_consistency import getinventorycontents
 from dynamo_consistency import datatypes
 from dynamo_consistency import checkphedex
 
-from CMSToolBox.webtools import get_json
+from cmstoolbox.webtools import get_json
 from common.interface.mysql import MySQL
 
 LOG = logging.getLogger(__name__)
@@ -227,17 +227,17 @@ def clean_unmerged(site):
 
     # Set the directory list to unmerged only
     config.DIRECTORYLIST = ['unmerged']
-    # Set the IGNORE_AGE for directories to match the ListDeletable config
-    datatypes.IGNORE_AGE = ListDeletable.config.MIN_AGE/(24 * 3600)
+    # Set the IGNORE_AGE for directories to match the listdeletable config
+    datatypes.IGNORE_AGE = listdeletable.config.MIN_AGE/(24 * 3600)
 
     # Get the list of protected directories
-    ListDeletable.PROTECTED_LIST = ListDeletable.get_protected()
-    ListDeletable.PROTECTED_LIST.sort()
+    listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    listdeletable.PROTECTED_LIST.sort()
 
     # Create a tree structure that will hold the protected directories
     protected_tree = datatypes.DirectoryInfo()
 
-    for directory in ListDeletable.PROTECTED_LIST:
+    for directory in listdeletable.PROTECTED_LIST:
         protected_tree.get_node(directory)
 
     def check_protected(path):
@@ -252,7 +252,7 @@ def clean_unmerged(site):
         if bool(protected_tree.get_node(path, make_new=False)):
             return True
 
-        for protected in ListDeletable.PROTECTED_LIST:
+        for protected in listdeletable.PROTECTED_LIST:
             # If a subdirectory, don't delete
             if path.startswith(protected):
                 return True
@@ -269,17 +269,17 @@ def clean_unmerged(site):
         callback=EmptyRemover(site, check_protected))
 
     # Setup the config a bit more
-    deletion_file = site + ListDeletable.config.DELETION_FILE
-    ListDeletable.config.DELETION_FILE = deletion_file
+    deletion_file = site + listdeletable.config.DELETION_FILE
+    listdeletable.config.DELETION_FILE = deletion_file
 
     # Reset the protected list in case the listing took a long time
-    ListDeletable.PROTECTED_LIST = ListDeletable.get_protected()
-    ListDeletable.PROTECTED_LIST.sort()
+    listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    listdeletable.PROTECTED_LIST.sort()
 
     # Only consider things older than four weeks
-    ListDeletable.get_unmerged_files = lambda: site_tree.get_files(ListDeletable.config.MIN_AGE)
+    listdeletable.get_unmerged_files = lambda: site_tree.get_files(listdeletable.config.MIN_AGE)
     # Do the cleaning
-    ListDeletable.main()
+    listdeletable.main()
 
     config_dict = config.config_dict()
 

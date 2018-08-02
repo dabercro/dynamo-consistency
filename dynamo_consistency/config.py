@@ -14,7 +14,7 @@ import subprocess
 import logging
 import json
 
-from CMSToolBox.siteinfo import get_domain
+from cmstoolbox.siteinfo import get_domain
 
 LOG = logging.getLogger(__name__)
 CONFIG_FILE = 'consistency_config.json'
@@ -38,9 +38,8 @@ If this is set to a list of directories, it overrides the
 This prevents the tool from attempting to list directories that are not there.
 """
 
-def config_dict(make_dir=True):
+def config_dict():
     """
-    :param bool make_dir: Create the cache directory if it's missing
     :returns: the configuration file in a dictionary
     :rtype: str
     :raises IOError: when it cannot find the configuration file
@@ -57,7 +56,7 @@ def config_dict(make_dir=True):
                     'Set the value of config.CONFIG_FILE to avoid receiving this message',
                     location)
         location = os.path.join(os.path.dirname(__file__),
-                                'test', CONFIG_FILE)
+                                CONFIG_FILE)
         LOG.warning('Falling back to test configuration: %s', location)
 
     # If file exists, load it
@@ -71,17 +70,6 @@ def config_dict(make_dir=True):
     # Overwrite any values with environment variables
     for key in output.keys():
         output[key] = os.environ.get(key, output[key])
-
-    for key in ['CacheLocation', 'LogLocation']:
-        location = output.get(key)
-
-        # Create the directory holding the cache
-        if location:
-            if not os.path.exists(location) and make_dir:
-                os.makedirs(location)
-        else:
-            raise KeyError('Configuration dictionary does not have a %s set. '
-                           'Using dictionary at %s' % (key, location))
 
     output['DirectoryList'] = DIRECTORYLIST or output['DirectoryList']
 

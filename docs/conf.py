@@ -4,7 +4,6 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('fakemodules'))
 sys.path.insert(0, os.path.abspath('../prod'))
 
 # put analyzer to the autonaysrc setting
@@ -150,12 +149,11 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
 
-from mock import Mock as MagicMock
+import mock
 
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-            return Mock()
+MOCK_MODULES = ['XRootD', 'XRootD.client',
+                'common', 'common.inventory', 'common.dataformat',
+                'common.interface', 'common.interface.mysql']
 
-MOCK_MODULES = ['ListDeletable']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
