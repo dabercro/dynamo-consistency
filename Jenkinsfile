@@ -1,8 +1,8 @@
 pipeline {
   agent any
   environment {
-    OPSSPACE_URL = 'https://github.com/dabercro/OpsSpace.git'
-    OPSSPACE_BRANCH = 'jenkins'
+    OPSSPACE_URL = 'https://github.com/CMSCompOps/OpsSpace.git'
+    OPSSPACE_BRANCH = 'v0.7'
     VENV = 'source venv/bin/activate'
     TRAVIS = 'true'
   }
@@ -20,7 +20,7 @@ pipeline {
         sh 'ls'
         sh '$VENV; pip install "astroid<1.3" "pylint<1.4" "pyyaml==3.11"'
         sh 'if [ -d OpsSpace ]; then rm -rf OpsSpace; fi'
-        sh 'git clone -b $OPSSPACE_BRANCH $OPSSPACE_URL'
+        sh 'git clone $OPSSPACE_URL; cd OpsSpace; git checkout $OPSSPACE_BRANCH'
         sh 'ls'
       }
     }
