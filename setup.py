@@ -10,7 +10,7 @@ setuptools.setup(
     url='https://github.com/SmartDataProjects/dynamo-consistency',
     install_requires=['timeout-decorator',
                       'pyyaml',
-                      'cmstoolbox>=0.9.3,<0.10'],
+                      'cmstoolbox'],
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
         'dynamo_consistency': ['consistency_config.json']
