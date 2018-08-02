@@ -20,7 +20,7 @@ pipeline {
         sh 'ls'
         sh '$VENV; pip install "astroid<1.3" "pylint<1.4" "pyyaml==3.11"'
         sh 'if [ -d OpsSpace ]; then rm -rf OpsSpace; fi'
-        sh 'git clone -b $OPSSPACE_BRANCH $OPSSPACE_URL'
+        sh 'git clone $OPSSPACE_URL; cd OpsSpace; git checkout $OPSSPACE_BRANCH'
         sh 'ls'
       }
     }
