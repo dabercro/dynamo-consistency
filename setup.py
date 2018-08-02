@@ -1,8 +1,10 @@
 import setuptools
 
+import dynamo_consistency
+
 setuptools.setup(
     name='dynamo-consistency',
-    version='1.2.2',
+    version=dynamo_consistency.__version__,
     packages=setuptools.find_packages(),
     author='Daniel Abercrombie',
     author_email='dabercro@mit.edu',

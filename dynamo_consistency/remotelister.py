@@ -20,11 +20,10 @@ from datetime import datetime
 import timeout_decorator
 
 import XRootD.client
-from common.interface.mysql import MySQL
 
 from . import config
 from . import datatypes
-from . import cache_tree
+from .backend.cache import cache_tree
 
 
 LOG = logging.getLogger(__name__)

@@ -25,7 +25,6 @@ from Queue import Empty
 from . import config
 
 LOG = logging.getLogger(__name__)
-IGNORE_AGE = float(config.config_dict()['IgnoreAge'])
 """
 The maximum age, in days, of files and directories to ignore in this check.
 This variable should be reset once in a while by deamons that run while an
@@ -308,6 +307,9 @@ class DirectoryInfo(object):
 
     __slots__ = ('directories', 'timestamp', 'name', 'hash', 'files', 'mtime', 'can_compare')
     def __init__(self, name='', directories=None, files=None):
+        if DirectoryInfo.ignore_age is None:
+            DirectoryInfo.ignore_age = float(config.config_dict()['IgnoreAge'])
+
         self.directories = directories or []
         self.timestamp = time.time()
         self.name = name
@@ -380,7 +382,7 @@ class DirectoryInfo(object):
                 'hash': hashlib.sha1(
                     '%s %i' % (name, size)    # We are not comparing mtime for now
                     ).hexdigest(),
-                'can_compare': bool(mtime + IGNORE_AGE * 24 * 3600 < self.timestamp and
+                'can_compare': bool(mtime + DirectoryInfo.ignore_age * 24 * 3600 < self.timestamp and
                                     name != '_unlisted_')
                 })
 
@@ -458,7 +460,7 @@ class DirectoryInfo(object):
 
         # Add empty directories that are not too new to comparison
         if not (self.directories or self.files) and self.mtime and \
-                self.mtime + IGNORE_AGE * 24 * 3600 < self.timestamp:
+                self.mtime + DirectoryInfo.ignore_age * 24 * 3600 < self.timestamp:
             self.can_compare = True
 
         # Calculate hash
@@ -727,7 +729,7 @@ class DirectoryInfo(object):
         output = set()
 
         if not self.can_compare or \
-                (self.mtime is not None and self.mtime + IGNORE_AGE * 24 * 3600 > self.timestamp):
+                (self.mtime is not None and self.mtime + DirectoryInfo.ignore_age * 24 * 3600 > self.timestamp):
             return output
 
         # Count direct subdirectories that are removed
@@ -858,7 +860,7 @@ class DirectoryInfo(object):
                            [d.name for d in node.directories])
         if node.files is None:
             raise NotEmpty('The files list is still None')
-        if node.mtime + IGNORE_AGE * 24 * 3600 > node.timestamp:
+        if node.mtime + DirectoryInfo.ignore_age * 24 * 3600 > node.timestamp:
             raise NotEmpty('This directory is not old enough?')
 
         parent.directories.remove(node)
