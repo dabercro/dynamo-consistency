@@ -382,8 +382,8 @@ class DirectoryInfo(object):
                 'hash': hashlib.sha1(
                     '%s %i' % (name, size)    # We are not comparing mtime for now
                     ).hexdigest(),
-                'can_compare': bool(mtime + DirectoryInfo.ignore_age * 24 * 3600 < self.timestamp and
-                                    name != '_unlisted_')
+                'can_compare': bool(mtime + DirectoryInfo.ignore_age * 24 * 3600 < self.timestamp
+                                    and name != '_unlisted_')
                 })
 
         self.files.sort(key=lambda x: x['name'])
@@ -729,7 +729,8 @@ class DirectoryInfo(object):
         output = set()
 
         if not self.can_compare or \
-                (self.mtime is not None and self.mtime + DirectoryInfo.ignore_age * 24 * 3600 > self.timestamp):
+                (self.mtime is not None and
+                 self.mtime + DirectoryInfo.ignore_age * 24 * 3600 > self.timestamp):
             return output
 
         # Count direct subdirectories that are removed
