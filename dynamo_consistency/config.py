@@ -71,6 +71,11 @@ def config_dict():
         else:
             raise IOError('Could not load config at ' + location)
 
+        var_loc = CONFIG.get('VarLocation')
+        if var_loc:
+            CONFIG['CacheLocation'] = os.path.join(var_loc, 'cache')
+            CONFIG['LogLocation'] = os.path.join(var_loc, 'logs')
+
         # Overwrite any values with environment variables
         for key in CONFIG.keys():
             CONFIG[key] = os.environ.get(key, CONFIG[key])

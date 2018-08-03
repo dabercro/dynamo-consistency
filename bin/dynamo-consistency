@@ -2,6 +2,8 @@
 
 
 import logging
+import time
+import datetime
 
 
 from dynamo_consistency import opts
@@ -17,13 +19,23 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('dynamo-consistency')
     config.LOCATION = opts.CONFIG
-    logsetup.change_logfile(...)
+
+    config_dict = config.config_dict()
+    logdir = config['LogLocation']
+
+    global_log = os.path.join(logdir, 'consistency.log')
+    logsetup.change_logfile(global_log)
 
     site = summary.pick_site(opts.SITE_PATTERN)
     logger.info('Starting run on %s', site)
 
     try:
-        logsetup.change_logfile(...)
+        logsetup.change_logfile(
+            os.path.join(config_dict['WebDir'], '%s.log' % site),
+            os.path.join(logdir, site, '%s.log' % 
+                         datetime.datetime.fromtimestamp(time.time()).strftime('%y%m%d_%H%M%S'))
+            )
+
         main(site)
 
     except Exception as e:
@@ -33,7 +45,7 @@ if __name__ == '__main__':
         if opts.EMAIL:
             from cmstoolbox.emailtools import send_mail
 
-            mail_config = config.config_dict()['Email']
+            mail_config = config_dict['Email']
             send_mail(
                 sender=mail_config['Sender'],
                 recipients=mail_config['Recipients'],
@@ -42,5 +54,5 @@ if __name__ == '__main__':
 
     summary.unlock_site(site)
 
-    logsetup.change_logfile(...)
+    logsetup.change_logfile(global_log)
     logger.info('Finished run on %s', site)

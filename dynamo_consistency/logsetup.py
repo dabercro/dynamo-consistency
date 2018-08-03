@@ -26,19 +26,23 @@ def change_logfile(*filenames):
     :param filenames: The files to write new logs to
     """
 
+    new_hldrs = []
+
+    for name in filenames:
+        logdir = os.path.dirname(name)
+
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
+
+        fhdl = logging.FileHandler(name, 'a')
+        fhdl.setFormatter(logging.Formatter(LOG_FORMAT))
+
+        new_hldrs.append(fhdl)
+
     for logger in logging.Logger.manager.loggerDict.values():
         hdlr_copy = list(logger.handlers)
         for hdlr in hdlr_copy:
             logger.removeHandler(hdlr)
 
-        for name in filenames:
-            logdir = os.path.dirname(name)
-
-            if not os.path.exists(logdir):
-                os.makedirs(logdir)
-
-
-            fhdl = logging.FileHandler(name, 'a')
-            fhdl.setFormatter(logging.Formatter(LOG_FORMAT))
-
+        for fhdl in new_hldrs:
             logger.addHandler(fhdl)
