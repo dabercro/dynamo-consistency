@@ -116,7 +116,7 @@ def main(site):    #pylint: disable=too-many-locals
     with open('%s_unrecoverable.txt' % site, 'w') as output_file:
         output_file.write('\n'.join(unrecoverable))
 
-    extras_results = extras(site, site_tree)
+    extras_results = extras(site, site_tree, summary.is_debugged(site))
 
     unmerged, unmergedlogs = extras_results.get('unmerged', (0, 0))
 

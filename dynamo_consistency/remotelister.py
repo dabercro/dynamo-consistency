@@ -37,7 +37,7 @@ def listing(site, callback=None):
         directories = [
             datatypes.create_dirinfo('/store', directory, listers.GFalLister,
                                      [(site, x) for x in xrange(num_threads)], callback) \
-                for directory in config.config_dict().get('DirectoryList', [])
+                for directory in config_dict.get('DirectoryList', [])
         ]
         # Return the DirectoryInfo
         return datatypes.DirectoryInfo(name='/store', directories=directories)

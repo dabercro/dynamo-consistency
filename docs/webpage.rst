@@ -1,1 +1,1 @@
-../dynamo_consistency/backend/web/explanations.rst
+../dynamo_consistency/web/explanations.rst

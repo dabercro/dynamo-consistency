@@ -10,9 +10,8 @@ import sys
 import json
 import time
 
-from . import config
 from . import filters
-from .. import summary
+from .. import config
 
 # Required abstractions from dynamo
 from ..dynamo import registry
@@ -91,13 +90,14 @@ def make_filters(site):
             filters.Filter(DatasetFilter(acceptable_missing), pattern_filter))
 
 
-def extras(site, site_tree=None):
+def extras(site, site_tree=None, debugged=False):
     """
     Runs a bunch of functions after the main consistency check,
     depending on the presence of certain arguments and configuration
 
     :param str site: For use to pass to extras
     :param dynamo_consistency.datatypes.DirectoryInfo site_tree: Same thing
+    :param bool debugged: If not debugged, the heavier things will not be run on the site
     :returns: Dictionary with interesting results. Keys include the following:
 
               - ``"unmerged"`` - A tuple listing unmerged files removed and unmerged logs
@@ -107,7 +107,7 @@ def extras(site, site_tree=None):
 
     output = {}
 
-    if summary.is_debugged(site) and '--unmerged' in sys.argv:
+    if debugged and '--unmerged' in sys.argv:
         from ..cms.unmerged import clean_unmerged
         output['unmerged'] = clean_unmerged(site)
 

@@ -4,6 +4,9 @@
 # Let's kill that
 
 import os
+for d in ['cache', 'logs']:
+    if os.path.exists(d):
+        os.rmdir(d)
 
 from dynamo_consistency import datatypes
 
