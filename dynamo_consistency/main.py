@@ -13,10 +13,10 @@ from . import config
 from . import inventorylister
 from . import remotelister
 from . import datatypes
+from . import summary
 from .backend import make_filters
 from .backend import registry
 from .backend import extras
-from .backend import summary
 from .backend.emptyremover import EmptyRemover
 
 

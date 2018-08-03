@@ -1,0 +1,44 @@
+#! /usr/bin/env python
+
+
+import logging
+
+
+from dynamo_consistency import opts
+from dynamo_consistency import config
+from dynamo_consistency import logsetup
+from dynamo_consistency import summary
+
+from dynamo_consistency.main import main
+
+
+# Stick this here before dynamo sets the logging config
+if __name__ == '__main__':
+
+    logger = logging.getLogger('dynamo-consistency')
+    config.LOCATION = opts.CONFIG
+    logsetup.change_logfile(...)
+
+    site = summary.pick_site(opts.SITE_PATTERN)
+    logger.info('Starting run on %s', site)
+
+    try:
+        logsetup.change_logfile(...)
+        main(site)
+
+    except Exception as e:
+
+        mail_config = config.config_dict().get('Email')
+
+        if mail_config:
+            from cmstoolbox.emailtools import send_mail
+            send_mail(
+                sender=mail_config['Sender'],
+                recipients=mail_config['Recipients'],
+                subject='Exception in dynamo-consistency',
+                message_text=e)
+
+    summary.unlock_site(site)
+
+    logsetup.change_logfile(...)
+    logger.info('Finished run on %s', site)

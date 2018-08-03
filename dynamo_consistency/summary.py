@@ -13,10 +13,9 @@ import logging
 
 from docutils.core import publish_file
 
-
-from . import siteinfo
-from . import check_site
-from .. import config
+from . import config
+from .backend import siteinfo
+from .backend import check_site
 
 
 LOG = logging.getLogger(__name__)
@@ -251,3 +250,13 @@ def move_local_files(site):
             to_rm = os.path.join(webdir, filename)
             if os.path.exists(to_rm):
                 os.remove(to_rm)
+
+def unlock_site(site):
+    """
+    Sets the site running status back to 0
+    :param str site: Site to unlock
+    """
+    conn = _connect()
+    conn.cursor().execute('UPDATE sites SET isrunning = 0 WHERE site = ?', (site,))
+    conn.commit()
+    conn.close()
