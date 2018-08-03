@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring
 # We don't really need the docstring for the functions inside the decorator
 
 import os
@@ -7,8 +7,8 @@ import datetime
 import logging
 
 from functools import wraps
-from . import config
-from . import datatypes
+from .. import config
+from .. import datatypes
 
 
 LOG = logging.getLogger(__name__)

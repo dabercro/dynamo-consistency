@@ -3,12 +3,6 @@ Reference
 
 The following is a full reference to the submodules inside of the :py:mod:`dynamo_consistency` module.
 
-checkphedex.py
---------------
-
-.. automodule:: dynamo_consistency.checkphedex
-   :members:
-
 .. _config-ref:
 
 config.py
@@ -23,14 +17,14 @@ datatypes.py
 .. automodule:: dynamo_consistency.datatypes
    :members:
 
-getsitecontents.py
-------------------
+remotelister.py
+---------------
 
-.. automodule:: dynamo_consistency.getsitecontents
+.. automodule:: dynamo_consistency.remotelister
    :members:
 
-getinventorycontents.py
+inventorylister.py
 -----------------------
 
-.. automodule:: dynamo_consistency.getinventorycontents
+.. automodule:: dynamo_consistency.inventorylister
    :members:

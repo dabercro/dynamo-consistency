@@ -305,6 +305,8 @@ class DirectoryInfo(object):
                        in the directory.
     """
 
+    ignore_age = None
+
     __slots__ = ('directories', 'timestamp', 'name', 'hash', 'files', 'mtime', 'can_compare')
     def __init__(self, name='', directories=None, files=None):
         if DirectoryInfo.ignore_age is None:

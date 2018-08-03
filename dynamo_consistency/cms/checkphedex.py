@@ -1,5 +1,3 @@
-# pylint: disable=import-error
-
 """
 A module that provides functions to check the comparison results to
 the list of files and deletions in PhEDEx.
@@ -11,11 +9,12 @@ import time
 import logging
 
 from cmstoolbox.webtools import get_json
-from . import config
+
+from .. import config
 
 LOG = logging.getLogger(__name__)
 
-def set_of_deletions(site):
+def deletion_requests(site):
     """
     Get a list of datasets with approved deletion requests at a given site that were created
     within the number of days matching the **IgnoreAge** configuration parameter.
@@ -51,7 +50,7 @@ def set_of_deletions(site):
     return datasets_for_deletion
 
 
-def check_for_datasets(site, orphan_list_file):
+def check_datasets(site, orphan_list_file):
     """
     Checks PhEDEx exhaustively to see if a dataset should exist at a site,
     according to PhEDEx, but has files marked as orphans according to our check.

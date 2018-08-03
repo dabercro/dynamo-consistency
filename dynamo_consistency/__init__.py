@@ -3,8 +3,8 @@
 :author: Daniel Abercrombie <dabercro@mit.edu>
 """
 
-from .backend import logsetup
+from . import logsetup
 
 __all__ = []
 
-__version__ = '1.2.3'
+__version__ = '2.0.0'

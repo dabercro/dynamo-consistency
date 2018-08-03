@@ -6,8 +6,9 @@ Dynamo Consistency
    :caption: Contents:
 
    overview
-   cms
    webpage
+   operations
+   cms
    reference
 
 

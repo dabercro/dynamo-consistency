@@ -4,11 +4,16 @@
    Must be used on a machine with xrdfs installed (for locate command).
 """
 
-
+import os
 import time
 import subprocess
 import logging
 
+from cmstoolbox.siteinfo import get_domain
+
+from ..config import config_dict
+
+LOG = logging.getLogger(__name__)
 
 def locate_file(file_name, redirs=None):
     """
