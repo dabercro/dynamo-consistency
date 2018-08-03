@@ -40,6 +40,9 @@ def change_logfile(*filenames):
         new_hldrs.append(fhdl)
 
     for logger in logging.Logger.manager.loggerDict.values():
+        if not isinstance(logger, logging.Logger):
+            continue
+
         hdlr_copy = list(logger.handlers)
         for hdlr in hdlr_copy:
             logger.removeHandler(hdlr)

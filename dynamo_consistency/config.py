@@ -11,7 +11,7 @@ import json
 
 
 LOG = logging.getLogger(__name__)
-CONFIG_FILE = 'consistency_config.json'
+LOCATION = 'consistency_config.json'
 """
 The string giving the location of the configuration JSON file.
 Generally, you want to set this value of the module before calling
@@ -21,7 +21,7 @@ LOADER = json
 """
 A module that uses the load function on a file descriptor to return a dictionary.
 (Examples are the ``json`` and ``yaml`` modules.)
-If your ``CONFIG_FILE`` is not a JSON file, you'll want to change this
+If your ``LOCATION`` is not a JSON file, you'll want to change this
 also before calling :py:func:`config_dict`.
 """
 
@@ -47,11 +47,12 @@ def config_dict():
     #pylint: disable=global-statement
 
     global CONFIG
+    global LOCATION
     global DIRECTORYLIST
 
     if CONFIG is None:
 
-        location = CONFIG_FILE
+        location = LOCATION
 
         # If not there, fall back to the test directory
         # This is mostly so that Travis-CI finds a configuration on it's own
@@ -60,16 +61,17 @@ def config_dict():
                         'Set the value of config.CONFIG_FILE to avoid receiving this message',
                         location)
             location = os.path.join(os.path.dirname(__file__),
-                                    CONFIG_FILE)
+                                    LOCATION)
             LOG.warning('Falling back to test configuration: %s', location)
 
         # If file exists, load it
         if os.path.exists(location):
+            LOCATION = location
             with open(location, 'r') as config:
                 LOG.debug('Opening config: %s', location)
                 CONFIG = LOADER.load(config)
         else:
-            raise IOError('Could not load config at ' + location)
+            raise IOError('Could not load config at %s', location)
 
         var_loc = CONFIG.get('VarLocation')
         if var_loc:

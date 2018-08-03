@@ -37,14 +37,14 @@ class EmptyRemover(object):
         :type tree: :py:class:`datatypes.DirectoryInfo`
         """
         tree.setup_hash()
-        empties = [join(tree.name, empty) for empty in tree.empty_nodes_list()
+        empties = [empty for empty in tree.empty_nodes_list()
                    if not self.check(join(tree.name, empty))]
 
         not_empty = []
 
         for path in empties:
             try:
-                tree.remove_node(path[7:])
+                tree.remove_node(path)
             except datatypes.NotEmpty as msg:
                 LOG.warning('While removing %s: %s', path, msg)
                 not_empty.append(path)

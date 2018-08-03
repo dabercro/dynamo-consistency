@@ -105,7 +105,7 @@ def pick_site(pattern=None):
     curs = conn.cursor()
 
     curs.executemany(
-        'INSERT OR IGNORE INTO sites VALUES (`?`, 0, 0, NULL)',
+        'INSERT OR IGNORE INTO sites VALUES (?, 0, 0, NULL)',
         [(site,) for site in sites]
         )
 
@@ -117,7 +117,7 @@ def pick_site(pattern=None):
 
     for site, isrunning in curs.execute(
             """
-            SELECT sites.site FROM sites
+            SELECT sites.site, isrunning FROM sites
             LEFT JOIN stats ON sites.site=stats.site
             ORDER BY stats.entered ASC
             """):
@@ -274,14 +274,18 @@ def update_config():
     if webconf == config.LOCATION:
         return
 
-    with open(webconf, 'r') as webfile:
-        webdict = json.load(webfile)
+    if os.path.exists(webconf):
 
-    with open(config.LOCATION, 'r') as runfile:
-        rundict = json.load(runfile)
+        with open(webconf, 'r') as webfile:
+            webdict = json.load(webfile)
 
-    if rundict != webdict:
-        shutil.copy(config.LOCATION, runfile)
+        with open(config.LOCATION, 'r') as runfile:
+            rundict = json.load(runfile)
+
+        if rundict == webdict:
+            return
+
+    shutil.copy(config.LOCATION, webconf)
 
 
 def unlock_site(site):

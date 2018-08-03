@@ -44,7 +44,7 @@ def cache_tree(config_age, location_suffix):
 
             # Overwrite location_suffix if that's desired
             cache_location = os.path.join(
-                cache_dir, '%s_%s.pkl' % kwargs.get('cache', location_suffix))
+                cache_dir, '%s.pkl' % kwargs.get('cache', location_suffix))
 
             LOG.info('Checking for cache at %s', cache_location)
 

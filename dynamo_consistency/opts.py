@@ -7,18 +7,14 @@ import sys
 from optparse import OptionParser
 
 
-_PARSER = OptionParser("""
-Usage: %prog [options]
-
-Run "%prog --help" for a list of options.
+_PARSER = OptionParser("""%prog [options]
 
 This program runs the Site Consistency Check for
 Dyanmo Dynamic Data Management System.
 See https://ddm-dynamo.readthedocs.io
 for information about Dynamo and
 http://dynamo-consistency.readthedocs.io
-for information about this tool.
-""")
+for information about this tool.""")
 
 
 _PARSER.add_option('--config', metavar='FILE', dest='CONFIG',
@@ -73,7 +69,7 @@ def _filter_args():
 
 
 # Filter out erroneous arguments only if something else is running this
-(_OPTS, _) = _PARSER.parse_args(sys.argv if 'Usage: dynamo-consistency' in _PARSER.usage else
+(_OPTS, _) = _PARSER.parse_args(sys.argv if 'dynamo-consistency [options]' in _PARSER.usage else
                                 _filter_args())
 
 _THIS = sys.modules[__name__]
