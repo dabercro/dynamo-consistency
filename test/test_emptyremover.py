@@ -134,4 +134,4 @@ class TestUnfilled(TestBase):
 
 
 if __name__ == '__main__':
-    unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])
+    unittest.main(argv=[a for a in sys.argv if a not in ['--test']])

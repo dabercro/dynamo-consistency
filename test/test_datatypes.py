@@ -146,9 +146,6 @@ class TestConsistentTrees(TestBase):
 
         master_dirinfo = datatypes.DirectoryInfo('/store', directories=dirinfos)
 
-        self.tree.display()
-        master_dirinfo.display()
-
         self.check_equal(self.tree, master_dirinfo)
         self.assertEqual(self.tree.count_nodes(), master_dirinfo.count_nodes())
 
