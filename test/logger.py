@@ -78,9 +78,9 @@ class TestLogger(unittest.TestCase):
 
     def test_writing(self):
         mult = 1
-        if 'debug' in sys.argv:
+        if '--debug' in sys.argv:
             mult = 3
-        elif 'watch' in sys.argv:
+        elif '--info' in sys.argv:
             mult = 2
 
         self.write_files(mult, mult * 2)

@@ -2,8 +2,10 @@
 Holds the main function for running the consistency check
 """
 
-import logging
 import os
+import sys
+import json
+import logging
 import shutil
 import time
 import datetime
@@ -16,11 +18,60 @@ from . import datatypes
 from . import summary
 from .backend import make_filters
 from .backend import registry
-from .backend import extras
+from .backend import inventory
 from .backend.emptyremover import EmptyRemover
 
 
 LOG = logging.getLogger(__name__)
+
+
+def extras(site, site_tree=None, debugged=False):
+    """
+    Runs a bunch of functions after the main consistency check,
+    depending on the presence of certain arguments and configuration
+
+    :param str site: For use to pass to extras
+    :param dynamo_consistency.datatypes.DirectoryInfo site_tree: Same thing
+    :param bool debugged: If not debugged, the heavier things will not be run on the site
+    :returns: Dictionary with interesting results. Keys include the following:
+
+              - ``"unmerged"`` - A tuple listing unmerged files removed and unmerged logs
+
+    :rtype: dict
+    """
+
+    output = {}
+
+    if debugged and '--unmerged' in sys.argv:
+        from .cms.unmerged import clean_unmerged
+        output['unmerged'] = clean_unmerged(site)
+
+    # Convert missing files to blocks
+    inventory.filelist_to_blocklist(site,
+                                    '%s_compare_missing.txt' % site,
+                                    '%s_missing_datasets.txt' % site)
+
+    # Make a JSON file reporting storage usage
+    if site_tree and site_tree.get_num_files():
+        storage = {
+            'storeageservice': {
+                'storageshares': [{
+                    'numberoffiles': node.get_num_files(),
+                    'path': [os.path.normpath('/store/%s' % subdir)],
+                    'timestamp': str(int(time.time())),
+                    'totalsize': 0,
+                    'usedsize': node.get_directory_size()
+                    } for node, subdir in [(site_tree.get_node(path), path) for path in
+                                           [''] + [d.name for d in site_tree.directories]]
+                                  if node.get_num_files()]
+                }
+            }
+
+        with open(os.path.join(config.config_dict()['WebDir'], '%s_storage.json' % site), 'w') \
+                as storage_file:
+            json.dump(storage, storage_file)
+
+    return output
 
 
 # Need to make this smaller

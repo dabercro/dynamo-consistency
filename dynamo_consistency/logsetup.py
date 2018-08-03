@@ -10,9 +10,9 @@ import logging
 LOG_FORMAT = '%(asctime)s:%(levelname)s:%(name)s: %(message)s'
 
 
-if 'debug' in sys.argv:
+if '--debug' in sys.argv:
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
-elif 'watch' in sys.argv:
+elif '--info' in sys.argv:
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 else:
     logging.basicConfig(format=LOG_FORMAT)

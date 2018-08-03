@@ -3,7 +3,7 @@
 import sys
 import unittest
 
-sys.argv.append('watch')
+sys.argv.append('--info')
 
 import logger
 
@@ -11,4 +11,4 @@ class TestWatch(logger.TestLogger):
     pass
 
 if __name__ == '__main__':
-    unittest.main(argv=[a for a in sys.argv if a not in ['watch', 'debug']])
+    unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])

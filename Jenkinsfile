@@ -32,7 +32,7 @@ pipeline {
     stage('Copy Coverage') {
       steps {
         dir('test') {
-          sh '$VENV; coverage html'
+          sh 'source ../venv/bin/activate; coverage html'
           sh 'mkdir -p ${HOME}/public_html/coverage/${JOB_NAME}'
           sh 'cp -r htmlcov ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
         }
