@@ -28,10 +28,12 @@ if __name__ == '__main__':
 
     except Exception as e:
 
-        mail_config = config.config_dict().get('Email')
+        LOG.error(e)
 
-        if mail_config:
+        if opts.EMAIL:
             from cmstoolbox.emailtools import send_mail
+
+            mail_config = config.config_dict()['Email']
             send_mail(
                 sender=mail_config['Sender'],
                 recipients=mail_config['Recipients'],

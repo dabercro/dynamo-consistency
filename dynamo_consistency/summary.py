@@ -5,6 +5,7 @@ It will install the summary webpage for you the first time you run the consisten
 
 
 import os
+import json
 import time
 import sqlite3
 import shutil
@@ -21,47 +22,14 @@ from .backend import check_site
 LOG = logging.getLogger(__name__)
 
 
-def _connect():
-    """
-    :returns: A connection to the summary database.
-
-              .. note::
-
-                 This connection needs to be closed by the caller
-
-    :rtype: sqlite3.Connection
-    """
-
-    webdir = config.config_dict()['WebDir']
-    return sqlite3.connect(os.path.join(webdir, 'stats.db'))
-
-
-def run_sql_script(script):
-    """
-    :param str script: Full path to a sqlite3 script to run on the summary database
-    """
-    with open(script, 'r') as script_file:
-        script_text = ''.join(script_file)
-
-    conn = _connect()
-
-    conn.cursor().executescript(script_text)
-
-    conn.commit()
-    conn.close()
-
-
 def install_webpage():
     """
     Installs files for webpage in configured **WebDir** if the directory doesn't exist yet.
-
-    :returns: True if a new webpage was created
-    :rtype: bool
     """
 
     webdir = config.config_dict()['WebDir']
     if os.path.exists(webdir):
-        return False
+        return
 
     os.mkdirs(webdir)
 
@@ -75,7 +43,36 @@ def install_webpage():
     publish_file(source_path=os.path.join(sourcedir, 'explanations.rst'),
                  destination_path=os.path.join(webdir, 'explanations.html'))
 
-    return True
+    # Initialize summary table
+    with open(os.path.join(sourcedir, 'maketables.sql'), 'r') as script_file:
+        script_text = ''.join(script_file)
+
+    conn = sqlite3.connect(os.path.join(webdir, 'stats.db'))
+
+    conn.cursor().executescript(script_text)
+
+    conn.commit()
+    conn.close()
+
+
+def _connect():
+    """
+    :returns: A connection to the summary database.
+
+              .. note::
+
+                 This connection needs to be closed by the caller
+
+    :rtype: sqlite3.Connection
+    """
+
+    webdir = config.config_dict()['WebDir']
+    dbname = os.path.join(webdir, 'stats.db')
+
+    if not os.path.exists(dbname):
+        install_webpage()
+
+    return sqlite3.connect(dbname)
 
 
 class NoMatchingSite(Exception):
@@ -221,6 +218,20 @@ def update_summary(    #pylint: disable=too-many-arguments
     return True
 
 
+def _webdir():
+    """
+    If the web directory does not exist, this function installs it
+    :returns: The web directory location
+    :rtype: str
+    """
+
+    webdir = config.config_dict()['WebDir']
+    if not os.path.exists(webdir):
+        install_webpage()
+
+    return webdir
+
+
 def move_local_files(site):
     """
     Move files in the working directory to the web page
@@ -228,7 +239,7 @@ def move_local_files(site):
     """
 
     # All of the files and summary will be dumped here
-    webdir = config.config_dict()['WebDir']
+    webdir = _webdir()
 
     # If there were permissions or connection issues, no files would be listed
     # Otherwise, copy the output files to the web directory
@@ -250,6 +261,28 @@ def move_local_files(site):
             to_rm = os.path.join(webdir, filename)
             if os.path.exists(to_rm):
                 os.remove(to_rm)
+
+
+def update_config():
+    """
+    Updates the configuration file at the summary website
+    """
+    webdir = _webdir()
+
+    webconf = os.path.join(webdir, 'consistency_config.json')
+
+    if webconf == config.LOCATION:
+        return
+
+    with open(webconf, 'r') as webfile:
+        webdict = json.load(webfile)
+
+    with open(config.LOCATION, 'r') as runfile:
+        rundict = json.load(runfile)
+
+    if rundict != webdict:
+        shutil.copy(config.LOCATION, runfile)
+
 
 def unlock_site(site):
     """

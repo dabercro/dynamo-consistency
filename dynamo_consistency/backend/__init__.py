@@ -11,6 +11,7 @@ import json
 import time
 
 from . import filters
+from .. import opts
 from .. import config
 
 # Required abstractions from dynamo
@@ -24,7 +25,7 @@ from ..dynamo.inventory import protected_datasets
 # Check if site is ready, according to dynamo
 _READY = lambda site: site in siteinfo.ready_sites()
 
-if '--cms' in sys.argv:
+if opts.CMS:
 
     from cmstoolbox.samstatus import is_sam_good
     from ..cms.checkphedex import deletion_requests
@@ -61,7 +62,7 @@ else:
             return False    # This protects nothing
 
 
-if '--dry' in sys.argv:
+if not opts.REPORT:
 
     registry.delete = lambda *args, **kwargs: 0
     registry.transfer = lambda *args, **kwargs: 0, 0

@@ -3,7 +3,6 @@ Holds the main function for running the consistency check
 """
 
 import os
-import sys
 import json
 import logging
 import shutil
@@ -11,6 +10,7 @@ import time
 import datetime
 
 
+from . import opts
 from . import config
 from . import inventorylister
 from . import remotelister
@@ -42,7 +42,7 @@ def extras(site, site_tree=None, debugged=False):
 
     output = {}
 
-    if debugged and '--unmerged' in sys.argv:
+    if debugged and opts.UNMERGED:
         from .cms.unmerged import clean_unmerged
         output['unmerged'] = clean_unmerged(site)
 
@@ -140,7 +140,9 @@ def main(site):    #pylint: disable=too-many-locals
                                  prev_new_name)
                    )
 
-    if summary.is_debugged(site) and not many_missing and not many_orphans:
+    is_debugged = summary.is_debugged(site)
+
+    if is_debugged and not many_missing and not many_orphans:
         # Only get the empty nodes that are not in the inventory tree
         registry.delete(site,
                         orphan + [empty_node for empty_node in site_tree.empty_nodes_list() \
@@ -168,7 +170,7 @@ def main(site):    #pylint: disable=too-many-locals
     with open('%s_unrecoverable.txt' % site, 'w') as output_file:
         output_file.write('\n'.join(unrecoverable))
 
-    extras_results = extras(site, site_tree, summary.is_debugged(site))
+    extras_results = extras(site, site_tree, is_debugged)
 
     unmerged, unmergedlogs = extras_results.get('unmerged', (0, 0))
 

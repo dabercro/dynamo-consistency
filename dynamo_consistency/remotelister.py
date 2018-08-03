@@ -12,10 +12,18 @@ from . import datatypes
 
 from .backend import listers
 from .backend import redirectors
+from .backend import siteinfo
 from .backend.cache import cache_tree
 
 
 LOG = logging.getLogger(__name__)
+
+
+class NoPath(Exception):
+    """
+    An exception for when there is no known path to the remote site
+    """
+    pass
 
 
 @cache_tree('ListAge', 'remote')
@@ -27,6 +35,7 @@ def listing(site, callback=None):
     :param function callback: The callback function to pass to :py:func:`datatypes.create_dirinfo`
     :returns: The site directory listing information
     :rtype: dynamo_consistency.datatypes.DirectoryInfo
+    :raises NoPath: When a way to list the remote site cannot be determined
     """
 
     config_dict = config.config_dict()
@@ -34,9 +43,16 @@ def listing(site, callback=None):
     if access.get(site) == 'SRM':
         num_threads = int(config_dict.get('GFALThreads'))
         LOG.info('threads = %i', num_threads)
+
+        backend = siteinfo.get_gfal_location(site)
+
+        if not backend:
+            raise NoPath('No path for gfal command for %s' % site)
+
         directories = [
             datatypes.create_dirinfo('/store', directory, listers.GFalLister,
-                                     [(site, x) for x in xrange(num_threads)], callback) \
+                                     [(site, backend, x) for x in xrange(num_threads)],
+                                     callback) \
                 for directory in config_dict.get('DirectoryList', [])
         ]
         # Return the DirectoryInfo
@@ -56,8 +72,7 @@ def listing(site, callback=None):
         door_list = [balancer]
 
     if not door_list:
-        LOG.error('No doors found. Returning emtpy tree')
-        return datatypes.DirectoryInfo(name='/store')
+        raise NoPath('No doors found for %s' % site)
 
     while num_threads > len(door_list):
         if len(door_list) % 2:

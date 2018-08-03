@@ -13,7 +13,6 @@ from datetime import datetime
 
 import XRootD.client    # pylint: disable=import-error
 
-from . import siteinfo
 from .. import config
 
 
@@ -132,9 +131,9 @@ class GFalLister(Lister):
     An object to list a site through ``gfal-ls`` calls
     """
 
-    def __init__(self, site, thread_num=None):
+    def __init__(self, site, backend, thread_num=None):
         super(GFalLister, self).__init__(thread_num, site)
-        self.backend = siteinfo.get_gfal_location(site)
+        self.backend = backend
 
 
     def ls_directory(self, path):

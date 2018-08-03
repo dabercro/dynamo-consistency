@@ -3,16 +3,16 @@ The module that sets up logging for us
 """
 
 import os
-import sys
 import logging
 
+from . import opts
 
 LOG_FORMAT = '%(asctime)s:%(levelname)s:%(name)s: %(message)s'
 
 
-if '--debug' in sys.argv:
+if opts.DEBUG:
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
-elif '--info' in sys.argv:
+elif opts.INFO:
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 else:
     logging.basicConfig(format=LOG_FORMAT)
