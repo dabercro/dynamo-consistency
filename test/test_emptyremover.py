@@ -6,6 +6,8 @@ import time
 import logging
 import unittest
 
+sys.argv.append('--test')
+
 from dynamo_consistency import backend
 
 # Get an accurate count, even if we do nothing
