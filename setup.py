@@ -15,6 +15,8 @@ setuptools.setup(
                       'cmstoolbox'],
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
-        'dynamo_consistency': ['consistency_config.json']
+        'dynamo_consistency': ['consistency_config.json',
+                               'backend/gfal.key',
+                               'web/*']
         }
     )
