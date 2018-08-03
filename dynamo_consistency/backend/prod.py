@@ -13,6 +13,8 @@ import time
 from .. import opts
 from .. import config
 
+from .listers import get_listers
+
 # Required abstractions from dynamo
 from ..dynamo import registry
 from ..dynamo import siteinfo
@@ -28,6 +30,7 @@ if opts.CMS:
 
     from cmstoolbox.samstatus import is_sam_good
     from ..cms.checkphedex import deletion_requests
+    from ..cms.unmerged import clean_unmerged
 
     from ..cms.filters import DatasetFilter
 
@@ -36,6 +39,18 @@ if opts.CMS:
         return _READY(site) and is_sam_good(site)
 
 else:
+
+    class What(Exception):
+        """To show my confusion"""
+        pass
+
+    def clean_unmerged(_):
+        """
+        Unmerged option without CMS makes no sense
+        :raises What: always
+        """
+        raise What('You are trying to clean unmerged without the CMS option')
+
 
     def check_site(site):
         """Should return if the site is ready to run over or not"""
@@ -59,9 +74,3 @@ else:
         def protected(_):
             """Needs a fast way to translate from name to dataset"""
             return False    # This protects nothing
-
-
-if not opts.REPORT:
-
-    registry.delete = lambda *args, **kwargs: 0
-    registry.transfer = lambda *args, **kwargs: 0, 0

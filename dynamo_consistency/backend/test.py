@@ -8,5 +8,6 @@ dynamo_consistency.backend for running tests with
 # siteinfo
 # get_listers
 # check_site
+# clean_unmerged
 # deletion_requests
 # DatasetFilter

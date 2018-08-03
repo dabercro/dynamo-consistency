@@ -20,6 +20,7 @@ from . import filters
 from .backend import registry
 from .backend import inventory
 from .backend import deletion_requests
+from .backend import clean_unmerged
 from .backend import DatasetFilter
 from .emptyremover import EmptyRemover
 
@@ -71,7 +72,6 @@ def extras(site, site_tree=None, debugged=False):
     output = {}
 
     if debugged and opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
-        from .cms.unmerged import clean_unmerged
         output['unmerged'] = clean_unmerged(site)
 
     # Convert missing files to blocks

@@ -36,7 +36,7 @@ def listing(site, callback=None):
 
     directories = [
         datatypes.create_dirinfo(
-            config_dict['RootPath'], directory,constructor, params, callback)
+            config_dict['RootPath'], directory, constructor, params, callback)
         for directory in config_dict.get('DirectoryList', [])
         ]
 

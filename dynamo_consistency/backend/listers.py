@@ -14,6 +14,7 @@ from datetime import datetime
 import XRootD.client    # pylint: disable=import-error
 
 from . import redirectors
+from . import siteinfo
 from .. import config
 
 
@@ -322,8 +323,6 @@ def get_listers(site):
     :rtype: Lister, list of tuples
     :raises NoPath: When a way to list the remote site cannot be determined
     """
-
-    
 
     config_dict = config.config_dict()
     access = config_dict.get('AccessMethod', {})

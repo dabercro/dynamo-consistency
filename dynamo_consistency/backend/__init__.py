@@ -17,6 +17,7 @@ _PROVIDE = [
     'siteinfo',           # Site information from inventory
     'get_listers',        # Get remote listers for a site
     'check_site',         # A function that determines if site is ready to run
+    'clean_unmerged',     # Cleans up the /store/unmerged directory
     'deletion_requests',  # Deletion requests in proper dataset format
     'DatasetFilter'       # A filter class that identifies files by dataset
     ]
