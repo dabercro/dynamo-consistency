@@ -30,10 +30,12 @@ pipeline {
     }
 
     stage('Copy Coverage') {
-      dir('test') {
-        sh 'coverage html'
-        sh 'mkdir -p ${HOME}/public_html/coverage/${JOB_NAME}'
-        sh 'cp -r htmlcov ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
+      steps {
+        dir('test') {
+          sh '$VENV; coverage html'
+          sh 'mkdir -p ${HOME}/public_html/coverage/${JOB_NAME}'
+          sh 'cp -r htmlcov ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
+        }
       }
     }
 
