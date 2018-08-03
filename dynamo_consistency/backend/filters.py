@@ -16,7 +16,7 @@ class Filters(object):
             self.add(arg)
 
 
-    def __call__(self, file_name):
+    def protected(self, file_name):
         """
         Checks if any of the filtering functions passed here return ``True``.
         Exceptions are not handled here.
@@ -55,7 +55,7 @@ class PatternFilter(object):
     def __init__(self, patterns):
         self._patterns = patterns
 
-    def __call__(self, file_name):
+    def protected(self, file_name):
         """
         :param str file_name: Name of the file to check for patterns in
         :returns: True if one of the stored patterns is in the file_name

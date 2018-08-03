@@ -19,7 +19,7 @@ class DatasetFilter(object):
     def __init__(self, datasets):
         self._datasets = datasets
 
-    def __call__(self, file_name):
+    def protected(self, file_name):
         """
         Returns whether the file is in a stored dataset.
         If the file name is not structured in a way to get the dataset out,

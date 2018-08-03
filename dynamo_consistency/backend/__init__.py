@@ -54,9 +54,11 @@ else:
         """
         def __init__(self, _):
             pass
-        def __call__(self, _):
+
+        @staticmethod
+        def protected(_):
             """Needs a fast way to translate from name to dataset"""
-            return False   # This protects nothing
+            return False    # This protects nothing
 
 
 if '--dry' in sys.argv:
@@ -77,7 +79,7 @@ def make_filters(site):
 
     ignore_list = config.config_dict().get('IgnoreDirectories', [])
 
-    pattern_filter = filters.PatternFilter(ignore_list)
+    pattern_filter = filters.PatternFilter(ignore_list).protected
 
     # First, datasets in the deletions queue can be missing
     acceptable_missing = deletion_requests(site)
@@ -86,5 +88,6 @@ def make_filters(site):
     # Orphan files may be a result of deletion requests
     acceptable_orphans.update(acceptable_missing)
 
-    return (filters.Filter(DatasetFilter(acceptable_orphans), pattern_filter),
-            filters.Filter(DatasetFilter(acceptable_missing), pattern_filter))
+    make = lambda accept: filters.Filter(DatasetFilter(accept).protected, pattern_filter)
+
+    return (make(acceptable_orphans), make(acceptable_missing))

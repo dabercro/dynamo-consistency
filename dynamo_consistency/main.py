@@ -100,7 +100,8 @@ def main(site):    #pylint: disable=too-many-locals
     # Do the comparison
     missing, m_size, orphan, o_size = datatypes.compare(
         inv_tree, site_tree, '%s_compare' % site,
-        orphan_check=check_orphans, missing_check=check_missing)
+        orphan_check=check_orphans.protected,
+        missing_check=check_missing.protected)
 
     LOG.info('Missing size: %i, Orphan size: %i', m_size, o_size)
 

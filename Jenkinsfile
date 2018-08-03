@@ -31,11 +31,11 @@ pipeline {
 
     stage('Copy Coverage') {
       steps {
-        dir('test') {
-          sh 'source ../venv/bin/activate; coverage html'
-          sh 'mkdir -p ${HOME}/public_html/coverage/${JOB_NAME}'
-          sh 'cp -r htmlcov ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
-        }
+        sh '$VENV; cd test; coverage html'
+        sh 'mkdir -p ${HOME}/public_html/coverage/${JOB_NAME}'
+        sh 'cp -r test/htmlcov ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}' /// ugly output
+        // Index page looks like a disaster, so let's fix that to
+        // sh '$VENV; clean-coverage-html ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
       }
     }
 
