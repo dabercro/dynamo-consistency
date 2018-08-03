@@ -12,7 +12,7 @@ from .. import config
 from .. import datatypes
 from .. import remotelister
 from ..backend import registry
-from ..backend.emptyremover import EmptyRemover
+from ..emptyremover import EmptyRemover
 
 
 def report_contents(timestamp, site, files):

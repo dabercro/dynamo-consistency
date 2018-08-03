@@ -11,7 +11,7 @@ import logging
 
 from cmstoolbox.siteinfo import get_domain
 
-from ..config import config_dict
+from .. import config
 
 LOG = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def locate_file(file_name, redirs=None):
     managers = []
 
     if redirs is None:
-        redirs = config_dict()['GlobalRedirectors']
+        redirs = config.config_dict()['GlobalRedirectors']
 
     for redir in redirs:
         LOG.debug('About to call: %s %s %s %s', 'xrdfs', redir, 'locate -h', file_name)
@@ -104,11 +104,11 @@ def get_redirector(site, banned_doors=None):
     banned_doors = banned_doors or []
 
     LOG.debug('Getting doors for %s', site)
-    config = config_dict()
-    max_age = config.get('RedirectorAge', 0) * 24 * 3600
+    config_dict = config.config_dict()
+    max_age = config_dict.get('RedirectorAge', 0) * 24 * 3600
 
     # If the redirector is hardcoded, return it
-    redirector = config.get('Redirectors', {}).get(site, '')
+    redirector = config_dict.get('Redirectors', {}).get(site, '')
     redirs = []
 
     domain = get_domain(site) or redirector
@@ -120,9 +120,9 @@ def get_redirector(site, banned_doors=None):
     # If not hard-coded, get the redirector
     if not redirector:
         # First check the cache
-        file_name = os.path.join(config['CacheLocation'], 'redirector_list.txt')
+        file_name = os.path.join(config_dict['CacheLocation'], 'redirector_list.txt')
 
-        _xrd_locate(config['GlobalRedirectors'],
+        _xrd_locate(config_dict['GlobalRedirectors'],
                     file_name, max_age)
 
         # Parse for a correct redirector
@@ -140,7 +140,7 @@ def get_redirector(site, banned_doors=None):
         redirs.append(redirector)
 
     # Use that site redirector to get a list of doors
-    list_name = os.path.join(config['CacheLocation'], '%s_redirector_list.txt' % site)
+    list_name = os.path.join(config_dict['CacheLocation'], '%s_redirector_list.txt' % site)
     _xrd_locate(redirs, list_name, max_age)
     LOG.debug('Door list cached at %s', list_name)
 

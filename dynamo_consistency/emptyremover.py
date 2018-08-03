@@ -6,8 +6,8 @@ import logging
 
 from os.path import join
 
-from . import registry
-from .. import datatypes
+from . import datatypes
+from .backend import registry
 
 
 LOG = logging.getLogger(__name__)

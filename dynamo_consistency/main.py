@@ -16,13 +16,41 @@ from . import inventorylister
 from . import remotelister
 from . import datatypes
 from . import summary
-from .backend import make_filters
+from . import filters
 from .backend import registry
 from .backend import inventory
-from .backend.emptyremover import EmptyRemover
+from .backend import deletion_requests
+from .backend import DatasetFilter
+from .emptyremover import EmptyRemover
 
 
 LOG = logging.getLogger(__name__)
+
+
+def make_filters(site):
+    """
+    Creates filters proper for running environment and options
+
+    :param str site: Site to get activity at
+    :returns: Two :py:class:`filters.Filter` objects that can be used
+              to check orphans and missing files respectively
+    :rtype: :py:class:`filters.Filter`, :py:class:`filters.Filter`
+    """
+
+    ignore_list = config.config_dict().get('IgnoreDirectories', [])
+
+    pattern_filter = filters.PatternFilter(ignore_list).protected
+
+    # First, datasets in the deletions queue can be missing
+    acceptable_missing = deletion_requests(site)
+    # Orphan files cannot belong to any dataset that should be at the site
+    acceptable_orphans = inventory.protected_datasets(site)
+    # Orphan files may be a result of deletion requests
+    acceptable_orphans.update(acceptable_missing)
+
+    make = lambda accept: filters.Filters(DatasetFilter(accept).protected, pattern_filter)
+
+    return (make(acceptable_orphans), make(acceptable_missing))
 
 
 def extras(site, site_tree=None, debugged=False):
@@ -57,7 +85,7 @@ def extras(site, site_tree=None, debugged=False):
             'storeageservice': {
                 'storageshares': [{
                     'numberoffiles': node.get_num_files(),
-                    'path': [os.path.normpath('/store/%s' % subdir)],
+                    'path': [os.path.normpath(os.path.join(site_tree.name, subdir))],
                     'timestamp': str(int(time.time())),
                     'totalsize': 0,
                     'usedsize': node.get_directory_size()

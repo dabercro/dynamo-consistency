@@ -71,7 +71,7 @@ def config_dict():
                 LOG.debug('Opening config: %s', location)
                 CONFIG = LOADER.load(config)
         else:
-            raise IOError('Could not load config at %s', location)
+            raise IOError('Could not load config at %s' % location)
 
         var_loc = CONFIG.get('VarLocation')
         if var_loc:

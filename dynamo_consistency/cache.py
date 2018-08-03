@@ -7,8 +7,8 @@ import datetime
 import logging
 
 from functools import wraps
-from .. import config
-from .. import datatypes
+from . import config
+from . import datatypes
 
 
 LOG = logging.getLogger(__name__)

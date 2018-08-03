@@ -12,7 +12,7 @@ from dynamo_consistency import backend
 backend.registry.delete = lambda _, l: len(l)
 
 from dynamo_consistency import datatypes
-from dynamo_consistency.backend.emptyremover import EmptyRemover
+from dynamo_consistency.emptyremover import EmptyRemover
 
 from base import TestBase
 

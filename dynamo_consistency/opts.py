@@ -23,6 +23,9 @@ _PARSER.add_option('--config', metavar='FILE', dest='CONFIG',
 _PARSER.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
                    help='Sets the pattern used to select a site to run on next.')
 
+_PARSER.add_option('--test', action='store_true', dest='TEST',
+                   help='Run with a test instance of backend module.')
+
 _PARSER.add_option('--report', action='store_true', dest='REPORT',
                    help='Report the action to the registry. '
                         'The summary webpage is still updated if this is not set.')

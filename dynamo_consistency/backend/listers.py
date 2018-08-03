@@ -13,6 +13,7 @@ from datetime import datetime
 
 import XRootD.client    # pylint: disable=import-error
 
+from . import redirectors
 from .. import config
 
 
@@ -60,7 +61,7 @@ class Lister(object):
         Return the directory contents at the given path.
         The ``list`` member is expected of every object passed to :py:mod:`datatypes`.
 
-        :param str path: The full path, starting with ``/store/``, of the directory to list.
+        :param str path: The full LFN, of the directory to list.
         :param int retries: Number of attempts so far
         :returns: A bool indicating the success, a list of directories, and a list of files.
                   The list of directories consists of tuples of (directory name, mod time).
@@ -140,7 +141,7 @@ class GFalLister(Lister):
         """
         Gets the contents of a path
 
-        :param str path: The full path, starting with ``/store/``, of the directory to list.
+        :param str path: The full LFN, of the directory to list.
         :returns: A bool indicating the success, a list of directories, and a list of files.
         :rtype: bool, list, list
         """
@@ -263,7 +264,7 @@ class XRootDLister(Lister):
         """
         Gets the contents of the previously defined redirector at a given path
 
-        :param str path: The full path, starting with ``/store/``, of the directory to list.
+        :param str path: The full LFN, of the directory to list.
         :returns: A bool indicating the success, a list of directories, and a list of files.
         :rtype: bool, list, list
         """
@@ -300,3 +301,78 @@ class XRootDLister(Lister):
                        path, okay, len(directories), len(files))
 
         return okay, directories, files
+
+
+class NoPath(Exception):
+    """
+    An exception for when there is no known path to the remote site
+    """
+    pass
+
+
+def get_listers(site):
+    """
+    Picks out a suitable lister for a site based on the configuration file.
+    Returns the type of Lister and arguments for its construction
+
+    :param str site:
+    :returns: Lister constructor and arguments for construction
+              that can be passed directly to
+              :py:function:`dynamo_consistency.datatypes.create_dirinfo`
+    :rtype: Lister, list of tuples
+    :raises NoPath: When a way to list the remote site cannot be determined
+    """
+
+    
+
+    config_dict = config.config_dict()
+    access = config_dict.get('AccessMethod', {})
+    if access.get(site) == 'SRM':
+        num_threads = int(config_dict.get('GFALThreads'))
+        LOG.info('threads = %i', num_threads)
+
+        backend = siteinfo.get_gfal_location(site)
+
+        if not backend:
+            raise NoPath('No path for gfal command for %s' % site)
+
+        params = [(site, backend, x) for x in xrange(num_threads)]
+        return GFalLister, params
+
+
+    # Get the redirector for a site
+    # The redirector can be used for a double check (not implemented yet...)
+    # The redir_list is used for the original listing
+    num_threads = int(config_dict.get('NumThreads'))
+
+    balancer, door_list = redirectors.get_redirector(site)
+    LOG.debug('Full redirector list: %s', door_list)
+
+    if site in config_dict.get('UseLoadBalancer', []) or \
+            (balancer and not door_list):
+        num_threads = 1
+        door_list = [balancer]
+
+    if not door_list:
+        raise NoPath('No doors found for %s' % site)
+
+    while num_threads > len(door_list):
+        if len(door_list) % 2:
+            door_list.extend(door_list)
+        else:
+            # If even number of redirectors and not using both, stagger them
+            door_list.extend(door_list[1:])
+            door_list.append(door_list[0])
+
+    # Strip off the extra threads
+    door_list = door_list[:num_threads]
+
+    # Create DirectoryInfo for each directory to search (set in configuration file)
+    # The search is done with XRootDLister objects that have two doors and the thread
+    # number as initialization arguments.
+
+
+    constructor = XRootDSubShell if access.get(site) == 'directx' else XRootDLister
+    params = [(site, door, thread_num) for thread_num, door in enumerate(door_list)]
+
+    return constructor, params

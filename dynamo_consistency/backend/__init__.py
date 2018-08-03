@@ -1,94 +1,35 @@
-#pylint: disable=unused-import
-
 """
-This module imports the commands from dynamo and CMS.
+A bunch of the non-interface libraries go in this module.
+This also separates the test modules from the production modules.
 Other modules should import everything from here.
 """
 
-import os
 import sys
-import json
-import time
 
-from . import filters
 from .. import opts
-from .. import config
 
-# Required abstractions from dynamo
-from ..dynamo import registry
-from ..dynamo import siteinfo
-from ..dynamo import inventory
 
-# Getting datasets for filtering
-from ..dynamo.inventory import protected_datasets
+# A list of functions and modules that should
+# be accessible through the backend
+_PROVIDE = [
+    'inventory',          # Contents of sites
+    'registry',           # Submit transfers and deletions here
+    'siteinfo',           # Site information from inventory
+    'get_listers',        # Get remote listers for a site
+    'check_site',         # A function that determines if site is ready to run
+    'deletion_requests',  # Deletion requests in proper dataset format
+    'DatasetFilter'       # A filter class that identifies files by dataset
+    ]
 
-# Check if site is ready, according to dynamo
-_READY = lambda site: site in siteinfo.ready_sites()
 
-if opts.CMS:
-
-    from cmstoolbox.samstatus import is_sam_good
-    from ..cms.checkphedex import deletion_requests
-
-    from ..cms.filters import DatasetFilter
-
-    def check_site(site):
-        """Checks SAM tests and dynamo"""
-        return _READY(site) and is_sam_good(site)
+if opts.TEST:
+    from . import test as mod
 
 else:
-
-    def check_site(site):
-        """Should return if the site is ready to run over or not"""
-        return _READY(site)
-
-    def deletion_requests():
-        """Should return the set of deletion requests that may still be pending"""
-        return set()
-
-    class DatasetFilter(object):
-        """
-        .. warning::
-
-           Needs implemented properly for vanilla dyanmo
-
-        """
-        def __init__(self, _):
-            pass
-
-        @staticmethod
-        def protected(_):
-            """Needs a fast way to translate from name to dataset"""
-            return False    # This protects nothing
+    from . import prod as mod
 
 
-if not opts.REPORT:
+_THIS = sys.modules[__name__]
 
-    registry.delete = lambda *args, **kwargs: 0
-    registry.transfer = lambda *args, **kwargs: 0, 0
-
-
-def make_filters(site):
-    """
-    Creates filters proper for running environment and options
-
-    :param str site: Site to get activity at
-    :returns: Two :py:class:`filters.Filter` objects that can be used
-              to check orphans and missing files respectively
-    :rtype: :py:class:`filters.Filter`, :py:class:`filters.Filter`
-    """
-
-    ignore_list = config.config_dict().get('IgnoreDirectories', [])
-
-    pattern_filter = filters.PatternFilter(ignore_list).protected
-
-    # First, datasets in the deletions queue can be missing
-    acceptable_missing = deletion_requests(site)
-    # Orphan files cannot belong to any dataset that should be at the site
-    acceptable_orphans = protected_datasets(site)
-    # Orphan files may be a result of deletion requests
-    acceptable_orphans.update(acceptable_missing)
-
-    make = lambda accept: filters.Filter(DatasetFilter(accept).protected, pattern_filter)
-
-    return (make(acceptable_orphans), make(acceptable_missing))
+for thing in _PROVIDE:
+    setattr(_THIS, thing, getattr(mod, thing))

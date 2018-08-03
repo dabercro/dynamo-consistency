@@ -14,7 +14,7 @@
   },
   "PathPrefix": {},
   "AccessMethod": {},
-  "LFNRoot": "/store",
+  "RootPath": "/store",
   "DirectoryList": [
     "mc",
     "data",

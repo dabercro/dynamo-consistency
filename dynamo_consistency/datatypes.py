@@ -38,8 +38,8 @@ def create_dirinfo(location, first_dir, filler,
 
     :param str location: This is the beginning of the path where we will find ``first_dir``.
                          For example, to find the first directory ``mc``, we also have to
-                         say where it is. In most cases, using LFNs, location would be
-                         ``/store/`` (where ``mc`` is inside).
+                         say where it is. For using CMS LFNs, location would be
+                         ``/store`` (where ``mc`` is inside).
                          This is a path.
     :param str first_dir: The name of the first directory that is inside the path of ``location``.
                           This should not be a path,

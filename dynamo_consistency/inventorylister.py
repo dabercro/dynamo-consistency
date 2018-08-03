@@ -10,8 +10,8 @@ import logging
 from . import datatypes
 from . import config
 
+from .cache import cache_tree
 from .backend import inventory
-from .backend.cache import cache_tree
 
 
 LOG = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ def listing(site):
     :rtype: dynamo_consistency.datatypes.DirectoryInfo
     """
 
-    treeroot = '/store'
+    treeroot = config.config_dict()['RootPath']
     tree = datatypes.DirectoryInfo(treeroot)
 
     tree.add_file_list(filter_files(site, len(treeroot)))
