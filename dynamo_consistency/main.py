@@ -42,7 +42,7 @@ def extras(site, site_tree=None, debugged=False):
 
     output = {}
 
-    if debugged and opts.UNMERGED:
+    if debugged and opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
         from .cms.unmerged import clean_unmerged
         output['unmerged'] = clean_unmerged(site)
 
