@@ -14,7 +14,6 @@ from datetime import datetime
 import XRootD.client    # pylint: disable=import-error
 
 from . import redirectors
-from . import siteinfo
 from .. import config
 
 
@@ -311,6 +310,11 @@ class NoPath(Exception):
     pass
 
 
+# This starts off bad, but the prod.py modules will
+# fix this to point to the imported siteinfo.get_gfal_location
+GFAL_LOCATION = lambda _: ''
+
+
 def get_listers(site):
     """
     Picks out a suitable lister for a site based on the configuration file.
@@ -330,7 +334,7 @@ def get_listers(site):
         num_threads = int(config_dict.get('GFALThreads'))
         LOG.info('threads = %i', num_threads)
 
-        backend = siteinfo.get_gfal_location(site)
+        backend = GFAL_LOCATION(site)
 
         if not backend:
             raise NoPath('No path for gfal command for %s' % site)

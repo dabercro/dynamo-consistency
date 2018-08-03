@@ -13,8 +13,6 @@ import time
 from .. import opts
 from .. import config
 
-from .listers import get_listers
-
 # Required abstractions from dynamo
 from ..dynamo import registry
 from ..dynamo import siteinfo
@@ -22,6 +20,12 @@ from ..dynamo import inventory
 
 # Getting datasets for filtering
 from ..dynamo.inventory import protected_datasets
+
+# Get the listers, taking GFAL from appropriate siteinfo
+from . import listers
+from .listers import get_listers
+
+listers.GFAL_LOCATION = siteinfo.get_gfal_location
 
 # Check if site is ready, according to dynamo
 _READY = lambda site: site in siteinfo.ready_sites()
