@@ -1,7 +1,5 @@
 #! /bin/bash
 
-install-consistency-web --test
-
 ec=0
 
 _check () {
@@ -27,8 +25,64 @@ _check () {
 
 }
 
+if [ -d www ]
+then
+
+    rm -r www
+
+fi
+
+install-consistency-web --test
+
 # Check starting status
 _check BAD_SITE "-1" "0"   # Only because it's first alphabetically
 _check TEST_SITE "0" "0"
+
+set-status --test TEST_SITE act
+_check TEST_SITE "0" "1"
+
+set-status --test BAD_SITE disable
+_check BAD_SITE "-2" "0"
+
+set-status --test BAD_SITE ready
+_check BAD_SITE "0" "0"
+
+set-status --test TEST_SITE dry
+_check TEST_SITE "0" "0"
+
+# Halting should technically only be done for running sites
+echo "UPDATE sites SET isrunning=2 WHERE site='TEST_SITE';" | sqlite3 www/stats.db
+_check TEST_SITE "2" "0"
+set-status --test TEST_SITE halt
+_check TEST_SITE "-1" "0"
+
+echo "EC: $ec"
+
+# This should throw an error
+set-status --test NOT_SITE ready
+if [ $? -eq 0 ]
+then
+    ec=$(( $ec + 1 ))
+fi
+
+echo "EC: $ec"
+
+# This too
+set-status --test TEST_SITE fakeaction
+if [ $? -eq 0 ]
+then
+    ec=$(( $ec + 1 ))
+fi
+
+echo "EC: $ec"
+
+# Check that installation doesn't clobber our database
+
+_check BAD_SITE "0" "0"
+_check TEST_SITE "-1" "0"
+echo "clobber?"
+install-consistency-web --test
+_check BAD_SITE "0" "0"
+_check TEST_SITE "-1" "0"
 
 exit $ec

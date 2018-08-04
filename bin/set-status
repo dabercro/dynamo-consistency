@@ -16,18 +16,16 @@ the name of the site to change.
 |   Action    |               Description                 |
 +=============+===========================================+
 |             | This sets the site status back to idle.   |
-| ``unlock``  | In particular, this should be used if     |
-|             | a site remains locked after a crash.      |
+| ``ready``   | This means the site is ready to run.      |
+|             | Should be used on a site that's disabled. |
 +-------------+-------------------------------------------+
-|             | This prevents a site from running.        |
-|             |                                           |
-| ``disable`` | .. note::                                 |
-|             |                                           |
-|             |    This should soon kill a site in the    |
-|             |    process of running too.                |
+|  ``halt``   | This stops a currently running or locked  |
+|             | site. This site is still eligible to run. |
 +-------------+-------------------------------------------+
-| ``enable``  | This makes a disabled site                |
-|             | eligible to run again.                    |
+|             | Can be applied to a site that is either   |
+| ``disable`` | running or ready. It halts the site and   |
+|             | also prevents it from running until set   |
+|             | to ``ready`` again.                       |
 +-------------+-------------------------------------------+
 |   ``act``   | Marks a site as one to report results     |
 |             | to the registry.                          |
@@ -48,10 +46,29 @@ from dynamo_consistency.parser import pretty_exe
 pretty_exe('set-status')
 
 if __name__ == '__main__':
-    if len(args) != 2:
+    if len(args) != 3:
         print __doc__
         exit()
 
-    site, action = args
+    _, site, action = args
 
-    summary.unlock_site(site)
+    statuses = {
+        'ready': summary.READY,
+        'halt': summary.HALT,
+        'disable': summary.DISABLE
+        }
+
+    reporting = {
+        'act': summary.ACT,
+        'dry': summary.DRY
+        }
+
+    print args
+    if action in statuses:
+        summary.set_status(site, statuses[action])
+
+    elif action in reporting:
+        summary.set_reporting(site, reporting[action])
+
+    else:
+        raise summary.BadAction('Invalid action: %s' % action)

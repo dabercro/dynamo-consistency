@@ -22,6 +22,13 @@ from .backend import check_site
 LOG = logging.getLogger(__name__)
 
 
+class NoMatchingSite(Exception):
+    """
+    For raising when consistency doesn't know what site to run on
+    """
+    pass
+
+
 def install_webpage():
     """
     Installs files for webpage in configured **WebDir**
@@ -75,11 +82,15 @@ def _connect():
     return sqlite3.connect(dbname)
 
 
-class NoMatchingSite(Exception):
+def get_sites():
     """
-    For raising when consistency doesn't know what site to run on
+    :returns: The list of sites that are currently in the database
+    :rtype: list
     """
-    pass
+    conn = _connect()
+    output = [res[0] for res in conn.execute('SELECT site FROM sites')]
+    conn.close()
+    return output
 
 
 def pick_site(pattern=None):
@@ -329,12 +340,67 @@ def update_config():
     shutil.copy(config.LOCATION, webconf)
 
 
+def _set_site_col(site, col, val):
+    """
+    Sets one of the flags in the sites table
+    :param str site: Site to set value on
+    :param str col: Name of the column
+    :param int val: What value to set
+    :raises NoMatchingSite: If no site matches
+    """
+
+    conn = _connect()
+    curs = conn.cursor()
+
+    updated = False
+
+    curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
+    for check in curs.fetchall():
+        if check[0] == site:
+            curs.execute('UPDATE sites SET {0} = ? WHERE site = ?'.format(col),
+                         (val, site))
+            updated = True
+
+    conn.commit()
+    conn.close()
+
+    if not updated:
+        raise NoMatchingSite('Invalid site name: %s' % site)
+
+# Site running statuses
+DISABLE = -2
+HALT = -1
+READY = 0
+LOCKED = 1
+RUNNING = 2
+
+
+def set_status(site, status):
+    """
+    Sets the run status of a site.
+    :param str site: Site name
+    :param int status: Status flag
+    """
+    _set_site_col(site, 'isrunning', status)
+
+
+# Site reporting status
+DRY = 0
+ACT = 1
+
+
+def set_reporting(site, status):
+    """
+    Sets the reporint status of a site.
+    :param str site: Site name
+    :param int status: Status flag
+    """
+    _set_site_col(site, 'isgood', status)
+
+
 def unlock_site(site):
     """
     Sets the site running status back to 0
     :param str site: Site to unlock
     """
-    conn = _connect()
-    conn.cursor().execute('UPDATE sites SET isrunning = 0 WHERE site = ?', (site,))
-    conn.commit()
-    conn.close()
+    set_status(site, READY)
