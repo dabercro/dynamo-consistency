@@ -29,6 +29,25 @@ class NoMatchingSite(Exception):
     pass
 
 
+class BadAction(Exception):
+    """
+    For raising one of the following actions wasn't identifed properly
+    """
+    pass
+
+
+# Site running statuses
+DISABLED = -2
+HALT = -1
+READY = 0
+LOCKED = 1
+RUNNING = 2
+
+# Site reporting status
+DRY = 0
+ACT = 1
+
+
 def install_webpage():
     """
     Installs files for webpage in configured **WebDir**
@@ -367,26 +386,18 @@ def _set_site_col(site, col, val):
     if not updated:
         raise NoMatchingSite('Invalid site name: %s' % site)
 
-# Site running statuses
-DISABLE = -2
-HALT = -1
-READY = 0
-LOCKED = 1
-RUNNING = 2
-
 
 def set_status(site, status):
     """
     Sets the run status of a site.
     :param str site: Site name
     :param int status: Status flag
+    :raises BadAction: If the status doesn't make sense
     """
+    if not isinstance(status, int) or status < -2 or status > 2:
+        raise BadAction('Unknown running status %s' % status)
+
     _set_site_col(site, 'isrunning', status)
-
-
-# Site reporting status
-DRY = 0
-ACT = 1
 
 
 def set_reporting(site, status):
@@ -394,7 +405,11 @@ def set_reporting(site, status):
     Sets the reporint status of a site.
     :param str site: Site name
     :param int status: Status flag
+    :raises BadAction: If the status doesn't make sense
     """
+    if not isinstance(status, int) or status < 0 or status > 1:
+        raise BadAction('Unknown reporting status %s' % status)
+
     _set_site_col(site, 'isgood', status)
 
 

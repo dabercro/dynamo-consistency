@@ -10,7 +10,7 @@ import optparse
 from ._version import __version__
 
 # My executables
-EXES = ['dynamo-consistency', 'set-status', 'install-consistency-web']
+EXES = ['dynamo-consistency', 'set-status', 'consistency-web-install']
 
 def get_parser(modname='__main__',
                prog=os.path.basename(sys.argv[0])):

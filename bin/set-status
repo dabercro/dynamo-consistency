@@ -55,7 +55,7 @@ if __name__ == '__main__':
     statuses = {
         'ready': summary.READY,
         'halt': summary.HALT,
-        'disable': summary.DISABLE
+        'disable': summary.DISABLED
         }
 
     reporting = {
