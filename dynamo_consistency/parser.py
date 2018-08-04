@@ -29,7 +29,6 @@ def get_parser(modname='__main__',
 
     parser = optparse.OptionParser(usage=usage, version='dynamo-consistency %s' % __version__)
 
-    print modname, prog
     # Don't add all the options to help output for irrelevant scripts
     add_all = prog == 'dynamo-consistency' or (
         '-h' not in sys.argv and '--help' not in sys.argv and (
