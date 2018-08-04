@@ -49,9 +49,9 @@ def _ls(path, location='tmp'):
     results = [os.path.join(full_path, res) for res in os.listdir(full_path)]
 
     dirs = [(os.path.basename(name), os.stat(name).st_mtime)
-            for name in filter(os.path.isdir, results)]
+            for name in results if os.path.isdir(name)]
     files = [(os.path.basename(name), os.stat(name).st_size, os.stat(name).st_mtime)
-             for name in filter(os.path.isfile, results)]
+             for name in results if os.path.isfile(name)]
 
     return True, dirs, files
 
