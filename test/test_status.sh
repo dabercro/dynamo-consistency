@@ -32,7 +32,7 @@ then
 
 fi
 
-install-consistency-web --test
+consistency-web-install --test
 
 # Check starting status
 _check BAD_SITE "-1" "0"   # Only because it's first alphabetically
@@ -81,7 +81,7 @@ echo "EC: $ec"
 _check BAD_SITE "0" "0"
 _check TEST_SITE "-1" "0"
 echo "clobber?"
-install-consistency-web --test
+consistency-web-install --test
 _check BAD_SITE "0" "0"
 _check TEST_SITE "-1" "0"
 

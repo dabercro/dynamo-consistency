@@ -1,1 +1,0 @@
-../bin/install-consistency-web

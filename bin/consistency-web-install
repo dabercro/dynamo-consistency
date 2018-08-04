@@ -13,7 +13,7 @@ __usage__ = '%prog [--config FILE]'
 from dynamo_consistency import summary
 from dynamo_consistency.parser import pretty_exe
 
-pretty_exe('install-consistency-web')
+pretty_exe('consistency-web-install')
 
 if __name__ == '__main__':
     summary.install_webpage()

@@ -5,4 +5,4 @@ Operations
 
 .. automodule:: set_status_exe
 
-.. automodule:: install_consistency_web_exe
+.. automodule:: consistency_web_install_exe
