@@ -12,11 +12,11 @@ setuptools.setup(
     url='https://github.com/SmartDataProjects/dynamo-consistency',
     install_requires=['pyyaml',
                       'docutils',
-                      'cmstoolbox'],
+                      'cmstoolbox>=0.9.8'],  # Older version has slow unmerged cleaner
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
         'dynamo_consistency': ['consistency_config.json',
-                               'backend/gfal.key',
+                               'locks/gfal.lock',
                                'web/*']
         }
     )

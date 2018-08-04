@@ -95,11 +95,12 @@ def clean_unmerged(site):
     """
 
     ## First, we do a bunch of hacky configuration changes for /store/unmerged
+    listdeletable.set_config(config.LOCATION, 'ListDeletable')
 
     # Set the directory list to unmerged only
     config.DIRECTORYLIST = ['unmerged']
-    # Set the IGNORE_AGE for directories to match the listdeletable config
-    datatypes.IGNORE_AGE = listdeletable.config.MIN_AGE/(24 * 3600)
+    # Set the IgnoreAge for directories to match the listdeletable config
+    datatypes.DirectoryInfo.ignore_age = listdeletable.config.MIN_AGE/(24 * 3600)
 
     # Get the list of protected directories
     listdeletable.PROTECTED_LIST = listdeletable.get_protected()

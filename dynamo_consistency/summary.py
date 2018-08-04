@@ -157,6 +157,19 @@ def is_debugged(site):
     return debugged
 
 
+def get_dst():
+    """
+    :returns: 1 for daylight savings time, 0 otherwise, -1 if unsure
+    :rtype: int
+    """
+
+    is_dst = time.localtime().tm_isdst
+    if is_dst == -1:
+        LOG.error('Daylight savings time not known. Times on webpage will be rather wrong.')
+
+    return is_dst
+
+
 # This definitely needs some overhaul
 def update_summary(    #pylint: disable=too-many-arguments
         site, duration, numfiles, numnodes, numempty,
@@ -191,9 +204,6 @@ def update_summary(    #pylint: disable=too-many-arguments
 
     curs.execute('INSERT INTO stats_history SELECT * FROM stats WHERE site=?', (site, ))
 
-    is_dst = time.localtime().tm_isdst
-    if is_dst == -1:
-        LOG.error('Daylight savings time not known. Times on webpage will be rather wrong.')
 
     config_dict = config.config_dict()
 
@@ -205,7 +215,7 @@ def update_summary(    #pylint: disable=too-many-arguments
          `unrecoverable`, `unmergedlogs`)
         VALUES
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, DATETIME(DATETIME(), "-{0} hours"), ?, ?, ?, ?, ?, ?)
-        """.format(5 - is_dst),
+        """.format(5 - get_dst()),
         (site, duration, numfiles, numnodes, numempty,
          config_dict.get('NumThreads', config_dict.get('MinThreads', 0)),
          nummissing, missingsize, numorphan, orphansize,
@@ -253,7 +263,8 @@ def move_local_files(site):
         filename = '%s_%s.txt' % (site, filemid)
 
         if os.path.exists(filename):
-            shutil.move(filename, webdir)
+            shutil.copy(filename, webdir)
+            os.remove(filename)
         else:
             LOG.warning('%s not present in working directory, removing from summary web page',
                         filename)
@@ -261,6 +272,28 @@ def move_local_files(site):
             to_rm = os.path.join(webdir, filename)
             if os.path.exists(to_rm):
                 os.remove(to_rm)
+
+
+def running(site):
+    """
+    Show the site as running on the web page and note the start time
+    :param str site: Site to run
+    """
+
+    conn = _connect()
+    curs = conn.cursor()
+
+    curs.execute(
+        """
+        UPDATE sites SET
+          laststarted = DATETIME(DATETIME(), "-{0} hours"),
+          isrunning = 2
+        WHERE site = ?
+        """.format(5 - get_dst()),
+        (site,))
+
+    conn.commit()
+    conn.close()
 
 
 def update_config():

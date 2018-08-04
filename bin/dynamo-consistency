@@ -12,6 +12,7 @@ from dynamo_consistency import opts
 from dynamo_consistency import config
 from dynamo_consistency import logsetup
 from dynamo_consistency import summary
+from dynamo_consistency import lock
 
 from dynamo_consistency.main import main
 
@@ -26,13 +27,25 @@ if __name__ == '__main__':
     config_dict = config.config_dict()
     logdir = config_dict['LogLocation']
 
+    # Setup log before spewing stuff
     global_log = os.path.join(logdir, 'consistency.log')
     logsetup.change_logfile(global_log)
 
+    # Get the site to run on
     site = summary.pick_site(opts.SITE_PATTERN)
+
+    # Check if needs lock (like for gfal)
+    needed_lock = lock.which(site)
+    if needed_lock:
+        logger.info('%s needs %s lock', site, needed_lock)
+        lock.aquire(needed_lock)
+
+    # Start run and make site green on summary table
     logger.info('Starting run on %s', site)
+    summary.running(site)
 
     try:
+        # Try running on site
         weblog = os.path.join(config_dict['WebDir'], '%s.log' % site)
         if os.path.exists(weblog):
             os.remove(weblog)
@@ -46,7 +59,7 @@ if __name__ == '__main__':
         main(site)
 
     except Exception as e:
-
+        # Report error
         full = traceback.format_exc()
 
         logger.error(full)
@@ -61,6 +74,11 @@ if __name__ == '__main__':
                 recipients=mail_config['Recipients'],
                 subject='Exception in dynamo-consistency',
                 message_text=full)
+
+    # Release locks
+    if needed_lock:
+        logger.info('%s dropping %s lock', site, needed_lock)
+        lock.release(needed_lock)
 
     summary.unlock_site(site)
 
