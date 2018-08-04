@@ -63,7 +63,6 @@ if __name__ == '__main__':
         'dry': summary.DRY
         }
 
-    print args
     if action in statuses:
         summary.set_status(site, statuses[action])
 
