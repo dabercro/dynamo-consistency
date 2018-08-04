@@ -77,22 +77,3 @@ def _parser():
 PARSER, ARGV = _parser()
 
 OPTS, ARGS = PARSER.parse_args(ARGV)
-
-
-def pretty_doc():
-    """
-    Modify the docstrings for this module
-    """
-    if 'sphinx' in sys.modules:
-        for EXE in EXES:
-            NAME = '%s_exe' % EXE.replace('-', '_')
-            if NAME in sys.modules:
-                MOD = sys.modules[NAME]
-
-                PARSER.set_usage(MOD.__usage__.replace('%prog', EXE))
-                usage_lines = PARSER.format_help().split('\n')
-
-                MOD.__doc__ = '\n'.join([
-                        '', EXE, '-' * len(EXE), '::', ''
-                        ] + ['    %s' % line for line in usage_lines]) + \
-                        MOD.__doc__
