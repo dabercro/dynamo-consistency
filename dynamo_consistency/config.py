@@ -9,14 +9,17 @@ import os
 import logging
 import json
 
+from . import opts
+
 
 LOG = logging.getLogger(__name__)
-LOCATION = 'consistency_config.json'
+LOCATION = opts.CONFIG or 'consistency_config.json'
 """
 The string giving the location of the configuration JSON file.
 Generally, you want to set this value of the module before calling
 :py:func:`config_dict` to get your configuration.
 """
+
 LOADER = json
 """
 A module that uses the load function on a file descriptor to return a dictionary.

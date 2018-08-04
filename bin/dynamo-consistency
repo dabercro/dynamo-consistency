@@ -28,12 +28,9 @@ from dynamo_consistency.main import main
 
 pretty_exe('dynamo-consistency')
 
-# Stick this here before dynamo sets the logging config
 if __name__ == '__main__':
 
     logger = logging.getLogger('dynamo-consistency')
-    if opts.CONFIG:
-        config.LOCATION = opts.CONFIG
 
     config_dict = config.config_dict()
     logdir = config_dict['LogLocation']
