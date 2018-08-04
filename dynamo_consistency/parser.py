@@ -92,7 +92,9 @@ if not os.path.basename(sys.argv[0]) == 'sphinx-build':
 
 else:
     import inspect
-    from customdocs import pretty_exe_doc
+    # We only get here while running Sphinx.
+    # In that case, you should also install what's in docs/requirements.txt
+    from customdocs import pretty_exe_doc  #pylint: disable=import-error
 
     def pretty_exe(name):
         """
