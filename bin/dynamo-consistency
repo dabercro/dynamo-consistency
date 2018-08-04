@@ -1,11 +1,15 @@
 #! /usr/bin/env python
 
 """
-dynamo-constency
-----------------
-
-List steps here
+This program runs the Site Consistency Check for
+Dyanmo Dynamic Data Management System.
+See https://ddm-dynamo.readthedocs.io
+for information about Dynamo and
+http://dynamo-consistency.readthedocs.io
+for information about this tool.
 """
+
+__usage__ = '%prog [options (see below)]'
 
 import os
 import time

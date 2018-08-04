@@ -5,7 +5,7 @@ The module that sets up logging for us
 import os
 import logging
 
-from . import opts
+from ._opts import OPTS as opts
 
 LOG_FORMAT = '%(asctime)s:%(levelname)s:%(name)s: %(message)s'
 

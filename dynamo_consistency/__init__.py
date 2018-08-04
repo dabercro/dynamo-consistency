@@ -3,8 +3,12 @@
 :author: Daniel Abercrombie <dabercro@mit.edu>
 """
 
+# We want everything logged nicely
 from . import logsetup
 
-__all__ = []
+from ._version import __version__
 
-__version__ = '2.0.1'
+from ._opts import OPTS as opts
+from ._opts import ARGS as args
+
+__all__ = []

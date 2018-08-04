@@ -6,8 +6,6 @@ import time
 import logging
 import unittest
 
-sys.argv.append('--test')
-
 from dynamo_consistency import backend
 
 # Get an accurate count, even if we do nothing
@@ -134,4 +132,4 @@ class TestUnfilled(TestBase):
 
 
 if __name__ == '__main__':
-    unittest.main(argv=[a for a in sys.argv if a not in ['--test']])
+    unittest.main()
