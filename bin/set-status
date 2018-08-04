@@ -40,8 +40,14 @@ the name of the site to change.
 
 __usage__ = '%prog [--config FILE] SITE ACTION'
 
+from customdocs import pretty_exe_doc
+
 from dynamo_consistency import args
 from dynamo_consistency import summary
+from dynamo_consistency.parser import get_parser
+
+prog = 'set-status'
+pretty_exe_doc(prog, lambda: get_parser(__name__, prog)[0])
 
 if __name__ == '__main__':
     if len(args) != 2:

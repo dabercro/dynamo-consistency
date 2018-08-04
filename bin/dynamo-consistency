@@ -17,6 +17,7 @@ import logging
 import datetime
 import traceback
 
+from customdocs import pretty_exe_doc
 
 from dynamo_consistency import opts
 from dynamo_consistency import config
@@ -24,8 +25,11 @@ from dynamo_consistency import logsetup
 from dynamo_consistency import summary
 from dynamo_consistency import lock
 
+from dynamo_consistency.parser import get_parser
 from dynamo_consistency.main import main
 
+prog = 'dynamo-consistency'
+pretty_exe_doc(prog, lambda: get_parser(__name__, prog)[0])
 
 # Stick this here before dynamo sets the logging config
 if __name__ == '__main__':

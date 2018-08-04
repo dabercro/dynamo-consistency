@@ -109,3 +109,9 @@ The number in parentheses displayed the number of those files that were logs.
 
 Table Tabs
 ++++++++++
+
+There are three tabs on the webpage.
+The default tab when first navigating the website is, on the left.
+It shows all of the sites with results that are being acted on.
+The middle tab displays the sites that are only doing dry runs.
+The last tab, on the right show all of the sites.

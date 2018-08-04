@@ -12,22 +12,30 @@ from ._version import __version__
 # My executables
 EXES = ['dynamo-consistency', 'set-status', 'install-consistency-web']
 
-def _parser():
+def get_parser(modname='__main__',
+               prog=os.path.basename(sys.argv[0])):
     """
+    :param str modname: The module to fetch the ``__doc__`` optionally ``__usage__`` from.
+                        If you want the parser for a particular file,
+                        this would usually be ``__name__``
+    :param str prog: The name for the program that we want the parser for
+
     :returns: A parser based on the program name and the arguments to pass it
     :rtype: optparse.OptionParser, list
     """
 
-    mod = sys.modules['__main__']
+    mod = sys.modules[modname]
     usage = '%s\n%s' % (mod.__usage__, mod.__doc__) if '__usage__' in dir(mod) else None
 
     parser = optparse.OptionParser(usage=usage, version='dynamo-consistency %s' % __version__)
 
-    prog = os.path.basename(parser.get_prog_name())
-
+    print modname, prog
     # Don't add all the options to help output for irrelevant scripts
-    add_all = prog == 'dynamo-consistency' or \
-        ('-h' not in sys.argv and '--help' not in sys.argv)
+    add_all = prog == 'dynamo-consistency' or (
+        '-h' not in sys.argv and '--help' not in sys.argv and (
+            prog == 'sphinx-build' or 'sphinx' not in sys.modules
+            )
+        )
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
@@ -74,6 +82,6 @@ def _parser():
     return parser, argv
 
 
-PARSER, ARGV = _parser()
+PARSER, ARGV = get_parser()
 
 OPTS, ARGS = PARSER.parse_args(ARGV)

@@ -8,7 +8,7 @@ from . import logsetup
 
 from ._version import __version__
 
-from ._opts import OPTS as opts
-from ._opts import ARGS as args
+from .parser import OPTS as opts
+from .parser import ARGS as args
 
 __all__ = []

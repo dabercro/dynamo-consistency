@@ -1,5 +1,3 @@
-sphinx
 sphinx_rtd_theme
 sphinxcontrib-programoutput
-sphinxcontrib-autoanysrc
 mock
