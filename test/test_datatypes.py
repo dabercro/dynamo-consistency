@@ -26,13 +26,14 @@ This is the development test script. Please don't touch if you're not me.
 import os
 import sys
 import time
-import shutil
 import unittest
 import logging
 
+from base import TestBase
+from base import TMP_DIR
+
 from dynamo_consistency import datatypes
 
-TMP_DIR = 'TempConsistency'
 LOG = logging.getLogger(__name__)
 
 # Define a filler function to use in the "remote filling" test
@@ -47,47 +48,6 @@ def my_ls(path, location=TMP_DIR):
                  name in filter(os.path.isfile, results)]
 
     return True, dirs, files
-
-class TestBase(unittest.TestCase):
-
-    file_list = [
-        ('/store/mc/ttThings/0000/qwert.root', 20),
-        ('/store/mc/ttThings/0000/qwery.root', 30),
-        ('/store/mc/ttThings/0001/zxcvb.root', 50),
-        ('/store/mc/ttThings/0000/doulb.root', 30),
-        ('/store/mc/ttThings/00000/extra_zero.root', 30),
-        ('/store/data/runB/earlyfile.root', 5),
-        ('/store/data/runB/0001/missi.root', 45),
-        ('/store/data/runA/0030/stuff.root', 10),
-        ]
-
-    def setUp(self):
-        if os.path.exists(TMP_DIR):
-            print 'Desired directory location already exists!'
-            exit(1)
-        os.makedirs(TMP_DIR)
-        self.tree = datatypes.DirectoryInfo('/store')
-        self.tree.add_file_list(self.file_list)
-        self.do_more_setup()
-
-    def tearDown(self):
-        if os.path.exists(TMP_DIR):
-            shutil.rmtree(TMP_DIR)
-
-    def do_more_setup(self):
-        pass
-
-    def check_equal(self, tree0, tree1):
-
-        tree0.setup_hash()
-        tree1.setup_hash()
-
-        self.assertEqual(tree0.hash, tree1.hash,
-                         '%s\n=\n%s' % (tree0.displays(), tree1.displays()))
-        self.assertEqual([fi['hash'] for fi in tree0._grab_first().files],
-                         [fi['hash'] for fi in tree1._grab_first().files])
-        self.assertEqual(tree0.get_num_files(), tree1.get_num_files())
-        self.assertEqual(tree0.get_num_files(True), tree1.get_num_files(True))
 
 class TestTree(TestBase):
 
@@ -185,9 +145,6 @@ class TestConsistentTrees(TestBase):
                         for subdir in ['mc', 'data']]
 
         master_dirinfo = datatypes.DirectoryInfo('/store', directories=dirinfos)
-
-        self.tree.display()
-        master_dirinfo.display()
 
         self.check_equal(self.tree, master_dirinfo)
         self.assertEqual(self.tree.count_nodes(), master_dirinfo.count_nodes())
@@ -460,97 +417,6 @@ class TestUnlisted(TestBase):
         subdir = self.unlisted_tree.get_node('mc').get_files(path='/store')
         self.assertTrue('/store/mc/ttThings/0001/zxcvb.root' in subdir)
         self.assertFalse('/store/data/runB/earlyfile.root' in subdir)
-
-
-class TestUnfilled(TestBase):
-    # This is for testing the tree behavior when some of the DirectoryInfo.files is None
-    empty = [
-        'mc/ttThings/empty/dir/a',
-        'mc/ttThings/empty/dir/b',
-        'mc/ttThings/empty/dir2'
-        ]
-
-    unfilled = 'mc/ttThings/empty/unfilled'
-
-    def do_more_setup(self):
-        # Add empty files
-        for d in self.empty:
-            self.tree.get_node(d).add_files([]).mtime = 1
-
-        self.tree.setup_hash()
-
-        for d in ['', 'dir', 'dir/a', 'dir/b', 'dir2']:
-            self.tree.get_node(os.path.join('mc/ttThings/empty', d), make_new=False).mtime = 1
-
-        self.tree.setup_hash()
-
-        LOG.debug(self.tree.displays())
-
-    def test_count(self):
-        # We want unfilled directories to not change the total count
-        first_count = self.tree.count_nodes()
-        self.assertTrue(self.tree.get_node(self.unfilled).files is None)
-        self.assertEqual(first_count, self.tree.count_nodes())
-
-    def test_empty_list(self):
-        empty_list = self.tree.empty_nodes_list()
-
-        self.assertTrue('/store/mc/ttThings/empty/dir/a' in empty_list)
-        self.assertTrue('/store/mc/ttThings/empty' in empty_list)
-
-        new_node = self.tree.get_node(self.unfilled)
-
-        self.tree.setup_hash()
-        new_list = self.tree.empty_nodes_list()
-
-        self.assertFalse('/store/' + self.unfilled in new_list)
-        self.assertFalse('/store/mc/ttThings/empty' in new_list)
-
-    def test_delete_dir(self):
-        first_count = self.tree.count_nodes(empty=True)
-        self.assertRaises(datatypes.NotEmpty, self.tree.remove_node, '/store/mc/ttThings/empty/dir')
-        self.tree.remove_node('/store/mc/ttThings/empty/dir/a')
-        self.assertEqual(first_count - 1, self.tree.count_nodes(empty=True))
-        self.assertFalse('/store/mc/ttThings/empty/dir/a' in self.tree.empty_nodes_list())
-
-        # Check that self.files is None throws an exception
-        new_node = self.tree.get_node(self.unfilled)
-        new_node.mtime = time.time()
-        self.assertRaises(datatypes.NotEmpty, self.tree.remove_node, '/store/' + self.unfilled)
-        new_node.files = []
-        # Still no good because of mtime
-        self.assertRaises(datatypes.NotEmpty, self.tree.remove_node, '/store/' + self.unfilled)
-        # Now it should delete just fine
-        new_node.mtime = 1
-        self.tree.remove_node('/store/' + self.unfilled)
-
-    def test_big_removal(self):
-        self.assertTrue(self.tree.empty_nodes_list())
-        for d in self.tree.empty_nodes_list():
-            self.tree.remove_node(d)
-        self.assertFalse(self.tree.empty_nodes_list())
-
-    def test_new_empty(self):
-        # Piggy-backing setup to check a bug
-        self.tree.get_node('mc/ttThings/empty').mtime = time.time()
-        self.assertFalse('/store/mc/ttThings/empty' in self.tree.empty_nodes_list())
-
-    def test_nontime_subdir(self):
-        self.tree.get_node('mc/ttThings/empty/dir/a').mtime = None
-        empties = self.tree.empty_nodes_list()
-        self.assertFalse('/store/mc/ttThings/empty/dir/a' in empties)
-        self.assertFalse('/store/mc/ttThings/empty' in empties)
-        self.assertTrue('/store/mc/ttThings/empty/dir/b' in empties)
-
-    def test_noself_stillempty(self):
-        # There's some bug that is giving empty nodes back when it shouldn't
-        # This is just me trying to hunt it down
-        self.tree.get_node('mc/ttThings/empty/dir/a').mtime = time.time()
-        self.tree.setup_hash()
-        empties = self.tree.empty_nodes_list()
-        self.assertFalse('/store/mc/ttThings/empty/dir/a' in empties)
-        self.assertFalse('/store/mc/ttThings/empty' in empties)
-        self.assertTrue('/store/mc/ttThings/empty/dir/b' in empties)
 
 
 if __name__ == '__main__':

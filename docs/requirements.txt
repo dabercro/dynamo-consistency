@@ -1,5 +1,5 @@
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-programoutput
-sphinxcontrib-autoanysrc
+customdocs>=0.2.1
 mock

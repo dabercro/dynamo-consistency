@@ -4,13 +4,13 @@ Python Overview
 A simple consistency check on a site can be done by doing the following
 when an instance of ``dynamo`` is installed::
 
-    from dynamo_consistency import config, datatypes, getsitecontents, getinventorycontents
+    from dynamo_consistency import config, datatypes, remotelister, inventorylister
 
     config.CONFIG_FILE = '/path/to/config.json'
     site = 'T2_US_MIT'     # For example
 
-    inventory_listing = getinventorycontents.get_inventory_tree(site)
-    remote_listing = getsitecontents.get_site_tree(site)
+    inventory_listing = inventorylister.listing(site)
+    remote_listing = remotelister.listing(site)
 
     datatypes.compare(inventory_listing, remote_listing, 'results')
 
