@@ -1,5 +1,5 @@
 dynamo.css
+index.php
 output.html
 sorttable.js
-stats.php
 stylin.css

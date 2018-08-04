@@ -3,7 +3,7 @@
 dist/*
 dynamo_consistency.egg-info/*
 
-test/cache/*
+test/www/*
 test/html*
 
 test/.coverage

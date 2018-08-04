@@ -34,13 +34,10 @@ class _Registry(object):
 class _SiteInfo(object):
     @staticmethod
     def site_list():
-        return []
+        return ['TEST_SITE', 'BAD_SITE']
     @staticmethod
     def ready_sites():
-        return set()
-    @staticmethod
-    def get_gfal_location(site):
-        return 'gfal://%s/path' % site
+        return set(['TEST_SITE'])
 
 
 def _ls(path, location='tmp'):
@@ -66,7 +63,7 @@ def get_listers(site):
     return _ls, None
 
 def check_site(site):
-    return True
+    return site in siteinfo.ready_sites()
 
 def deletion_requests(site):
     return set()

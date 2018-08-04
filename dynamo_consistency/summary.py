@@ -29,7 +29,7 @@ def install_webpage():
 
     webdir = config.config_dict()['WebDir']
     if not os.path.exists(webdir):
-        os.mkdirs(webdir)
+        os.makedirs(webdir)
 
     sourcedir = os.path.join(os.path.dirname(__file__), 'web')
 
@@ -115,17 +115,25 @@ def pick_site(pattern=None):
 
     output = None
 
+    # Track not ready sites so we can update the web view
+    not_ready = []
+
     for site, isrunning in curs.execute(
             """
             SELECT sites.site, isrunning FROM sites
             LEFT JOIN stats ON sites.site=stats.site
-            ORDER BY stats.entered ASC
+            ORDER BY stats.entered ASC, sites.site ASC
             """):
         if site in sites and \
-                (isrunning == 0 or isrunning == -1) and \
-                check_site(site):
-            output = site
-            break
+                (isrunning == 0 or isrunning == -1):
+            if check_site(site):
+                output = site
+                break
+            else:
+                not_ready.append(site)
+
+    curs.executemany('UPDATE sites SET isrunning = -1 WHERE site = ?',
+                     [(site,) for site in not_ready])
 
     # Lock selected site
     if output is not None:
