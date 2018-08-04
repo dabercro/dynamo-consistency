@@ -65,7 +65,9 @@ if __name__ == '__main__':
         logsetup.change_logfile(
             os.path.join(weblog),
             os.path.join(logdir, site, '%s.log' %
-                         datetime.datetime.fromtimestamp(time.time()).strftime('%y%m%d_%H%M%S'))
+                         datetime.datetime.fromtimestamp(time.time()).\
+                             strftime('%y%m%d_%H%M%S')
+                        )
             )
 
         main(site)
