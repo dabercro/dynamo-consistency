@@ -9,7 +9,8 @@ import optparse
 
 from ._version import __version__
 
-MAIN = sys.modules['__main__']
+# My executables
+EXES = ['dynamo-consistency', 'set-status', 'install-consistency-web']
 
 def _parser():
     """
@@ -17,7 +18,8 @@ def _parser():
     :rtype: optparse.OptionParser, list
     """
 
-    usage = '%s\n%s' % (MAIN.__usage__, MAIN.__doc__) if '__usage__' in dir(MAIN) else None
+    mod = sys.modules['__main__']
+    usage = '%s\n%s' % (mod.__usage__, mod.__doc__) if '__usage__' in dir(mod) else None
 
     parser = optparse.OptionParser(usage=usage, version='dynamo-consistency %s' % __version__)
 
@@ -65,10 +67,7 @@ def _parser():
     parser.add_option_group(backend_group)
 
 
-    # Valid executables
-    exes = ['dynamo-consistency', 'set-status', 'install-consistency-web']
-
-    argv = sys.argv if prog in exes else [arg for arg in sys.argv if arg in ['--debug', '--info']]
+    argv = sys.argv if prog in EXES else [arg for arg in sys.argv if arg in ['--debug', '--info']]
     if prog.startswith('test_'):
         argv.append('--test')
 
@@ -79,6 +78,21 @@ PARSER, ARGV = _parser()
 
 OPTS, ARGS = PARSER.parse_args(ARGV)
 
-# Modify the docstrings here
-if '__usage__' in dir(MAIN):
-    pass
+
+def pretty_doc():
+    """
+    Modify the docstrings for this module
+    """
+    if 'sphinx' in sys.modules:
+        for EXE in EXES:
+            NAME = '%s_exe' % EXE.replace('-', '_')
+            if NAME in sys.modules:
+                MOD = sys.modules[NAME]
+
+                PARSER.set_usage(MOD.__usage__.replace('%prog', EXE))
+                usage_lines = PARSER.format_help().split('\n')
+
+                MOD.__doc__ = '\n'.join([
+                        '', EXE, '-' * len(EXE), '::', ''
+                        ] + ['    %s' % line for line in usage_lines]) + \
+                        MOD.__doc__
