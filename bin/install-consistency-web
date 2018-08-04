@@ -10,13 +10,10 @@ However, it will never update the webpage once it's there.
 
 __usage__ = '%prog [--config FILE]'
 
-from customdocs import pretty_exe_doc
-
 from dynamo_consistency import summary
-from dynamo_consistency.parser import get_parser
+from dynamo_consistency.parser import pretty_exe
 
-prog = 'install-consistency-web'
-pretty_exe_doc(prog, lambda: get_parser(__name__, prog)[0])
+pretty_exe('install-consistency-web')
 
 if __name__ == '__main__':
     summary.install_webpage()

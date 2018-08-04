@@ -85,3 +85,21 @@ def get_parser(modname='__main__',
 PARSER, ARGV = get_parser()
 
 OPTS, ARGS = PARSER.parse_args(ARGV)
+
+if not os.path.basename(sys.argv[0]) == 'sphinx-build':
+    def pretty_exe(_):
+        """A dummy since we don't care about the docs here"""
+        pass
+
+else:
+    import inspect
+    from customdocs import pretty_exe_doc
+
+    def pretty_exe(name):
+        """
+        Modifies the calling module's doc string
+        :param str name: The desired heading for the new docstring
+        """
+
+        mod = inspect.getmodule(inspect.stack()[1][0])
+        pretty_exe_doc(name, lambda: get_parser(mod.__name__, name)[0], 2)
