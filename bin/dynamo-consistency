@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+"""
+dynamo-constency
+----------------
+
+List steps here
+"""
 
 import os
 import time
@@ -36,15 +42,17 @@ if __name__ == '__main__':
 
     # Check if needs lock (like for gfal)
     needed_lock = lock.which(site)
-    if needed_lock:
-        logger.info('%s needs %s lock', site, needed_lock)
-        lock.aquire(needed_lock)
-
-    # Start run and make site green on summary table
-    logger.info('Starting run on %s', site)
-    summary.running(site)
 
     try:
+
+        if needed_lock:
+            logger.info('%s needs %s lock', site, needed_lock)
+            lock.acquire(needed_lock)
+
+        # Start run and make site green on summary table
+        logger.info('Starting run on %s', site)
+        summary.running(site)
+
         # Try running on site
         weblog = os.path.join(config_dict['WebDir'], '%s.log' % site)
         if os.path.exists(weblog):
@@ -52,7 +60,7 @@ if __name__ == '__main__':
 
         logsetup.change_logfile(
             os.path.join(weblog),
-            os.path.join(logdir, site, '%s.log' % 
+            os.path.join(logdir, site, '%s.log' %
                          datetime.datetime.fromtimestamp(time.time()).strftime('%y%m%d_%H%M%S'))
             )
 
@@ -66,10 +74,10 @@ if __name__ == '__main__':
         logger.error(e)
 
         if opts.EMAIL:
-            from cmstoolbox.emailtools import send_mail
+            from cmstoolbox.emailtools import send_email
 
             mail_config = config_dict['Email']
-            send_mail(
+            send_email(
                 sender=mail_config['Sender'],
                 recipients=mail_config['Recipients'],
                 subject='Exception in dynamo-consistency',

@@ -1,0 +1,68 @@
+#! /usr/bin/env python
+
+"""
+set-status
+----------
+
+This script changes the status of a site on the summary webpage.
+It can be used to unlock from a dead process, disable sites from running,
+and change whether or not to act on the site.
+
+This script can take a ``--config <FILE>`` parameter to point
+to a configuration file, a la ``dynamo-consistency``.
+
+The last two arguments of this script must be of the format::
+
+    ACTION SITE
+
+Where site will match the site name to change.
+Valid actions are the following
+
++-------------+-------------------------------------------+
+|   Action    |               Description                 |
++=============+===========================================+
+|             | This sets the site status back to idle.   |
+| ``unlock``  | In particular, this should be used if     |
+|             | a site remains locked after a crash.      |
++-------------+-------------------------------------------+
+|             | This prevents a site from running.        |
+|             |                                           |
+| ``disable`` | .. note::                                 |
+|             |                                           |
+|             |    This should soon kill a site in the    |
+|             |    process of running too.                |
++-------------+-------------------------------------------+
+| ``enable``  | This makes a disabled site                |
+|             | eligible to run again.                    |
++-------------+-------------------------------------------+
+|   ``act``   | Marks a site as one to report results     |
+|             | to the registry.                          |
++-------------+-------------------------------------------+
+|             | Opposite of ``act``, this action prevents |
+|   ``dry``   | this site from making entries into the    |
+|             | registry in future runs.                  |
++-------------+-------------------------------------------+
+"""
+
+import sys
+
+# hi-jack this so that --help doesn't trigger the dynamo-consistency usage
+for request in ['-h', '--help', 'help']:
+    if request in sys.argv:
+        print __doc__
+        exit()
+
+from dynamo_consistency import summary  #pylint: disable=wrong-import-position
+
+if __name__ == '__main__':
+    skip = False
+    for arg in sys.argv:
+        # Skip over --config and what follows
+        if skip:
+            skip = False
+            continue
+        if arg == '--config':
+            skip = True
+            continue
+
+        summary.unlock_site(arg)

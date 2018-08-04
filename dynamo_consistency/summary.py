@@ -24,14 +24,12 @@ LOG = logging.getLogger(__name__)
 
 def install_webpage():
     """
-    Installs files for webpage in configured **WebDir** if the directory doesn't exist yet.
+    Installs files for webpage in configured **WebDir**
     """
 
     webdir = config.config_dict()['WebDir']
-    if os.path.exists(webdir):
-        return
-
-    os.mkdirs(webdir)
+    if not os.path.exists(webdir):
+        os.mkdirs(webdir)
 
     sourcedir = os.path.join(os.path.dirname(__file__), 'web')
 
@@ -43,16 +41,18 @@ def install_webpage():
     publish_file(source_path=os.path.join(sourcedir, 'explanations.rst'),
                  destination_path=os.path.join(webdir, 'explanations.html'))
 
-    # Initialize summary table
-    with open(os.path.join(sourcedir, 'maketables.sql'), 'r') as script_file:
-        script_text = ''.join(script_file)
+    dbfile = os.path.join(webdir, 'stats.db')
+    if not os.path.exists(dbfile):
+        # Initialize summary table
+        with open(os.path.join(sourcedir, 'maketables.sql'), 'r') as script_file:
+            script_text = ''.join(script_file)
 
-    conn = sqlite3.connect(os.path.join(webdir, 'stats.db'))
+        conn = sqlite3.connect(dbfile)
 
-    conn.cursor().executescript(script_text)
+        conn.cursor().executescript(script_text)
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
 
 
 def _connect():

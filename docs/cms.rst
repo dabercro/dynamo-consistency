@@ -19,9 +19,11 @@ setting an environment variable of the same name.
 Production Settings
 -------------------
 
-The configuration in production is the following.
-
-.. program-output:: cat ../prod/consistency_config.json
+The configuration in production copied to the summary website whenever it changes.
+That would be the best place to see the production settings.
+Navigate to the relative location ``consistency_config.json``.
+For the current dynamo production server, that would be at
+`<http://dynamo.mit.edu/consistency/consistency_config.json>`_
 
 .. _compare-ref:
 

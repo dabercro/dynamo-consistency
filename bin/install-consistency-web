@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+
+"""
+install-consistency-web
+-----------------------
+
+Installs or updates the webpages for the dynamo-consistency.
+
+``dynamo-consistency`` automatically installs the webpages for you
+if they don't exist during its first run.
+However, it will never update the webpage once it's there.
+"""
+
+import sys
+
+# hi-jack this so that --help doesn't trigger the dynamo-consistency usage
+for request in ['-h', '--help', 'help']:
+    if request in sys.argv:
+        print __doc__
+        exit()
+
+from dynamo_consistency import summary  #pylint: disable=wrong-import-position
+
+if __name__ == '__main__':
+    summary.install_webpage()

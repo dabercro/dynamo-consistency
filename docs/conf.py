@@ -4,7 +4,6 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../prod'))
 
 # put analyzer to the autonaysrc setting
 autoanysrc_analyzers = {

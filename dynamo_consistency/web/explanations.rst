@@ -1,6 +1,9 @@
 Summary Webpage
 ===============
 
+Table Columns
++++++++++++++
+
 Last Update
 -----------
 
@@ -103,3 +106,6 @@ Unmerged Cleaned
 Gives the number of files that were marked for deletion in the site's /store/unmerged directory.
 The link points to a list of these files.
 The number in parentheses displayed the number of those files that were logs.
+
+Table Tabs
+++++++++++
