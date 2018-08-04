@@ -68,8 +68,8 @@ def _filter_args():
 
 
 # Filter out erroneous arguments only if something else is running this
-(_OPTS, _) = _PARSER.parse_args(sys.argv if 'dynamo-consistency [options]' in _PARSER.usage else
-                                _filter_args())
+(_OPTS, _) = _PARSER.parse_args(
+    sys.argv if _PARSER.get_prog_name() == 'dynamo-consistency' else _filter_args())
 
 _THIS = sys.modules[__name__]
 

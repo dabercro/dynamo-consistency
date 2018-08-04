@@ -20,7 +20,8 @@ from dynamo_consistency.main import main
 if __name__ == '__main__':
 
     logger = logging.getLogger('dynamo-consistency')
-    config.LOCATION = opts.CONFIG
+    if opts.CONFIG:
+        config.LOCATION = opts.CONFIG
 
     config_dict = config.config_dict()
     logdir = config_dict['LogLocation']

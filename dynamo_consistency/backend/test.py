@@ -68,9 +68,6 @@ def get_listers(site):
 def check_site(site):
     return True
 
-def clean_unmerged(site):
-    return 0, 0
-
 def deletion_requests(site):
     return set()
 

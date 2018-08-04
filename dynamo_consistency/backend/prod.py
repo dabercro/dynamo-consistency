@@ -34,7 +34,6 @@ if opts.CMS:
 
     from cmstoolbox.samstatus import is_sam_good
     from ..cms.checkphedex import deletion_requests
-    from ..cms.unmerged import clean_unmerged
 
     from ..cms.filters import DatasetFilter
 
@@ -43,18 +42,6 @@ if opts.CMS:
         return _READY(site) and is_sam_good(site)
 
 else:
-
-    class What(Exception):
-        """To show my confusion"""
-        pass
-
-    def clean_unmerged(_):
-        """
-        Unmerged option without CMS makes no sense
-        :raises What: always
-        """
-        raise What('You are trying to clean unmerged without the CMS option')
-
 
     def check_site(site):
         """Should return if the site is ready to run over or not"""

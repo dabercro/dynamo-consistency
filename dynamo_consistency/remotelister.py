@@ -41,4 +41,4 @@ def listing(site, callback=None):
         ]
 
     # Return the DirectoryInfo
-    return datatypes.DirectoryInfo(name=config_dict['PathRoot'], directories=directories)
+    return datatypes.DirectoryInfo(name=config_dict['RootPath'], directories=directories)
