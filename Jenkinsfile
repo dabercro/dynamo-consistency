@@ -19,6 +19,9 @@ pipeline {
     stage('Build') {
       steps {
         sh 'ls'
+        // Had this leftover a bunch
+        sh 'test ! -f docs/customdocs.py || rm docs/customdocs.py'
+        sh 'test ! -f docs/customdocs.pyc || rm docs/customdocs.pyc'
         sh '$VENV; python setup.py install'
       }
     }
