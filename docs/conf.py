@@ -150,9 +150,20 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 import mock
 
-MOCK_MODULES = ['XRootD', 'XRootD.client',
-                'common', 'common.inventory', 'common.dataformat',
-                'common.interface', 'common.interface.mysql']
+MOCK_MODULES = ['XRootD.client',
+                'common.inventory',
+                'common.dataformat',
+                'common.interface.mysql',
+                'dynamo.dataformat.Dataset',
+                'dynamo.dataformat.Site',
+                'dynamo.fileop.rlfsm.RLFSM',
+                'dynamo.core.executable.inventory']
 
-for mod_name in MOCK_MODULES:
+ALL_MODS = set()
+for mod in MOCK_MODULES:
+    while mod:
+        ALL_MODS.add(mod)
+        mod = '.'.join(mod.split('.')[:-1])
+
+for mod_name in sorted(ALL_MODS):
     sys.modules[mod_name] = mock.Mock()

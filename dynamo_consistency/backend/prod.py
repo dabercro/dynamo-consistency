@@ -17,13 +17,15 @@ from .. import config
 from ..dynamo import registry
 from ..dynamo import siteinfo
 from ..dynamo import inventory
-
-# Getting datasets for filtering
-from ..dynamo.inventory import protected_datasets
+from ..dynamo import filelist_to_blocklist
 
 # Get the listers, taking GFAL from appropriate siteinfo
 from . import listers
 from .listers import get_listers
+
+# Getting datasets for filtering
+# protected_datasets actually in inventory module (not file)
+protected_datasets = inventory.protected_datasets  #pylint: disable=invalid-name
 
 listers.GFAL_LOCATION = siteinfo.get_gfal_location
 

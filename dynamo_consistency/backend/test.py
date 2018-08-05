@@ -17,9 +17,6 @@ class _Inventory(object):
     @staticmethod
     def list_files(site):
         return list()
-    @staticmethod
-    def filelist_to_blocklist(site, infile, outfile):
-        pass
 
 
 class _Registry(object):
@@ -58,6 +55,9 @@ def _ls(path, location='tmp'):
 inventory = _Inventory()
 registry = _Registry()
 siteinfo = _SiteInfo()
+
+def filelist_to_blocklist(site, infile, outfile):
+    pass
 
 def get_listers(site):
     return _ls, None

@@ -4,8 +4,6 @@ Module for interaction with the dynamo inventory
 
 import logging
 
-from collections import defaultdict
-
 from common.interface.mysql import MySQL    # pylint: disable=import-error
 
 
@@ -100,22 +98,13 @@ def list_files(site):
             row = curs.fetchone()
 
 
-def filelist_to_blocklist(site, filelist, blocklist):
+def filelist_to_blocklist(site, filelist):
     """
-    Reads in a list of files, and generates a summary of blocks
-
     :param str site: Used to query the inventory
     :param str filelist: Location of list of files
-    :param str blocklist: Location where to write block report
+    :returns: tuples of dataset, block, and group
+    :rtype: generator
     """
-
-    # We want to track which blocks missing files are coming from
-    track_missing_blocks = defaultdict(
-        lambda: {'errors': 0,
-                 'blocks': defaultdict(lambda: {'group': '',
-                                                'errors': 0}
-                                      )
-                })
 
     blocks_query = """
                    SELECT blocks.name, IFNULL(groups.name, 'Unsubscribed') FROM blocks
@@ -130,6 +119,7 @@ def filelist_to_blocklist(site, filelist, blocklist):
 
     with open(filelist, 'r') as input_file:
         for line in input_file:
+            ### This is CMS specific. Move into ...cms ###
             split_name = line.split('/')
             dataset = '/%s/%s-%s/%s' % (split_name[4], split_name[3], split_name[6], split_name[5])
 
@@ -143,20 +133,6 @@ def filelist_to_blocklist(site, filelist, blocklist):
 
             block, group = output[0]
 
-            track_missing_blocks[dataset]['errors'] += 1
-            track_missing_blocks[dataset]['blocks'][block]['errors'] += 1
-            track_missing_blocks[dataset]['blocks'][block]['group'] = group
+            yield (dataset, block, group)
 
     inv_sql.close()
-
-    # Output file with the missing datasets
-    with open(blocklist, 'w') as output_file:
-        for dataset, vals in \
-                sorted(track_missing_blocks.iteritems(),
-                       key=lambda x: x[1]['errors'],
-                       reverse=True):
-
-            for block_name, block in sorted(vals['blocks'].iteritems()):
-                output_file.write('%10i    %-17s  %s#%s\n' % \
-                                      (block['errors'], block['group'],
-                                       dataset, block_name))

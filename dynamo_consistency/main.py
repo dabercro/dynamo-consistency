@@ -19,6 +19,7 @@ from . import summary
 from . import filters
 from .backend import registry
 from .backend import inventory
+from .backend import filelist_to_blocklist
 from .backend import deletion_requests
 from .backend import DatasetFilter
 from .emptyremover import EmptyRemover
@@ -76,9 +77,9 @@ def extras(site, site_tree=None, debugged=False):
         output['unmerged'] = clean_unmerged(site)
 
     # Convert missing files to blocks
-    inventory.filelist_to_blocklist(site,
-                                    '%s_compare_missing.txt' % site,
-                                    '%s_missing_datasets.txt' % site)
+    filelist_to_blocklist(site,
+                          '%s_compare_missing.txt' % site,
+                          '%s_missing_datasets.txt' % site)
 
     # Make a JSON file reporting storage usage
     if site_tree and site_tree.get_num_files():
