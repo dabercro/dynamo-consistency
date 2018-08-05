@@ -9,7 +9,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     author='Daniel Abercrombie',
     author_email='dabercro@mit.edu',
-    description='Consistency plugin for Dynamo',
+    description='Consistency plugin for Dynamo Dynamic Data Management System',
     url='https://github.com/SmartDataProjects/dynamo-consistency',
     install_requires=['pyyaml',
                       'docutils',
