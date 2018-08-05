@@ -12,7 +12,7 @@ import shutil
 import logging
 
 
-from docutils.core import publish_file
+from docutils.core import publish_cmdline
 
 from . import config
 from .backend import siteinfo
@@ -64,8 +64,10 @@ def install_webpage():
         for line in manifest:
             shutil.copy(os.path.join(sourcedir, line.strip()), webdir)
 
-    publish_file(source_path=os.path.join(sourcedir, 'explanations.rst'),
-                 destination_path=os.path.join(webdir, 'explanations.html'))
+    argv = [os.path.join(sourcedir, 'explanations.rst'),
+            os.path.join(webdir, 'explanations.html')]
+
+    publish_cmdline(writer_name='html', argv=argv)
 
     dbfile = os.path.join(webdir, 'stats.db')
     if not os.path.exists(dbfile):
