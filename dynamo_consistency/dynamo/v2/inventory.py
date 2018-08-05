@@ -97,15 +97,6 @@ def filelist_to_blocklist(site, filelist, blocklist):
                                       )
                 })
 
-    blocks_query = """
-                   SELECT blocks.name, IFNULL(groups.name, 'Unsubscribed') FROM blocks
-                   INNER JOIN files ON files.block_id = blocks.id
-                   INNER JOIN block_replicas ON block_replicas.block_id = files.block_id
-                   INNER JOIN sites ON block_replicas.site_id = sites.id
-                   LEFT JOIN groups ON block_replicas.group_id = groups.id
-                   WHERE files.name = %s AND sites.name = %s
-                   """
-
     with open(filelist, 'r') as input_file:
         for line in input_file:
             fileobj = inventory.find_file(line.strip())
@@ -113,7 +104,7 @@ def filelist_to_blocklist(site, filelist, blocklist):
             for replica in fileobj.block.replicas:
                 if replica.site.name == site:
 
-                    block, group = fileobj.block.name, replica.group.name
+                    block, group = fileobj.block.name, replica.group.name or 'Unsubscribed'
 
                     track_missing_blocks[dataset]['errors'] += 1
                     track_missing_blocks[dataset]['blocks'][block]['errors'] += 1
