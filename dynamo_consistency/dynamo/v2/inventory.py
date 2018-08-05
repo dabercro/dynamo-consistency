@@ -1,24 +1,20 @@
+#pylint: disable=import-error
+
 """
 Module for interaction with the dynamo inventory
 """
 
+import time
 import logging
 
 from collections import defaultdict
 
-from common.interface.mysql import MySQL    # pylint: disable=import-error
+from dyanmo.fileop.rlfsm import RLFSM
+from dynamo.dataformat import Dataset
+from dynamo.core.executable import inventory
 
 
 LOG = logging.getLogger(__name__)
-
-
-def _get_inventory():
-    """
-    The connection returned by this must be closed by the caller
-    :returns: A connection to the inventory database.
-    :rtype: :py:class:`common.interface.mysql.MySQL`
-    """
-    return MySQL(config_file='/etc/my.cnf', db='dynamo', config_group='mysql-dynamo')
 
 
 def protected_datasets(site):
@@ -26,25 +22,20 @@ def protected_datasets(site):
     :returns: the set of datasets that shouldn't be removed from a given site
     :rtype: set
     """
-    inv_sql = _get_inventory()
-    acceptable_orphans = set(
-        inv_sql.query(
-            """
-            SELECT datasets.name FROM sites
-            INNER JOIN dataset_replicas ON dataset_replicas.site_id=sites.id
-            INNER JOIN datasets ON dataset_replicas.dataset_id=datasets.id
-            WHERE sites.name=%s
-            """,
-            site)
-        )
+
+    acceptable_orphans = set(drobj.dataset.name for drobj in
+                             inventory.sites[site].dataset_replicas())
 
     acceptable_orphans.update(
-        inv_sql.query('SELECT name FROM datasets WHERE status=%s', 'IGNORED')
+        dsobj.name for dsobj in inventory.datasets.itervalues() if
+        dsobj.status == Dataset.STAT_IGNORED
         )
+
+    rlfsm = RLFSM()
 
     # Do not delete files being transferred by Dynamo
     acceptable_orphans.update(
-        inv_sql.query(
+        rlfsm.db.query(
             """
             SELECT DISTINCT d.`name` FROM `file_subscriptions` AS u
             INNER JOIN `files` AS f ON f.`id` = u.`file_id`
@@ -57,6 +48,8 @@ def protected_datasets(site):
         )
     )
 
+    rlfsm.db.close()
+
     return acceptable_orphans
 
 
@@ -66,38 +59,21 @@ def list_files(site):
     :rtype: generator
     """
 
-    inv_sql = _get_inventory()
-    curs = inv_sql._connection.cursor()    #pylint: disable=protected-access
+    now = time.time()
 
-    LOG.info('About to make MySQL query for files at %s', site)
+    for partition in inventory.sites[site].partitions.values():
 
-    for query in [
-            """
-            SELECT files.name, files.size
-            FROM block_replicas
-            INNER JOIN sites ON block_replicas.site_id = sites.id
-            INNER JOIN files ON block_replicas.block_id = files.block_id
-            WHERE block_replicas.is_complete = 1 AND sites.name = %s
-            AND group_id != 0
-            ORDER BY files.name ASC
-            """,
-            """
-            SELECT files.name, files.size, NOW()
-            FROM block_replicas
-            INNER JOIN sites ON block_replicas.site_id = sites.id
-            INNER JOIN files ON block_replicas.block_id = files.block_id
-            WHERE (block_replicas.is_complete = 0 OR group_id = 0) AND sites.name = %s
-            ORDER BY files.name ASC
-            """]:
+        for dataset_rep, blocks in partition.replicas.iteritems():
 
+            block_replicas = blocks or dataset_rep.block_replicas
 
-        curs.execute(query, (site,))
+            for block_replica in block_replicas:
 
-        row = curs.fetchone()
+                # If complete and owned, then we say this replica is "old enough" to be missing
+                timestamp = 0 if block_replica.is_complete() and block_replica.group else now
 
-        while row:
-            yield row
-            row = curs.fetchone()
+                for fileobj in block_replica.block.files:
+                    yield (fileobj.lfn, fileobj.size, timestamp)
 
 
 def filelist_to_blocklist(site, filelist, blocklist):
@@ -126,20 +102,13 @@ def filelist_to_blocklist(site, filelist, blocklist):
                    WHERE files.name = %s AND sites.name = %s
                    """
 
-    inv_sql = _get_inventory()
-
     with open(filelist, 'r') as input_file:
         for line in input_file:
+            ### This is CMS specific. Move into ...cms ###
             split_name = line.split('/')
             dataset = '/%s/%s-%s/%s' % (split_name[4], split_name[3], split_name[6], split_name[5])
 
-            output = inv_sql.query(blocks_query, line.strip(), site)
-
-            if not output:
-                LOG.error('The following SQL statement failed: %s',
-                          blocks_query % (line.strip(), site))
-                LOG.error('Most likely cause is dynamo update between the listing and now')
-                continue
+            
 
             block, group = output[0]
 
