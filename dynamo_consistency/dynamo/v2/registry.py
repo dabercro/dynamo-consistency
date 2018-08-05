@@ -4,12 +4,11 @@
 Defines commands for submitting deletion and transfer requests
 """
 
-import os
 import logging
 
 
 from dynamo.dataformat import Site
-from dyanmo.fileop.rlfsm import RLFSM
+from dynamo.fileop.rlfsm import RLFSM
 from dynamo.core.executable import inventory
 
 
@@ -57,9 +56,6 @@ def transfer(site, files):
     no_disk = []
     unrecoverable = []
 
-    inv_sql = _get_inventory()
-    reg_sql = _get_registry()
-
     for line in files:
 
         path = line.strip()
@@ -79,7 +75,7 @@ def transfer(site, files):
                 ondisk = True
             elif repl.site.storage_type == Site.TYPE_MSS:
                 ontape = True
-                
+
         if not ondisk:
             no_disk.append(line)
             if not ontape:

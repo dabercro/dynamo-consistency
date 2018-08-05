@@ -156,7 +156,7 @@ MOCK_MODULES = ['XRootD.client',
                 'common.interface.mysql',
                 'dynamo.dataformat.Dataset',
                 'dynamo.dataformat.Site',
-                'dyanmo.fileop.rlfsm.RLFSM',
+                'dynamo.fileop.rlfsm.RLFSM',
                 'dynamo.core.executable.inventory']
 
 ALL_MODS = set()

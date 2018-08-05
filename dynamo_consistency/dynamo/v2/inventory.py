@@ -80,22 +80,13 @@ def list_files(site):
                     yield (fileobj.lfn, fileobj.size, timestamp)
 
 
-def filelist_to_blocklist(site, filelist, blocklist):
+def filelist_to_blocklist(site, filelist):
     """
-    Reads in a list of files, and generates a summary of blocks
-
     :param str site: Used to query the inventory
     :param str filelist: Location of list of files
-    :param str blocklist: Location where to write block report
+    :returns: tuples of dataset, block, and group
+    :rtype: generator
     """
-
-    # We want to track which blocks missing files are coming from
-    track_missing_blocks = defaultdict(
-        lambda: {'errors': 0,
-                 'blocks': defaultdict(lambda: {'group': '',
-                                                'errors': 0}
-                                      )
-                })
 
     with open(filelist, 'r') as input_file:
         for line in input_file:
@@ -104,20 +95,10 @@ def filelist_to_blocklist(site, filelist, blocklist):
             for replica in fileobj.block.replicas:
                 if replica.site.name == site:
 
-                    block, group = fileobj.block.name, replica.group.name or 'Unsubscribed'
+                    blockobj = fileobj.block
 
-                    track_missing_blocks[dataset]['errors'] += 1
-                    track_missing_blocks[dataset]['blocks'][block]['errors'] += 1
-                    track_missing_blocks[dataset]['blocks'][block]['group'] = group
+                    dataset = blockobj.dataset.name
+                    block = blockobj.name
+                    group = replica.group.name or 'Unsubscribed'
 
-    # Output file with the missing datasets
-    with open(blocklist, 'w') as output_file:
-        for dataset, vals in \
-                sorted(track_missing_blocks.iteritems(),
-                       key=lambda x: x[1]['errors'],
-                       reverse=True):
-
-            for block_name, block in sorted(vals['blocks'].iteritems()):
-                output_file.write('%10i    %-17s  %s#%s\n' % \
-                                      (block['errors'], block['group'],
-                                       dataset, block_name))
+                    yield (dataset, block, group)
