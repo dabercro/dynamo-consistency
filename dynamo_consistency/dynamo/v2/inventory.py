@@ -69,8 +69,12 @@ def list_files(site):
 
             for block_replica in block_replicas:
 
-                # If complete and owned, then we say this replica is "old enough" to be missing
-                timestamp = 0 if block_replica.is_complete() and block_replica.group else now
+                # If complete and owned,
+                # then we say this replica is "old enough" to be missing
+                timestamp = 0 if \
+                    block_replica.is_complete() and \
+                    block_replica.group.id else \
+                    now
 
                 for fileobj in block_replica.block.files:
                     yield (fileobj.lfn, fileobj.size, timestamp)
@@ -104,19 +108,16 @@ def filelist_to_blocklist(site, filelist, blocklist):
 
     with open(filelist, 'r') as input_file:
         for line in input_file:
-            ### This is CMS specific. Move into ...cms ###
-            split_name = line.split('/')
-            dataset = '/%s/%s-%s/%s' % (split_name[4], split_name[3], split_name[6], split_name[5])
+            fileobj = inventory.find_file(line.strip())
 
-            
+            for replica in fileobj.block.replicas:
+                if replica.site.name == site:
 
-            block, group = output[0]
+                    block, group = fileobj.block.name, replica.group.name
 
-            track_missing_blocks[dataset]['errors'] += 1
-            track_missing_blocks[dataset]['blocks'][block]['errors'] += 1
-            track_missing_blocks[dataset]['blocks'][block]['group'] = group
-
-    inv_sql.close()
+                    track_missing_blocks[dataset]['errors'] += 1
+                    track_missing_blocks[dataset]['blocks'][block]['errors'] += 1
+                    track_missing_blocks[dataset]['blocks'][block]['group'] = group
 
     # Output file with the missing datasets
     with open(blocklist, 'w') as output_file:
