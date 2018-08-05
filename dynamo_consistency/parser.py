@@ -68,7 +68,7 @@ def get_parser(modname='__main__',
         backend_group.add_option('--unmerged', action='store_true', dest='UNMERGED',
                                  help='Run actions on "/store/unmerged".')
 
-    backend_group.add_option('--external', action='store_true', dest='EXTERNAL',
+    backend_group.add_option('--v1', action='store_true', dest='V1',
                              help='Connect to Dynamo from outside with old Dynamo libraries')
     backend_group.add_option('--test', action='store_true', dest='TEST',
                              help='Run with a test instance of backend module.')

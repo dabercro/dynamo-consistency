@@ -9,7 +9,7 @@ from .. import opts
 
 
 # This is the old version of connecting to dynamo
-if opts.EXTERNAL:
+if opts.V1:
     from .v1 import inventory
     from .v1 import registry
     from .v1 import siteinfo
