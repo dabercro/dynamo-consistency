@@ -59,7 +59,7 @@ _check TEST_SITE "-1" "0"
 echo "EC: $ec"
 
 # This should throw an error
-set-status --test NOT_SITE ready
+set-status --test NOT_SITE ready >& /dev/null
 if [ $? -eq 0 ]
 then
     ec=$(( $ec + 1 ))
@@ -68,7 +68,7 @@ fi
 echo "EC: $ec"
 
 # This too
-set-status --test TEST_SITE fakeaction
+set-status --test TEST_SITE fakeaction >& /dev/null
 if [ $? -eq 0 ]
 then
     ec=$(( $ec + 1 ))

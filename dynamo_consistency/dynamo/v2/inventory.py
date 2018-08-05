@@ -7,9 +7,7 @@ Module for interaction with the dynamo inventory
 import time
 import logging
 
-from collections import defaultdict
-
-from dyanmo.fileop.rlfsm import RLFSM
+from dynamo.fileop.rlfsm import RLFSM
 from dynamo.dataformat import Dataset
 from dynamo.core.executable import inventory
 

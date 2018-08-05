@@ -3,6 +3,8 @@ This sub-module includes all of the interaction with dynamo
 """
 
 
+from collections import defaultdict
+
 from .. import opts
 
 
@@ -18,7 +20,7 @@ else:
     from .v2 import registry
     from .v2 import siteinfo
 
-def filelist_to_blocklist(site, filelist, blocklist)
+def filelist_to_blocklist(site, filelist, blocklist):
     """
     Reads in a list of files, and generates a summary of blocks
 

@@ -4,8 +4,6 @@ Module for interaction with the dynamo inventory
 
 import logging
 
-from collections import defaultdict
-
 from common.interface.mysql import MySQL    # pylint: disable=import-error
 
 
