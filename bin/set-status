@@ -36,7 +36,7 @@ the name of the site to change.
 +-------------+-------------------------------------------+
 """
 
-__usage__ = '%prog [--config FILE] SITE ACTION'
+__usage__ = '%prog [options] SITE ACTION'
 
 
 from dynamo_consistency import args

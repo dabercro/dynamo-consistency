@@ -8,7 +8,7 @@ if they don't exist during its first run.
 However, it will never update the webpage once it's there.
 """
 
-__usage__ = '%prog [--config FILE]'
+__usage__ = '%prog [options]'
 
 from dynamo_consistency import summary
 from dynamo_consistency.parser import pretty_exe

@@ -1,5 +1,9 @@
-Operations
-==========
+Executables
+===========
+
+The following executables can be used by operators or schedulers to
+run the consistency check and manage other aspects of the reporting and summary page.
+They are all installed along with the rest of the modules.
 
 .. automodule:: dynamo_consistency_exe
 
