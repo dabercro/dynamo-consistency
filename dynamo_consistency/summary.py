@@ -211,7 +211,7 @@ def get_dst():
 
 
 # This definitely needs some overhaul
-def update_summary(    #pylint: disable=too-many-arguments
+def update_summary(    # pylint: disable=too-many-arguments
         site, duration, numfiles, numnodes, numempty,
         nummissing, missingsize, numorphan, orphansize,
         numnosource, numunrecoverable,

@@ -1,4 +1,4 @@
-#pylint: disable=unused-import
+# pylint: disable=unused-import
 
 """
 This module imports the commands from dynamo and CMS.
@@ -25,7 +25,7 @@ from .listers import get_listers
 
 # Getting datasets for filtering
 # protected_datasets actually in inventory module (not file)
-protected_datasets = inventory.protected_datasets  #pylint: disable=invalid-name
+protected_datasets = inventory.protected_datasets  # pylint: disable=invalid-name
 
 listers.GFAL_LOCATION = siteinfo.get_gfal_location
 

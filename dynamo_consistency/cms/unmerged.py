@@ -136,7 +136,7 @@ def clean_unmerged(site):
 
 
     # And do a listing of unmerged
-    site_tree = remotelister.listing(    #pylint: disable=unexpected-keyword-arg
+    site_tree = remotelister.listing(    # pylint: disable=unexpected-keyword-arg
         site, cache='unmerged',
         callback=EmptyRemover(site, check_protected))
 
