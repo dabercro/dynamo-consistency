@@ -105,7 +105,7 @@ def extras(site, site_tree=None, debugged=False):
 
 
 # Need to make this smaller
-def main(site):    #pylint: disable=too-many-locals
+def main(site):    # pylint: disable=too-many-locals
     """
     Gets the listing from the dynamo database, and remote XRootD listings of a given site.
     The differences are compared to deletion queues and other things.

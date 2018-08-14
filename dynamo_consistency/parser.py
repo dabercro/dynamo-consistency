@@ -96,7 +96,7 @@ else:
     import inspect
     # We only get here while running Sphinx.
     # In that case, you should also install what's in docs/requirements.txt
-    from customdocs import pretty_exe_doc  #pylint: disable=import-error
+    from customdocs import pretty_exe_doc  # pylint: disable=import-error
 
     def pretty_exe(name):
         """

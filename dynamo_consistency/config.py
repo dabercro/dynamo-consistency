@@ -47,7 +47,7 @@ def config_dict():
     :raises IOError: when it cannot find the configuration file
     """
 
-    #pylint: disable=global-statement
+    # pylint: disable=global-statement
 
     global CONFIG
     global LOCATION

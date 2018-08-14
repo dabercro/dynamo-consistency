@@ -1,8 +1,3 @@
-# pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-complex
-#
-# Here there be dragons
-#
-
 """
 Module defines the datatypes that are used for storage and comparison.
 There is also a powerful create_dirinfo function that takes a filler function
@@ -19,6 +14,8 @@ import hashlib
 import cPickle
 import logging
 import multiprocessing
+import threading
+import collections
 
 from Queue import Empty
 
@@ -32,8 +29,8 @@ operator might be adjusting the configuration.
 """
 
 
-def create_dirinfo(location, first_dir, filler,
-                   object_params=None, callback=None):
+def create_dirinfo( # pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-complex
+        location, first_dir, filler, object_params=None, callback=None):
     """ Create the directory information
 
     :param str location: This is the beginning of the path where we will find ``first_dir``.
@@ -83,7 +80,10 @@ def create_dirinfo(location, first_dir, filler,
 
     # Initialize queue and connection lists
     out_queue = multiprocessing.Queue()
-    in_queue = multiprocessing.Queue()
+
+    # We want to add and remove directories from the same side
+    in_lock = threading.Lock()
+    in_deque = collections.deque()
 
     master_conns = []
     slave_conns = []
@@ -100,7 +100,7 @@ def create_dirinfo(location, first_dir, filler,
     #                name of sub-node to place the listing (blank for first level),
     #                list of previous directories, list of previous files (for retries),
     #                list of queue numbers that have failed so far)
-    in_queue.put((starting_dir, '', [], [], []))
+    in_deque.append((starting_dir, '', [], [], []))
 
     def run_queue(i_queue):
         """
@@ -130,10 +130,15 @@ def create_dirinfo(location, first_dir, filler,
 
         while running:
             try:
-                location, name, prev_dirs, prev_files, failed_list = in_queue.get(True, 3)
+                in_lock.acquire()
+                location, name, prev_dirs, prev_files, failed_list = in_deque.pop()
                 if i_queue in failed_list:
                     thread_log.warning('Got previously failed call, putting back and sleeping')
-                    in_queue.put((location, name, prev_dirs, prev_files, failed_list))
+                    in_deque.append((location, name, prev_dirs, prev_files, failed_list))
+
+                in_lock.release()
+
+                if i_queue in failed_list:
                     time.sleep(10)
 
                 thread_log.debug('Getting directory with (%s, %s, %s)',
@@ -164,14 +169,18 @@ def create_dirinfo(location, first_dir, filler,
                 # Add each directory into some input queue
                 for directory, _ in directories:
                     joined_name = os.path.join(name, directory)
-                    in_queue.put((location, joined_name, [], [], []))
+                    in_lock.acquire()
+                    in_deque.append((location, joined_name, [], [], []))
+                    in_lock.release()
 
                 # Tell master that a job finished,
                 # so it can build the final object
                 send_to_master[i_queue].put(('O', time.time()))
 
                 thread_log.debug('Finished one job with (%s, %s)', location, name)
-            except Empty:
+            except IndexError:
+                in_lock.release()
+
                 # Report empty
                 thread_log.debug('Worker finished input queue')
                 send_to_master[i_queue].put(('A', 0))
@@ -618,7 +627,7 @@ class DirectoryInfo(object):
 
         return output
 
-    def compare(self, other, path='', check=None):
+    def compare(self, other, path='', check=None): # pylint: disable=too-complex, too-many-branches
         """ Does one way comparison with a different tree
 
         :param DirectoryInfo other: The directory tree to compare this one to
