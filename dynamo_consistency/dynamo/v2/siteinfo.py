@@ -1,4 +1,4 @@
-#pylint: disable=import-error
+# pylint: disable=import-error
 
 """
 This module is for fetching information from dynamo about different sites

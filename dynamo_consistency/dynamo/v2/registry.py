@@ -1,4 +1,4 @@
-#pylint: disable=import-error
+# pylint: disable=import-error
 
 """
 Defines commands for submitting deletion and transfer requests

@@ -1,4 +1,4 @@
-#pylint: disable=import-error
+# pylint: disable=import-error
 
 """
 Module for interaction with the dynamo inventory
