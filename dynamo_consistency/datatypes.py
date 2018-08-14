@@ -1,5 +1,3 @@
-# pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-complex
-
 """
 Module defines the datatypes that are used for storage and comparison.
 There is also a powerful create_dirinfo function that takes a filler function
@@ -31,8 +29,8 @@ operator might be adjusting the configuration.
 """
 
 
-def create_dirinfo(location, first_dir, filler,
-                   object_params=None, callback=None):
+def create_dirinfo( # pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-complex
+        location, first_dir, filler, object_params=None, callback=None):
     """ Create the directory information
 
     :param str location: This is the beginning of the path where we will find ``first_dir``.
@@ -629,7 +627,7 @@ class DirectoryInfo(object):
 
         return output
 
-    def compare(self, other, path='', check=None):
+    def compare(self, other, path='', check=None): # pylint: disable=too-complex, too-many-branches
         """ Does one way comparison with a different tree
 
         :param DirectoryInfo other: The directory tree to compare this one to
