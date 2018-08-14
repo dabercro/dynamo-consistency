@@ -1,7 +1,7 @@
 Dynamo Consistency
 ==================
 
-|build|
+|build-status|
 
 Dynamo Consistency is the consistency plugin for Dynamo Dynamic Data Management System.
 It provides some standalone executables to run the check as well as
@@ -42,5 +42,5 @@ The simplest way to install is through pip::
 The source code is maintained on `GitHub <https://github.com/SmartDataProjects/dynamo-consistency>`_.
 Other typical ``setuptools`` methods are supported by the repository's ``setup.py``.
 
-.. |build| image:: https://travis-ci.org/SmartDataProjects/dynamo-consistency.svg?branch=master
+.. |build-status| image:: https://travis-ci.org/SmartDataProjects/dynamo-consistency.svg?branch=master
    :target: https://travis-ci.org/SmartDataProjects/dynamo-consistency
