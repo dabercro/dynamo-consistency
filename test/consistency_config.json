@@ -2,7 +2,7 @@
   "Timeout": 60,
   "Retries": 1,
   "InventoryAge": 5e-05,
-  "NumThreads": 1,
+  "NumThreads": 2,
   "GFALThreads": 32,
   "ListAge": 5e-05,
   "IgnoreAge": 1,

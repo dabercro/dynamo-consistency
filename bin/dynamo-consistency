@@ -9,7 +9,7 @@ http://dynamo-consistency.readthedocs.io
 for information about this tool.
 """
 
-__usage__ = '%prog [options (see below)]'
+__usage__ = '%prog [options]'
 
 import os
 import time

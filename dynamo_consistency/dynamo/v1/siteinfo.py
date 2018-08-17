@@ -39,7 +39,7 @@ def ready_sites():
     :rtype: set
     """
 
-    global _READY    #pylint: disable=global-statement
+    global _READY    # pylint: disable=global-statement
 
     if _READY is None:
         _READY = set(_small_query('SELECT name FROM sites WHERE status = "ready"'))

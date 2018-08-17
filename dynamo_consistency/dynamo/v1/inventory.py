@@ -65,7 +65,7 @@ def list_files(site):
     """
 
     inv_sql = _get_inventory()
-    curs = inv_sql._connection.cursor()    #pylint: disable=protected-access
+    curs = inv_sql._connection.cursor()    # pylint: disable=protected-access
 
     LOG.info('About to make MySQL query for files at %s', site)
 

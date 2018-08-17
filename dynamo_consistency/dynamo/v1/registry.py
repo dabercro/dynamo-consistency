@@ -5,7 +5,7 @@ Defines commands for submitting deletion and transfer requests
 import os
 import logging
 
-from common.interface.mysql import MySQL    #pylint: disable=import-error
+from common.interface.mysql import MySQL    # pylint: disable=import-error
 
 from .inventory import _get_inventory
 
