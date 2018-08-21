@@ -32,10 +32,10 @@ def get_parser(modname='__main__',
     # Don't add all the options to help output for irrelevant scripts
     add_all = prog == 'dynamo-consistency' or \
         prog == 'exec.py' or (
-        '-h' not in sys.argv and '--help' not in sys.argv and (
-            prog == 'sphinx-build' or 'sphinx' not in sys.modules
+            '-h' not in sys.argv and '--help' not in sys.argv and (
+                prog == 'sphinx-build' or 'sphinx' not in sys.modules
+                )
             )
-        )
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')

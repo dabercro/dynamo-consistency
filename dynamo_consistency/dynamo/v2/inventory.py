@@ -6,6 +6,7 @@ Module for interaction with the dynamo inventory
 
 import time
 import logging
+import datetime
 
 from dynamo.fileop.rlfsm import RLFSM
 from dynamo.dataformat import Dataset
