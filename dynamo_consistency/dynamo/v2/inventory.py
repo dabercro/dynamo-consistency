@@ -75,7 +75,7 @@ def list_files(site):
                     now
 
                 for fileobj in block_replica.block.files:
-                    yield (fileobj.lfn, fileobj.size, timestamp)
+                    yield (fileobj.lfn, fileobj.size, datetime.datetime.fromtimestamp(timestamp))
 
 
 def filelist_to_blocklist(site, filelist):
