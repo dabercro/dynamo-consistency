@@ -10,6 +10,7 @@ import optparse
 from ._version import __version__
 
 # My executables
+# Also include exec.py because dynamo runs everything after renaming it to that
 EXES = ['exec.py', 'dynamo-consistency', 'set-status', 'consistency-web-install']
 
 def get_parser(modname='__main__',
@@ -30,12 +31,12 @@ def get_parser(modname='__main__',
     parser = optparse.OptionParser(usage=usage, version='dynamo-consistency %s' % __version__)
 
     # Don't add all the options to help output for irrelevant scripts
-    add_all = prog == 'dynamo-consistency' or \
-        prog == 'exec.py' or (
-            '-h' not in sys.argv and '--help' not in sys.argv and (
-                prog == 'sphinx-build' or 'sphinx' not in sys.modules
-                )
+    # Keep in mind, dynamo renames everything to "exec.py" before running it
+    add_all = prog in ['exec.py', 'dynamo-consistency'] or (
+        '-h' not in sys.argv and '--help' not in sys.argv and (
+            prog == 'sphinx-build' or 'sphinx' not in sys.modules
             )
+        )
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
@@ -88,7 +89,7 @@ PARSER, ARGV = get_parser()
 
 OPTS, ARGS = PARSER.parse_args(ARGV)
 
-if not os.path.basename(sys.argv[0]) == 'sphinx-build':
+if os.path.basename(sys.argv[0]) != 'sphinx-build':
     def pretty_exe(_):
         """A dummy since we don't care about the docs here"""
         pass

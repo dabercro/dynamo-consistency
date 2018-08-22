@@ -33,7 +33,7 @@ from base import TestBase
 from base import TMP_DIR
 
 from dynamo_consistency import datatypes
-from dynamo_consistency import threads
+from dynamo_consistency import create
 
 LOG = logging.getLogger(__name__)
 
@@ -137,12 +137,12 @@ class TestConsistentTrees(TestBase):
             LOG.info('In callback: tree has %i files', tree.get_num_files())
             called['check'] = True
 
-        threads.create_dirinfo('', 'mc', my_ls, callback=call)
+        create.create_dirinfo('', 'mc', my_ls, callback=call)
         self.assertTrue(called['check'])
 
     def test_ls_vs_list(self):
 
-        dirinfos = [threads.create_dirinfo('', subdir, my_ls) \
+        dirinfos = [create.create_dirinfo('', subdir, my_ls) \
                         for subdir in ['mc', 'data']]
 
         master_dirinfo = datatypes.DirectoryInfo('/store', directories=dirinfos)
@@ -155,7 +155,7 @@ class TestConsistentTrees(TestBase):
 
         os.makedirs(os.path.join(TMP_DIR, empty_dir))
 
-        dirinfos = [threads.create_dirinfo('', subdir, my_ls) \
+        dirinfos = [create.create_dirinfo('', subdir, my_ls) \
                         for subdir in ['mc', 'data']]
 
         master_dirinfo = datatypes.DirectoryInfo('/store', directories=dirinfos)
@@ -202,7 +202,7 @@ class TestInconsistentTrees(TestBase):
             out.close()
 
         self.listing = datatypes.DirectoryInfo(
-            '/store', directories=[threads.create_dirinfo('', subdir, my_ls)
+            '/store', directories=[create.create_dirinfo('', subdir, my_ls)
                                    for subdir in ['mc', 'data']])
 
         self.tree.setup_hash()
@@ -243,7 +243,7 @@ class TestInconsistentTrees(TestBase):
         os.utime(path, (1000000000, 1000000000))
 
         listing = datatypes.DirectoryInfo('/store',
-                                          directories=[threads.create_dirinfo('', subdir, my_ls)
+                                          directories=[create.create_dirinfo('', subdir, my_ls)
                                                        for subdir in ['mc', 'data']])
 
         LOG.info('='*40)
@@ -425,4 +425,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         logging.basicConfig(level=logging.DEBUG)
 
-    unittest.main()
+    unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])
