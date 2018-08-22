@@ -10,6 +10,7 @@ import logging
 
 from . import config
 from . import datatypes
+from . import create
 
 from .cache import cache_tree
 from .backend import get_listers
@@ -25,7 +26,7 @@ def listing(site, callback=None):
 
     :param str site: The site name
     :param function callback: The callback function to pass to
-                              :py:func:`datatypes.create_dirinfo`
+                              :py:func:`create.create_dirinfo`
     :returns: The site directory listing information
     :rtype: dynamo_consistency.datatypes.DirectoryInfo
     """
@@ -35,7 +36,7 @@ def listing(site, callback=None):
     config_dict = config.config_dict()
 
     directories = [
-        datatypes.create_dirinfo(
+        create.create_dirinfo(
             config_dict['RootPath'], directory, constructor, params, callback)
         for directory in config_dict.get('DirectoryList', [])
         ]

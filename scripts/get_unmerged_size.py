@@ -23,3 +23,42 @@ if len(files):
 
 else:
     print 'No files to delete!'
+    exit(0)
+
+# Then let's do no timing info:
+
+from cmstoolbox.unmergedcleaner import listdeletable
+
+listdeletable.set_config('/home/dabercro/dev_python/old_cfg/consistency_config.json', 'ListDeletable')
+listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+listdeletable.PROTECTED_LIST.sort()
+
+deletion_file = '/home/dabercro/dev_python/dynamo-consistency/notime.txt'
+listdeletable.config.DELETION_FILE = deletion_file
+
+listdeletable.get_unmerged_files = lambda: unmerged.get_files(0)
+listdeletable.main()
+
+if unmerged.get_node('unmerged/logs', make_new=False):
+    with open(deletion_file, 'a') as d_file:
+        d_file.write('\n' + '\n'.join(
+                unmerged.get_node('unmerged/logs').get_files(
+                    min_age=0,
+                    path='/store/unmerged')))
+
+
+with open(deletion_file, 'r') as deleted:
+    files = [line.strip() for line in deleted]
+
+print 'No time limit'
+
+if len(files):
+    # Only load this in if we have files to check
+    unmerged = get_info(os.path.join(cache_dir, '%s_unmerged.pkl' % site))
+    # Print the sum of the file sizes
+    print 'To delete: %s' % sum([unmerged.get_file(f)['size'] for f in files])
+    print 'Total: %s' % unmerged.get_directory_size()
+
+else:
+    print 'No files to delete!'
+    exit(0)
