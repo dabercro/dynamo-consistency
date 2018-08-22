@@ -219,7 +219,7 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
         send_to_master.append(queue)
 
         thread = ListingThread(number=i_thread, recv=con2, send=queue,
-                               filler=filler(object_params[i_thread]).list if \
+                               filler=filler(*(object_params[i_thread])).list if \
                                    object_params is not None else filler)
 
         thread.start()
