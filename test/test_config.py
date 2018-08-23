@@ -43,7 +43,8 @@ class TestConfiguration(unittest.TestCase):
         for key in self.yml_config.keys():
             with open(config.CONFIG_FILE) as config_file:
                 # Make sure the key is documented in the comments
-                self.assertTrue(True in [bool(re.match(r'^#.*\*\*%s\*\*' % key, line)) for line in config_file])
+                self.assertTrue(True in [bool(re.match(r'^#.*\*\*%s\*\*' % key, line)) for line in config_file],
+                                'Key %s not found' % key)
 
 
 if __name__ == '__main__':

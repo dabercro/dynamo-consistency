@@ -7,8 +7,7 @@
   "ListAge": 5e-05,
   "IgnoreAge": 1,
   "RedirectorAge": 1,
-  "CacheLocation": "cache",
-  "LogLocation": "logs",
+  "VarLocation": "var",
   "Redirectors": {
     "T3_US_MIT": "t3serv006.mit.edu"
   },

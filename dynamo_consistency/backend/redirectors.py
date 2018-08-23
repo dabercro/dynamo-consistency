@@ -118,9 +118,10 @@ def get_redirector(site, banned_doors=None):
         return '', []
 
     # If not hard-coded, get the redirector
+    redir_directory = config.vardir('redirectors')
     if not redirector:
         # First check the cache
-        file_name = os.path.join(config_dict['CacheLocation'], 'redirector_list.txt')
+        file_name = os.path.join(redir_directory, 'redirector_list.txt')
 
         _xrd_locate(config_dict['GlobalRedirectors'],
                     file_name, max_age)
@@ -140,7 +141,7 @@ def get_redirector(site, banned_doors=None):
         redirs.append(redirector)
 
     # Use that site redirector to get a list of doors
-    list_name = os.path.join(config_dict['CacheLocation'], '%s_redirector_list.txt' % site)
+    list_name = os.path.join(redir_directory, '%s_redirector_list.txt' % site)
     _xrd_locate(redirs, list_name, max_age)
     LOG.debug('Door list cached at %s', list_name)
 

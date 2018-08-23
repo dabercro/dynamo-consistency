@@ -15,6 +15,7 @@ import logging
 from docutils.core import publish_cmdline
 
 from . import config
+from . import lock
 from .backend import siteinfo
 from .backend import check_site
 
@@ -176,6 +177,11 @@ def pick_site(pattern=None):
 
     if output is None:
         raise NoMatchingSite('No sites out of %s seem to be ready' % sites)
+
+    # Log the pid that will run on this site
+    lock.acquire(output)
+    # Only logging, so don't hold the lock
+    lock.release(output)
 
     return output
 

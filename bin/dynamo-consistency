@@ -33,7 +33,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('dynamo-consistency')
 
     config_dict = config.config_dict()
-    logdir = config_dict['LogLocation']
+    logdir = config.vardir('logs')
 
     # Setup log before spewing stuff
     global_log = os.path.join(logdir, 'consistency.log')

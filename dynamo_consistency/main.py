@@ -166,7 +166,7 @@ def main(site):    # pylint: disable=too-many-locals
             prev_new_name = prev_missing
 
         shutil.move(prev_missing,
-                    os.path.join(config_dict['CacheLocation'],
+                    os.path.join(config.vardir('web_bak'),
                                  prev_new_name)
                    )
 

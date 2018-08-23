@@ -76,11 +76,6 @@ def config_dict():
         else:
             raise IOError('Could not load config at %s' % location)
 
-        var_loc = CONFIG.get('VarLocation')
-        if var_loc:
-            CONFIG['CacheLocation'] = os.path.join(var_loc, 'cache')
-            CONFIG['LogLocation'] = os.path.join(var_loc, 'logs')
-
         # Overwrite any values with environment variables
         for key in CONFIG.keys():
             CONFIG[key] = os.environ.get(key, CONFIG[key])
@@ -92,3 +87,21 @@ def config_dict():
         DIRECTORYLIST = None
 
     return CONFIG
+
+
+def vardir(directory):
+    """
+    Gets the full path to a sub directory inside of **VarLocation**
+    and creates an empty directory if needed.
+
+    :param str directory: A desired sub-directory
+    :returns: Path to configured sub-directory
+    :rtype: str
+    """
+
+    output = os.path.join(config_dict()['VarLocation'], directory)
+
+    if not os.path.exists(output):
+        os.makedirs(output)
+
+    return output
