@@ -296,6 +296,7 @@ def move_local_files(site):
 
     # All of the files and summary will be dumped here
     webdir = _webdir()
+    workdir = config.vardir('work')
 
     # If there were permissions or connection issues, no files would be listed
     # Otherwise, copy the output files to the web directory
@@ -308,12 +309,14 @@ def move_local_files(site):
 
         filename = '%s_%s.txt' % (site, filemid)
 
-        if os.path.exists(filename):
-            shutil.copy(filename, webdir)
-            os.remove(filename)
+        full = os.path.join(workdir, filename)
+
+        if os.path.exists(full):
+            shutil.copy(full, webdir)
+            os.remove(full)
         else:
-            LOG.warning('%s not present in working directory, removing from summary web page',
-                        filename)
+            LOG.warning('%s not present in working directory %s, removing from summary web page',
+                        filename, workdir)
 
             to_rm = os.path.join(webdir, filename)
             if os.path.exists(to_rm):

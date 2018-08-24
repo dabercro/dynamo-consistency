@@ -621,6 +621,9 @@ def get_info(file_name):
     :rtype: DirectoryInfo
     """
 
+    if DirectoryInfo.ignore_age is None:
+        DirectoryInfo.ignore_age = float(config.config_dict()['IgnoreAge'])
+
     infile = open(file_name, 'r')
     output = cPickle.load(infile)
     infile.close()

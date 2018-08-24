@@ -5,7 +5,7 @@ Defines commands for submitting deletion and transfer requests
 import os
 import logging
 
-from common.interface.mysql import MySQL    # pylint: disable=import-error
+from .mysql import MySQL
 
 from .inventory import _get_inventory
 
@@ -17,7 +17,7 @@ def _get_registry():
     """
     The connection returned by this must be closed by the caller
     :returns: A connection to the registry database.
-    :rtype: :py:class:`common.interface.mysql.MySQL`
+    :rtype: :py:class:`MySQL`
     """
     if os.environ['USER'] == 'dynamo':
         return MySQL(config_file='/etc/my.cnf',

@@ -16,7 +16,8 @@ def _small_query(*args):
     """
 
     mysql_reg = _get_inventory()
-    result = mysql_reg.query(*args)
+    sql = args.pop(0)
+    result = mysql_reg.query(sql, *args)
     mysql_reg.close()
 
     return result

@@ -26,7 +26,8 @@ def report_contents(timestamp, site, files):
     :param list files: List of files to put in the database
     """
 
-    db_name = '%s_protected.db' % site
+    db_name = os.path.join(config.vardir('work'),
+                           '%s_protected.db' % site)
 
     if os.path.exists(db_name):
         os.remove(db_name)
@@ -72,7 +73,7 @@ def report_contents(timestamp, site, files):
 
     config_dict = config.config_dict()
 
-    db_dest = os.path.join(config_dict['WebDir'], db_name)
+    db_dest = os.path.join(config_dict['WebDir'], os.path.basename(db_name))
     if os.path.exists(db_dest):
         os.remove(db_dest)
     # Move this over to the web directory
@@ -141,7 +142,8 @@ def clean_unmerged(site):
         callback=EmptyRemover(site, check_protected))
 
     # Setup the config a bit more
-    deletion_file = site + listdeletable.config.DELETION_FILE
+    deletion_file = os.path.join(config.vardir('work'),
+                                 '%s_unmerged.txt' % site)
     listdeletable.config.DELETION_FILE = deletion_file
 
     # Reset the protected list in case the listing took a long time
