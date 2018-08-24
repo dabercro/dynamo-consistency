@@ -4,7 +4,8 @@ Holds a replica of the MySQL object from the old dynamo
 
 import sys
 import logging
-import MySQLdb
+# I don't know why this is not importing for Python 2.6 on Travis
+import MySQLdb # pylint: disable=import-error
 
 
 LOG = logging.getLogger(__name__)

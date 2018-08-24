@@ -17,8 +17,12 @@ if opts.V1:
 # The new version is designed to run as a script on the dynamo server
 else:
     from .v2 import inventory
-    from .v2 import registry
     from .v2 import siteinfo
+
+    if opts.V1_REPORTING:
+        from .v1 import registry
+    else:
+        from .v2 import registry
 
 def filelist_to_blocklist(site, filelist, blocklist):
     """
