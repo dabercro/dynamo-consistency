@@ -33,9 +33,7 @@ def acquire(lock):
     :param str lock: Name of lock to acquire, which matches name in ``locks`` directory
     """
 
-    lock_dir = os.path.join(config.config_dict()['VarLocation'], 'locks')
-    if not os.path.exists(lock_dir):
-        os.makedirs(lock_dir)
+    lock_dir = config.vardir('locks')
 
     FHS[lock] = open(os.path.join(lock_dir, '%s.lock' % lock), 'w', 0)
     fcntl.lockf(FHS[lock], fcntl.LOCK_EX)
