@@ -45,8 +45,10 @@ if __name__ == '__main__':
     mem_want = (int(config_dict['FreeMem']) * 1024**3)
 
     if mem_have < mem_want:
-        logger.warning('Not enough available memory (have %f GBs want %f GBs). Not running now.',
-                       float(mem_have)/1024**3, float(mem_want)/1024**3)
+        logger.warning('Not enough available memory: Have %f GBs Want %f GBs',
+                       float(mem_have)/1024**3,
+                       float(mem_want)/1024**3)
+        logger.warning('Not running now.')
         exit(0)
 
     # Get the site to run on
