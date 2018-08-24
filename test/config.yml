@@ -3,6 +3,8 @@
 # - **AccessMethod** - A dictionary of access methods for sites. Sites default to XRootD,
 #   but setting a value of ``SRM`` causes the site to be listed by ``gfal-ls`` commands.
 # - **DirectoryList** - A list of directories inside of **RootPath** to check consistency.
+# - **FreeMem** - The amount of free memory that is required before ``dynamo-consistency``
+#   tries to run a check. The memory is given in GBs.
 # - **GFALThreads** - The number of threads used by the GFAL listers
 # - **GlobalRedirectors** - The redirectors to start all locate calls from, unless looking
 #   for a site that is listed in the **Redirectors** configuration.

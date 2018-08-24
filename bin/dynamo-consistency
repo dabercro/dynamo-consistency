@@ -17,6 +17,8 @@ import logging
 import datetime
 import traceback
 
+import psutil
+
 from dynamo_consistency import opts
 from dynamo_consistency import config
 from dynamo_consistency import logsetup
@@ -38,6 +40,14 @@ if __name__ == '__main__':
     # Setup log before spewing stuff
     global_log = os.path.join(logdir, 'consistency.log')
     logsetup.change_logfile(global_log)
+
+    mem_have = psutil.virtual_memory().available
+    mem_want = (int(config_dict['FreeMem']) * 1024**3)
+
+    if mem_have < mem_want:
+        logger.warning('Not enough available memory (have %f GBs want %f GBs). Not running now.',
+                       float(mem_have)/1024**3, float(mem_want)/1024**3)
+        exit(0)
 
     # Get the site to run on
     site = summary.pick_site(opts.SITE_PATTERN)

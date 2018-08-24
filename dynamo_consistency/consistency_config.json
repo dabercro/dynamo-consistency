@@ -31,5 +31,6 @@
   "Unmerged": [
     "T2_US_MIT"
   ],
-  "UnmergedLogsAge": 60
+  "UnmergedLogsAge": 60,
+  "FreeMem": 5
 }
