@@ -30,13 +30,10 @@ def get_parser(modname='__main__',
 
     parser = optparse.OptionParser(usage=usage, version='dynamo-consistency %s' % __version__)
 
-    # Don't add all the options to help output for irrelevant scripts
+    # Don't add all the options for irrelevant scripts
     # Keep in mind, dynamo renames everything to "exec.py" before running it
-    add_all = prog in ['exec.py', 'dynamo-consistency'] or (
-        '-h' not in sys.argv and '--help' not in sys.argv and (
-            prog == 'sphinx-build' or 'sphinx' not in sys.modules
-            )
-        )
+    # Sphinx does the weird thing where it imports all the executables at the same time
+    add_all = prog in ['exec.py', 'dynamo-consistency'] or prog == 'sphinx-build'
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
@@ -70,17 +67,26 @@ def get_parser(modname='__main__',
         backend_group.add_option('--unmerged', action='store_true', dest='UNMERGED',
                                  help='Run actions on "/store/unmerged".')
 
-    backend_group.add_option('--v1', action='store_true', dest='V1',
-                             help='Connect to Dynamo database directly')
-    backend_group.add_option('--v1-reporting', action='store_true', dest='V1_REPORTING',
-                             help='Connect to Dynamo database directly for registry only')
-    backend_group.add_option('--test', action='store_true', dest='TEST',
-                             help='Run with a test instance of backend module.')
+        backend_group.add_option('--v1', action='store_true', dest='V1',
+                                 help='Connect to Dynamo database directly')
+        backend_group.add_option('--v1-reporting', action='store_true', dest='V1_REPORTING',
+                                 help='Connect to Dynamo database directly for registry only')
 
-    parser.add_option_group(backend_group)
+    if add_all or prog.startswith('test_'):
+        backend_group.add_option('--test', action='store_true', dest='TEST',
+                                 help='Run with a test instance of backend module.')
 
+    if backend_group.option_list:
+        parser.add_option_group(backend_group)
 
-    argv = sys.argv if prog in EXES else [arg for arg in sys.argv if arg in ['--debug', '--info']]
+    argv = sys.argv if prog in EXES else [
+        arg for arg in sys.argv if arg in
+        [opt.get_opt_string() for opt in parser.option_list] +
+        [opt.get_opt_string()
+         for group in parser.option_groups
+         for opt in group.option_list]
+    ]
+
     if prog.startswith('test_'):
         argv.append('--test')
 

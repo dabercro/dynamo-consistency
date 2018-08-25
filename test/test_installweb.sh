@@ -7,7 +7,7 @@ then
 
 fi
 
-consistency-web-install --test
+consistency-web-install
 
 ec=0
 
