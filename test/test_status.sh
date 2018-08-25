@@ -40,28 +40,28 @@ python -c "import dynamo_consistency; dynamo_consistency.opts.TEST = 1; from dyn
 _check BAD_SITE "-1" "0"   # Only because it's first alphabetically
 _check TEST_SITE "0" "0"
 
-set-status --test TEST_SITE act
+set-status TEST_SITE act
 _check TEST_SITE "0" "1"
 
-set-status --test BAD_SITE disable
+set-status BAD_SITE disable
 _check BAD_SITE "-2" "0"
 
-set-status --test BAD_SITE ready
+set-status BAD_SITE ready
 _check BAD_SITE "0" "0"
 
-set-status --test TEST_SITE dry
+set-status TEST_SITE dry
 _check TEST_SITE "0" "0"
 
 # Halting should technically only be done for running sites
 echo "UPDATE sites SET isrunning=2 WHERE site='TEST_SITE';" | sqlite3 www/stats.db
 _check TEST_SITE "2" "0"
-set-status --test TEST_SITE halt
+set-status TEST_SITE halt
 _check TEST_SITE "-1" "0"
 
 echo "EC: $ec"
 
 # This should throw an error
-set-status --test NOT_SITE ready >& /dev/null
+set-status NOT_SITE ready >& /dev/null
 if [ $? -eq 0 ]
 then
     ec=$(( $ec + 1 ))
@@ -70,7 +70,7 @@ fi
 echo "EC: $ec"
 
 # This too
-set-status --test TEST_SITE fakeaction >& /dev/null
+set-status TEST_SITE fakeaction >& /dev/null
 if [ $? -eq 0 ]
 then
     ec=$(( $ec + 1 ))
@@ -83,7 +83,7 @@ echo "EC: $ec"
 _check BAD_SITE "0" "0"
 _check TEST_SITE "-1" "0"
 echo "clobber?"
-consistency-web-install --test
+consistency-web-install
 _check BAD_SITE "0" "0"
 _check TEST_SITE "-1" "0"
 
