@@ -16,6 +16,7 @@ import collections
 from Queue import Empty
 
 from . import config
+from . import messaging
 from .datatypes import DirectoryInfo
 
 
@@ -25,22 +26,23 @@ LOG = logging.getLogger(__name__)
 class ListingThread(threading.Thread):
     """
     A thread that does the listing
+
+    :param int number: A unique number of the thread created.
+                       This is used to generate a thread name and to fetch a logger.
+    :param multiprocessing.Pipe recv: One end of a pipe for communicating with the master thread.
+                                      Receives message here.
+    :param multiprocessing.Queue send: A queue to send message to the master thread.
+    :param function filler: The function that takes a path as an argument and returns:
+
+                              - A bool saying whether the listing was successful or not
+                              - A list of tuples of sub-directories and their mod times
+                              - A list of tuples files inside, their size, and their mode times
     """
 
     out_queue = multiprocessing.Queue()
     """
     A queue where all of the listing outputs are placed.
     A master thread is expected to read from and clear this.
-    :param int number: A unique number of the thread created.
-                       This is used to generate a thread name and to fetch a logger.
-    :param multiprocessing.Pipe recv: One end of a pipe for communicating with the master thread.
-                                      Receives messages here.
-    :param multiprocessing.Queue send: A queue to send messages to the master thread.
-    :param function filler: The function that takes a path as an argument and returns:
-
-                              - A bool saying whether the listing was successful or not
-                              - A list of tuples of sub-directories and their mod times
-                              - A list of tuples files inside, their size, and their mode times
     """
 
     # Internal lock for using _in_deque
@@ -56,6 +58,7 @@ class ListingThread(threading.Thread):
         self.recv = recv
         self.send = send
         self.filler = filler
+        self.checker = messaging.Checker()
 
 
     @staticmethod
@@ -83,7 +86,7 @@ class ListingThread(threading.Thread):
         in_lock = ListingThread._in_lock
         in_deque = ListingThread._in_deque
 
-        while running:
+        while running and self.checker.isrunning():
             try:
                 in_lock.acquire()
                 location, name, prev_dirs, prev_files, failed_list = in_deque.pop()
@@ -133,6 +136,7 @@ class ListingThread(threading.Thread):
                 self.send.put(('O', time.time()))
 
                 self.log.debug('Finished one job with (%s, %s)', location, name)
+
             except IndexError:
                 in_lock.release()
 
@@ -145,11 +149,11 @@ class ListingThread(threading.Thread):
                 self.log.debug('Message from master: %s', message)
                 # If permission, close
                 if message == 'Close':
-                    self.recv.close()
                     running = False
                 else:
                     self.log.debug('Worker going back to check queue')
 
+        self.recv.close()
 
 
 # This function is a mess and can likely be simplified
@@ -187,6 +191,7 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     :returns: A :py:class:`DirectoryInfo` object containing everything the directory listings from
               ``os.path.join(location, first_dir)`` with name ``first_dir``.
     :rtype: DirectoryInfo
+    :raises messaging.Killed: When a site has been stopped
     """
 
     LOG.debug('Called create_dirinfo(%s, %s, %s, %s)',
@@ -229,7 +234,9 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     building = True
     dir_info = DirectoryInfo(first_dir)
 
-    while building:
+    checker = messaging.Checker()
+
+    while building and checker.isrunning():
         try:
             # Get the info from the queue
             name, directories, files, _ = ListingThread.out_queue.get(True, 1)
@@ -304,5 +311,8 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     # Wait for threads to join
     for thread in threads:
         thread.join()
+
+    if not checker.isrunning():
+        raise messaging.Killed('Site %s stopped running' % checker.site)
 
     return dir_info

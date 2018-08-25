@@ -37,6 +37,11 @@ This prevents the tool from attempting to list directories that are not there.
 
 CONFIG = None
 
+SITE = None
+"""
+A global place that stores a site that has been picked.
+Set in :py:func:`dynamo_consistency.summary.pick_site`.
+"""
 
 def config_dict():
     """

@@ -183,6 +183,8 @@ def pick_site(pattern=None):
     # Only logging, so don't hold the lock
     lock.release(output)
 
+    config.SITE = output
+
     return output
 
 
@@ -379,20 +381,26 @@ def _set_site_col(site, col, val):
     :raises NoMatchingSite: If no site matches
     """
 
-    conn = _connect()
-    curs = conn.cursor()
+    lock.acquire('summary')
 
-    updated = False
+    try:
+        conn = _connect()
+        curs = conn.cursor()
 
-    curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
-    for check in curs.fetchall():
-        if check[0] == site:
-            curs.execute('UPDATE sites SET {0} = ? WHERE site = ?'.format(col),
-                         (val, site))
-            updated = True
+        updated = False
 
-    conn.commit()
-    conn.close()
+        curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
+        for check in curs.fetchall():
+            if check[0] == site:
+                curs.execute('UPDATE sites SET {0} = ? WHERE site = ?'.format(col),
+                             (val, site))
+                updated = True
+
+        conn.commit()
+        conn.close()
+
+    finally:
+        lock.release('summary')
 
     if not updated:
         raise NoMatchingSite('Invalid site name: %s' % site)
