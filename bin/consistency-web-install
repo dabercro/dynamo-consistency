@@ -17,9 +17,3 @@ pretty_exe('consistency-web-install')
 
 if __name__ == '__main__':
     summary.install_webpage()
-    # A quick hack to get the sites into the database
-    if not summary.get_sites():
-        try:
-            summary.unlock_site(summary.pick_site())
-        except summary.NoMatchingSite:
-            pass

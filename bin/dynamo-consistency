@@ -24,6 +24,7 @@ from dynamo_consistency import opts
 from dynamo_consistency import config
 from dynamo_consistency import logsetup
 from dynamo_consistency import summary
+from dynamo_consistency import picker
 from dynamo_consistency import signaling
 from dynamo_consistency import lock
 
@@ -54,7 +55,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Get the site to run on
-    site = summary.pick_site(opts.SITE_PATTERN)
+    site = picker.pick_site(opts.SITE_PATTERN)
 
     # Check if needs lock (like for gfal)
     needed_lock = lock.which(site)
@@ -65,7 +66,7 @@ if __name__ == '__main__':
 
         if needed_lock:
             logger.info('%s needs %s lock', site, needed_lock)
-            lock.acquire(needed_lock)
+            needed_lock = lock.acquire(needed_lock)
 
         # Start run and make site green on summary table
         logger.info('Starting run on %s', site)

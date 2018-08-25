@@ -302,9 +302,13 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
                 building = False
 
     LOG.debug('Closing all connections')
+
+    killed = not checker.isrunning()
+
     # Tell connections to close
     for conn in master_conns:
-        conn.send('Close')
+        if not killed:
+            conn.send('Close')
         conn.close()
 
     LOG.debug('Waiting for threads')
@@ -312,7 +316,7 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     for thread in threads:
         thread.join()
 
-    if not checker.isrunning():
-        raise messaging.Killed('Site %s stopped running' % checker.site)
+    if killed:
+        raise messaging.Killed('Site %s was stopped' % checker.site)
 
     return dir_info

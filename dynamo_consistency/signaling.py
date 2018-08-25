@@ -2,6 +2,7 @@
 A small module for handling signals
 """
 
+import os
 
 from . import config
 
@@ -17,4 +18,4 @@ def no_interrupt(*_):
   Run the following instead:
 
     set-status --config %s %s halt
-""" % (config.LOCATION, config.SITE)
+""" % (os.path.abspath(config.LOCATION), config.SITE)

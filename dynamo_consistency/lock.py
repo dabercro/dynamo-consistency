@@ -7,8 +7,6 @@ import fcntl
 
 from . import config
 
-FHS = {}
-
 def which(site):
     """
     Determine which lock is needed for a site from the config.
@@ -31,20 +29,24 @@ def acquire(lock):
     """
     This function will block until the named lock is acquired.
     :param str lock: Name of lock to acquire, which matches name in ``locks`` directory
+    :returns: The filehandle to the lock. Don't loose it!
+    :rtype: int
     """
 
     lock_dir = config.vardir('locks')
 
-    FHS[lock] = open(os.path.join(lock_dir, '%s.lock' % lock), 'w', 0)
-    fcntl.lockf(FHS[lock], fcntl.LOCK_EX)
-    FHS[lock].write('%s\n' % os.getpid())
+    lock_fh = open(os.path.join(lock_dir, '%s.lock' % lock), 'w', 0)
+    fcntl.lockf(lock_fh, fcntl.LOCK_EX)
+    lock_fh.write('%s\n' % os.getpid())
+
+    return lock_fh
 
 
-def release(lock):
+def release(lock_fh):
     """
-    :param str lock: Name of lock to release, which matches name in ``locks`` directory
+    :param int lock_fh: File handle of lock to release
     """
 
-    FHS[lock].write('done\n')
-    fcntl.lockf(FHS[lock], fcntl.LOCK_UN)
-    FHS[lock].close()
+    lock_fh.write('done\n')
+    fcntl.lockf(lock_fh, fcntl.LOCK_UN)
+    lock_fh.close()

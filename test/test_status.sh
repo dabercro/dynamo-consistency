@@ -32,7 +32,9 @@ then
 
 fi
 
-consistency-web-install --test
+consistency-web-install
+# Put fake site names in
+python -c "import dynamo_consistency; dynamo_consistency.opts.TEST = 1; from dynamo_consistency import summary, picker; summary.unlock_site(picker.pick_site())"
 
 # Check starting status
 _check BAD_SITE "-1" "0"   # Only because it's first alphabetically

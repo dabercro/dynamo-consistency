@@ -16,8 +16,6 @@ from docutils.core import publish_cmdline
 
 from . import config
 from . import lock
-from .backend import siteinfo
-from .backend import check_site
 
 
 LOG = logging.getLogger(__name__)
@@ -112,79 +110,6 @@ def get_sites():
     conn = _connect()
     output = [res[0] for res in conn.execute('SELECT site FROM sites')]
     conn.close()
-    return output
-
-
-def pick_site(pattern=None):
-    """
-    This function also does the task of syncronizing the summary database with
-    the inventory's list of sites that match the pattern.
-
-    :param str pattern: A string that should be contained in the site name
-    :returns: The name of a site that is ready and hasn't run in the longest time
-    :rtype: str
-    :raises NoMatchingSite: If no site matches or is ready
-    """
-
-    # First add sites that match our pattern
-    sites = siteinfo.site_list()
-    if pattern:
-        sites = [site for site in sites if pattern in site]
-
-    if not sites:
-        raise NoMatchingSite('Cannot find a site that matches %s' % pattern)
-
-    conn = _connect()
-    curs = conn.cursor()
-
-    curs.executemany(
-        'INSERT OR IGNORE INTO sites VALUES (?, 0, 0, NULL)',
-        [(site,) for site in sites]
-        )
-
-    # Now get the one that hasn't run in the longest time, and is good
-
-    sites = set(sites)
-
-    output = None
-
-    # Track not ready sites so we can update the web view
-    not_ready = []
-
-    for site, isrunning in curs.execute(
-            """
-            SELECT sites.site, isrunning FROM sites
-            LEFT JOIN stats ON sites.site=stats.site
-            ORDER BY stats.entered ASC, sites.site ASC
-            """):
-        if site in sites and \
-                (isrunning == 0 or isrunning == -1):
-            if check_site(site):
-                output = site
-                break
-            else:
-                not_ready.append(site)
-
-    curs.executemany('UPDATE sites SET isrunning = -1 WHERE site = ?',
-                     [(site,) for site in not_ready])
-
-    # Lock selected site
-    if output is not None:
-        curs.execute('UPDATE sites SET isrunning = 1 WHERE site = ?', (output,))
-
-    conn.commit()
-    conn.close()
-
-    if output is None:
-        raise NoMatchingSite('No sites out of %s seem to be ready' % sites)
-
-    # Log the pid that will run on this site
-    lock.acquire(output)
-    # Only logging, so don't hold the lock
-    lock.release(output)
-
-    config.SITE = output
-
     return output
 
 
@@ -381,7 +306,7 @@ def _set_site_col(site, col, val):
     :raises NoMatchingSite: If no site matches
     """
 
-    lock.acquire('summary')
+    l_fh = lock.acquire('summary')
 
     try:
         conn = _connect()
@@ -400,7 +325,7 @@ def _set_site_col(site, col, val):
         conn.close()
 
     finally:
-        lock.release('summary')
+        lock.release(l_fh)
 
     if not updated:
         raise NoMatchingSite('Invalid site name: %s' % site)
@@ -434,7 +359,19 @@ def set_reporting(site, status):
 
 def unlock_site(site):
     """
-    Sets the site running status back to 0
+    Sets the site running status back to 0 if running
     :param str site: Site to unlock
     """
-    set_status(site, READY)
+
+    conn = _connect()
+    curs = conn.cursor()
+
+    curs.execute('SELECT isrunning FROM sites WHERE site = ?',
+                 (site,))
+
+    res = curs.fetchone()
+
+    conn.close()
+
+    if res and res[0] > 0:
+        set_status(site, READY)

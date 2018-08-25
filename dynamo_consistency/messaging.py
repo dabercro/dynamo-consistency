@@ -41,7 +41,7 @@ class Checker(object):
         if self.site and self.last + self.timeout < time.time():
 
             if self.lock:
-                lock.acquire('summary')
+                self.lock = lock.acquire('summary')
 
             try:
                 conn = _connect()
@@ -56,6 +56,6 @@ class Checker(object):
 
             finally:
                 if self.lock:
-                    lock.release('summary')
+                    lock.release(self.lock)
 
         return bool(self.last)
