@@ -4,7 +4,7 @@ Module for interaction with the dynamo inventory
 
 import logging
 
-from common.interface.mysql import MySQL    # pylint: disable=import-error
+from .mysql import MySQL
 
 
 LOG = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def _get_inventory():
     """
     The connection returned by this must be closed by the caller
     :returns: A connection to the inventory database.
-    :rtype: :py:class:`common.interface.mysql.MySQL`
+    :rtype: :py:class:`MySQL`
     """
     return MySQL(config_file='/etc/my.cnf', db='dynamo', config_group='mysql-dynamo')
 

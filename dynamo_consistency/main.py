@@ -76,10 +76,12 @@ def extras(site, site_tree=None, debugged=False):
         from .cms.unmerged import clean_unmerged
         output['unmerged'] = clean_unmerged(site)
 
+    work = config.vardir('work')
+
     # Convert missing files to blocks
     filelist_to_blocklist(site,
-                          '%s_compare_missing.txt' % site,
-                          '%s_missing_datasets.txt' % site)
+                          os.path.join(work, '%s_compare_missing.txt' % site),
+                          os.path.join(work, '%s_missing_datasets.txt' % site))
 
     # Make a JSON file reporting storage usage
     if site_tree and site_tree.get_num_files():
@@ -127,9 +129,11 @@ def main(site):    # pylint: disable=too-many-locals
 
     check_orphans, check_missing = make_filters(site)
 
+    work = config.vardir('work')
+
     # Do the comparison
     missing, m_size, orphan, o_size = datatypes.compare(
-        inv_tree, site_tree, '%s_compare' % site,
+        inv_tree, site_tree, os.path.join(work, '%s_compare' % site),
         orphan_check=check_orphans.protected,
         missing_check=check_missing.protected)
 
@@ -166,7 +170,7 @@ def main(site):    # pylint: disable=too-many-locals
             prev_new_name = prev_missing
 
         shutil.move(prev_missing,
-                    os.path.join(config_dict['CacheLocation'],
+                    os.path.join(config.vardir('web_bak'),
                                  prev_new_name)
                    )
 
@@ -193,11 +197,13 @@ def main(site):    # pylint: disable=too-many-locals
                       len(orphan), site_tree.get_num_files())
 
 
-    with open('%s_missing_nosite.txt' % site, 'w') as nosite:
+    with open(os.path.join(work, '%s_missing_nosite.txt' % site),
+              'w') as nosite:
         for line in no_source_files:
             nosite.write(line + '\n')
 
-    with open('%s_unrecoverable.txt' % site, 'w') as output_file:
+    with open(os.path.join(work, '%s_unrecoverable.txt' % site),
+              'w') as output_file:
         output_file.write('\n'.join(unrecoverable))
 
     extras_results = extras(site, site_tree, is_debugged)

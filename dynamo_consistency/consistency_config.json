@@ -7,8 +7,7 @@
   "ListAge": 5e-05,
   "IgnoreAge": 1,
   "RedirectorAge": 1,
-  "CacheLocation": "cache",
-  "LogLocation": "logs",
+  "VarLocation": "var",
   "Redirectors": {
     "T3_US_MIT": "t3serv006.mit.edu"
   },
@@ -32,5 +31,6 @@
   "Unmerged": [
     "T2_US_MIT"
   ],
-  "UnmergedLogsAge": 60
+  "UnmergedLogsAge": 60,
+  "FreeMem": 5
 }

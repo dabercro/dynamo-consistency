@@ -13,14 +13,19 @@ __usage__ = '%prog [options]'
 
 import os
 import time
+import signal
 import logging
 import datetime
 import traceback
+
+import psutil
 
 from dynamo_consistency import opts
 from dynamo_consistency import config
 from dynamo_consistency import logsetup
 from dynamo_consistency import summary
+from dynamo_consistency import picker
+from dynamo_consistency import signaling
 from dynamo_consistency import lock
 
 from dynamo_consistency.parser import pretty_exe
@@ -33,23 +38,35 @@ if __name__ == '__main__':
     logger = logging.getLogger('dynamo-consistency')
 
     config_dict = config.config_dict()
-    logdir = config_dict['LogLocation']
+    logdir = config.vardir('logs')
 
     # Setup log before spewing stuff
     global_log = os.path.join(logdir, 'consistency.log')
     logsetup.change_logfile(global_log)
 
+    mem_have = psutil.virtual_memory().available
+    mem_want = (int(config_dict['FreeMem']) * 1024**3)
+
+    if mem_have < mem_want:
+        logger.warning('Not enough available memory: Have %f GBs Want %f GBs',
+                       float(mem_have)/1024**3,
+                       float(mem_want)/1024**3)
+        logger.warning('Not running now.')
+        exit(0)
+
     # Get the site to run on
-    site = summary.pick_site(opts.SITE_PATTERN)
+    site = picker.pick_site(opts.SITE_PATTERN)
 
     # Check if needs lock (like for gfal)
     needed_lock = lock.which(site)
 
     try:
 
+        signal.signal(signal.SIGINT, signaling.no_interrupt)
+
         if needed_lock:
             logger.info('%s needs %s lock', site, needed_lock)
-            lock.acquire(needed_lock)
+            needed_lock = lock.acquire(needed_lock)
 
         # Start run and make site green on summary table
         logger.info('Starting run on %s', site)

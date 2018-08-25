@@ -151,9 +151,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 import mock
 
 MOCK_MODULES = ['XRootD.client',
-                'common.inventory',
-                'common.dataformat',
-                'common.interface.mysql',
                 'dynamo.dataformat.Dataset',
                 'dynamo.dataformat.Site',
                 'dynamo.fileop.rlfsm.RLFSM',

@@ -4,6 +4,7 @@ dist/*
 dynamo_consistency.egg-info/*
 
 test/www/*
+test/var/*
 test/html*
 
 test/.coverage

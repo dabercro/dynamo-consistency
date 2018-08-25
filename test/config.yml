@@ -2,8 +2,9 @@
 #
 # - **AccessMethod** - A dictionary of access methods for sites. Sites default to XRootD,
 #   but setting a value of ``SRM`` causes the site to be listed by ``gfal-ls`` commands.
-# - **CacheLocation** - The directory where all cached information is stored
-# - **DirectoryList** - A list of directories inside of ``/store/`` to check consistency.
+# - **DirectoryList** - A list of directories inside of **RootPath** to check consistency.
+# - **FreeMem** - The amount of free memory that is required before ``dynamo-consistency``
+#   tries to run a check. The memory is given in GBs.
 # - **GFALThreads** - The number of threads used by the GFAL listers
 # - **GlobalRedirectors** - The redirectors to start all locate calls from, unless looking
 #   for a site that is listed in the **Redirectors** configuration.
@@ -11,21 +12,21 @@
 # - **IgnoreDirectories** - The check ignores any paths that contain any of the strings in this list.
 # - **InventoryAge** - The age, in days, of how old the information from the inventory can be
 # - **ListAge** - The age, in days, of how old the list of files directly from the site can be
-# - **LogLocation** - The directory where all the logs are stored
 # - **MaxMissing** - If more files than this number are missing,
 #   then there will be no automatic entry into the register
 # - **MaxOrphan** - If more than files than this number are orphan files at a site,
 #   then there will be no automatic entry into the register
 # - **NumThreads** - The number of threads used by the XRootD listers
-# - **PathPrefix** - A dictionary of prefixes to place before ``/store/`` in the XRootD call.
-#   If the prefix is not set for a site, and it fails to list ``/store``, it tries ``/cms/store``
-#   (prefix ``'/cms'``) by default.
+# - **PathPrefix** - A dictionary of prefixes to place before **RootPath** in the XRootD call.
+#   If the prefix is not set for a site, and it fails to list **RootPath**, it uses the default ``/cms``.
 # - **RedirectorAge** - The age, in days, of how old the information on doors from redirectors can be.
 #   If this value is set to zero, the redirector information is never refreshed.
 # - **Redirectors** - A dictionary with keys of sites with hard-coded redirector locations.
 #   If a site is not listed in this way, the redirector is found by matching domains from
 #   :py:func:`CMSToolBox.siteinfo.get_domain` to redirectors found in a generic ``xrdfs locate`` call.
 # - **Retries** - Number of retries after timeouts to attempt
+# - **RootPath** - The directory where all of the listed subdirectories will be under.
+#   For CMS sites, this will be ``"/store"``
 # - **SaveCache** - If set and evaluates to True, copies old cached directory trees instead of overwriting
 # - **Timeout** - This gives the amount of time, in seconds, that you want the listing to try to run
 #   on a single directory before it times out.
@@ -33,6 +34,14 @@
 #   If the list is empty, all the sites are managed centrally
 # - **UnmergedLogsAge** - The minimum age of the unmerged logs to be deleted, in days
 # - **UseLoadBalancer** - A list of sites where the main redirector of the site is used
+# - **VarLocation** - The location for the varying directory.
+#   Inside this directory will be::
+#
+#     - Logs
+#     - Redirector lists
+#     - Cached trees
+#     - Lock files
+#
 # - **WebDir** - The directory where text files and the sqlite3 database live
 #
 ##!
@@ -47,9 +56,7 @@ NumThreads: 1
 
 GFALThreads: 32
 
-CacheLocation: cache
-
-LogLocation: logs
+VarLocation: var
 
 InventoryAge: 0.00005
 
@@ -66,6 +73,8 @@ PathPrefix:
 
 AccessMethod:
   T2_FR_GRIF_LLR: SRM
+
+RootPath: /store
 
 DirectoryList:
   - mc

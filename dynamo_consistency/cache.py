@@ -38,7 +38,7 @@ def cache_tree(config_age, location_suffix):
             config_dict = config.config_dict()
 
             # Make cache directory if it doesn't exist first
-            cache_dir = os.path.join(config_dict['CacheLocation'], site)
+            cache_dir = os.path.join(config_dict['VarLocation'], 'cache', site)
             if not os.path.exists(cache_dir):
                 os.makedirs(cache_dir)
 

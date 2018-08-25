@@ -109,7 +109,7 @@ Manually Setting XRootD Doors
 
 In addition to the **Redirectors** key in the configuration file, which sets the redirector for a site,
 there is also a mechanism for setting all the doors for a site.
-A list of possible doors can be found at ``<CacheLocation>/<SiteName>_redirector_list.txt``.
+A list of possible doors can be found at ``<VarLocation>/redirectors/<SiteName>_redirector_list.txt``.
 Any url in that list that matches the domain of the site will be used to make ``xrootd`` calls.
 To add or remove urls from this list, just add or remove lines from this file.
 
@@ -119,4 +119,4 @@ To add or remove urls from this list, just add or remove lines from this file.
    To force the generation of a new list when the **RedirectorAge** is set to ``0``,
    simply delete the redirector list file for that site.
 
-A list of redirectors found by the global redirectors is stored in ``<CacheLocation>/redirector_list.txt``.
+A list of redirectors found by the global redirectors is stored in ``<VarLocation>/redirectors/redirector_list.txt``.

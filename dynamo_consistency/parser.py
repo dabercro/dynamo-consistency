@@ -71,7 +71,9 @@ def get_parser(modname='__main__',
                                  help='Run actions on "/store/unmerged".')
 
     backend_group.add_option('--v1', action='store_true', dest='V1',
-                             help='Connect to Dynamo from outside with old Dynamo libraries')
+                             help='Connect to Dynamo database directly')
+    backend_group.add_option('--v1-reporting', action='store_true', dest='V1_REPORTING',
+                             help='Connect to Dynamo database directly for registry only')
     backend_group.add_option('--test', action='store_true', dest='TEST',
                              help='Run with a test instance of backend module.')
 
