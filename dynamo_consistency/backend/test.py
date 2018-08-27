@@ -8,6 +8,7 @@ dynamo_consistency.backend for running tests with
 
 import os
 
+from .. import config
 
 # These are all the methods needed from inventory
 class _Inventory(object):
@@ -20,11 +21,17 @@ class _Inventory(object):
 
 
 class _Registry(object):
-    @staticmethod
-    def delete(site, files):
+    def __init__(self):
+        self.deleted = []
+        self.transfered = []
+
+    def delete(self, site, files):
+        self.deleted = files # This overwrites previous deletion call
         return len(files)
-    @staticmethod
-    def transfer(site, files):
+
+    def transfer(self, site, files):
+        # This overwrites previous transfer call
+        self.transfered = [(site, fil) for fil in files]
         return [], []
 
 
@@ -37,9 +44,12 @@ class _SiteInfo(object):
         return set(['TEST_SITE'])
 
 
-def _ls(path, location='tmp'):
+TMP_DIR = 'TempConsistency'
 
-    full_path = os.path.join(location, path)
+
+def _ls(path, location=TMP_DIR):
+
+    full_path = os.path.join(location, path[len(config.config_dict()['RootPath']) + 1:])
     results = [os.path.join(full_path, res) for res in os.listdir(full_path)]
 
     dirs = [(os.path.basename(name), os.stat(name).st_mtime)

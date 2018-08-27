@@ -30,6 +30,7 @@ import unittest
 import logging
 
 from base import TestBase
+from base import TestListing
 from base import TMP_DIR
 
 from dynamo_consistency import datatypes
@@ -118,18 +119,7 @@ class TestTree(TestBase):
         self.check_equal(self.tree, two_tree)
         self.check_equal(one_tree, two_tree)
 
-class TestConsistentTrees(TestBase):
-
-    def do_more_setup(self):
-        for name, size in self.file_list:
-            path = os.path.join(TMP_DIR, name[7:])
-            if not os.path.isdir(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-            out = open(path, 'w')
-            out.write('\0' * size)
-            out.close()
-
-            os.utime(path, (1000000000, 1000000000))
+class TestConsistentTrees(TestListing):
 
     def test_callback(self):
         called = {'check': False}

@@ -32,5 +32,13 @@
     "T2_US_MIT"
   ],
   "UnmergedLogsAge": 60,
-  "FreeMem": 5
+  "FreeMem": 5,
+  "ListDeletable": {
+    "LFN_TO_CLEAN": "/store/unmerged",
+    "UNMERGED_DIR_LOCATION": "/store/unmerged",
+    "WHICH_LIST": "files",
+    "DELETION_FILE": "_unmerged.txt",
+    "DIRS_TO_AVOID": ["logs", "tier0_harvest", "express", "data"],
+    "MIN_AGE": 2419200
+  }
 }
