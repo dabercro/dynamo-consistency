@@ -26,7 +26,7 @@ class _Registry(object):
         self.transfered = []
 
     def delete(self, site, files):
-        self.deleted = files # This overwrites previous deletion call
+        self.deleted = sorted(files) # This overwrites previous deletion call
         return len(files)
 
     def transfer(self, site, files):

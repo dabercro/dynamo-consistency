@@ -41,6 +41,10 @@ class TestUnmerged(base.TestListing):
 
     def test_deletion_file(self):
         unmerged.clean_unmerged('test')
+        self.assertEqual(registry.deleted,
+                         sorted(['/store/unmerged/notprot/000/qwert.root',
+                                '/store/unmerged/logs/000/logfile.tar.gz'
+                                ]))
 
 
 class TestSetup(unittest.TestCase):
