@@ -2,20 +2,20 @@
 A small module for handling signals
 """
 
-import os
+import logging
 
 from . import config
+from . import summary
 
 
-def no_interrupt(*_):
+LOG = logging.getLogger(__name__)
+
+
+def halt(signum, _):
     """
-    Gives a message to the person who attempted the interrupt
-    to use ``set-status`` instead.
+    Halts the current listing using the summary tables
     """
 
-    print """
-  Please do not cancel threaded applications this way.
-  Run the following instead:
+    LOG.warning('Received signal %i. Terminating', signum)
 
-    set-status --config %s %s halt
-""" % (os.path.abspath(config.LOCATION), config.SITE)
+    summary.set_status(config.SITE, summary.HALT)

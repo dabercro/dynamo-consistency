@@ -62,7 +62,8 @@ if __name__ == '__main__':
 
     try:
 
-        signal.signal(signal.SIGINT, signaling.no_interrupt)
+        signal.signal(signal.SIGINT, signaling.halt)
+        signal.signal(signal.SIGTERM, signaling.halt)
 
         if needed_lock:
             logger.info('%s needs %s lock', site, needed_lock)
