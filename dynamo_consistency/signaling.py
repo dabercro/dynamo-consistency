@@ -14,7 +14,6 @@ LOG = logging.getLogger(__name__)
 def halt(signum, _):
     """
     Halts the current listing using the summary tables
-    :param int signum: Signal number
     """
 
     LOG.warning('Received signal %i. Terminating', signum)
