@@ -64,7 +64,7 @@ class MySQL(object):
                 try:
                     cursor.execute(sql, args)
                     break
-                except MySQLdb.OperationalError:
+                except MySQLdb.OperationalError: # pylint: disable=c-extension-no-member
                     LOG.error(str(sys.exc_info()[1]))
                     last_except = sys.exc_info()[1]
                     # reconnect to server
