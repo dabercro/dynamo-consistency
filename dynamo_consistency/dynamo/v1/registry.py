@@ -19,7 +19,8 @@ def _get_registry():
     :returns: A connection to the registry database.
     :rtype: :py:class:`MySQL`
     """
-    if os.environ['USER'] == 'dynamo':
+    # Super quick bad hack to point to the right thing if inside server
+    if os.environ.get('DYNAMO_SPOOL') or os.environ['USER'] == 'dynamo':
         return MySQL(config_file='/etc/my.cnf',
                      db='dynamoregister', config_group='mysql-dynamo')
     return MySQL(config_file=os.path.join(os.environ['HOME'], 'my.cnf'),
