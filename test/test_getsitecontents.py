@@ -8,14 +8,7 @@ import unittest
 import logging
 import time
 
-try:
-    from dynamo_consistency import getsitecontents
-except ImportError:
-    print 'Cannot import dynamo_consistency.getsitecontents.'
-    print 'Probably do not have XRootD installed here'
-    # Return 0 for Travis-CI
-    exit(0)
-
+from dynamo_consistency import remotelister
 from dynamo_consistency import datatypes
 from dynamo_consistency import config
 
@@ -39,7 +32,7 @@ class TestT3Listing(unittest.TestCase):
 
     def test_xrd_on_t3(self):
 
-        remote_tree = getsitecontents.get_site_tree('T3_US_MIT')
+        remote_tree = remotelister.listing('T3_US_MIT')
 
         local_listing = datatypes.DirectoryInfo(
             '/store', directories=[
@@ -58,6 +51,9 @@ class TestT3Listing(unittest.TestCase):
 
 if __name__ == '__main__':
 
+    # no test for now
+    exit(0)
+
     if len(sys.argv) > 1:
         start = time.time()
 
@@ -66,7 +62,7 @@ if __name__ == '__main__':
         else:
             logging.basicConfig(level=logging.DEBUG)
 
-        tree = getsitecontents.get_site_tree(sys.argv[1])
+        tree = remotelister.listing(sys.argv[1])
         tree.display()
 
         print '\nDuration: %f seconds\n' % (time.time() - start)
