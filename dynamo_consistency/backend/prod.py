@@ -49,7 +49,7 @@ else:
         """Should return if the site is ready to run over or not"""
         return _READY(site)
 
-    def deletion_requests():
+    def deletion_requests(_):
         """Should return the set of deletion requests that may still be pending"""
         return set()
 

@@ -5,6 +5,9 @@ Defines commands for submitting deletion and transfer requests
 import os
 import logging
 
+from ... import opts
+from ... import config
+
 from .mysql import MySQL
 
 from .inventory import _get_inventory
@@ -20,11 +23,21 @@ def _get_registry():
     :rtype: :py:class:`MySQL`
     """
     # Super quick bad hack to point to the right thing if inside server
-    if os.environ.get('DYNAMO_SPOOL') or os.environ['USER'] == 'dynamo':
+    if (os.environ.get('DYNAMO_SPOOL') or os.environ['USER'] == 'dynamo') \
+            and opts.CMS:
         return MySQL(config_file='/etc/my.cnf',
                      db='dynamoregister', config_group='mysql-dynamo')
-    return MySQL(config_file=os.path.join(os.environ['HOME'], 'my.cnf'),
-                 db='dynamoregister', config_group='mysql-register-test')
+
+    # This is also really bad. Only works at MIT.
+    return MySQL(**(
+        config.config_dict().get('DBConfig', {}).get(
+            'Registry',
+            { # Default registry config
+                'config_file': os.path.join(os.environ['HOME'], 'my.cnf'),
+                'db': 'dynamoregister',
+                'config_group': 'mysql-register-test'
+            }
+        )))
 
 
 def delete(site, files):
