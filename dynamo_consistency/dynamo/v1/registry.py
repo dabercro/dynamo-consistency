@@ -6,6 +6,7 @@ import os
 import logging
 
 from ... import opts
+from ... import config
 
 from .mysql import MySQL
 
@@ -28,13 +29,15 @@ def _get_registry():
                      db='dynamoregister', config_group='mysql-dynamo')
 
     # This is also really bad. Only works at MIT.
-    return MySQL(
-        config_file=os.path.join(
-            os.environ.get('HOME', '/home/dabercro'),
-            'reg.cnf'),
-        db='dynamoregister',
-        config_group='mysql-register-test'
-        )
+    return MySQL(**(
+        config.config_dict().get('DBConfig', {}).get(
+            'Registry',
+            { # Default registry config
+                'config_file': os.path.join(os.environ['HOME'], 'my.cnf'),
+                'db': 'dynamoregister',
+                'config_group': 'mysql-register-test'
+            }
+        )))
 
 
 def delete(site, files):
