@@ -148,7 +148,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
                                            os.stat(prev_missing).st_mtime).strftime('%y%m%d')
                                       )
         else:
-            prev_new_name = prev_missing
+            prev_new_name = os.path.basename(prev_missing)
 
         shutil.move(prev_missing,
                     os.path.join(config.vardir('web_bak'),
