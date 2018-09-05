@@ -27,8 +27,8 @@ class TestHistory(unittest.TestCase):
         self.assertFalse(history.RUN)
 
     def test_missing(self):
-        with self.assertRaises(history.NotRunning):
-            history.report_missing(self.missing)
+        self.assertRaises(history.NotRunning,
+                          history.report_missing, self.missing)
 
         history.start_run()
         history.report_missing(self.missing)
