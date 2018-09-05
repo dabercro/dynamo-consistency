@@ -31,8 +31,6 @@ _INV = sorted([
     ('/store/data/runA/0030/stuff.root', 10),
     ])
 
-from .. import config
-
 # These are all the methods needed from inventory
 class _Inventory(object):
     @staticmethod
