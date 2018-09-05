@@ -44,9 +44,8 @@ def _connect(running=False):
     curs = conn.cursor()
 
     if new:
-        with open(os.path.join(
-                os.path.dirname(__file__),
-                'report_schema.sql'), 'r') as script_file:
+        with open(os.path.join(os.path.dirname(__file__),
+                               'report_schema.sql'), 'r') as script_file:
             script_text = ''.join(script_file)
 
         curs.executescript(script_text)
@@ -90,7 +89,7 @@ def finish_run():
     Called in :py:func:dynamo_consistency.main.main`
     to register the end of a consistency run
     """
-    
+
     global RUN # pylint: disable=global-statement
     conn, curs = _connect(True)
 
@@ -106,6 +105,11 @@ def finish_run():
 
 
 def report_missing(missing):
+    """
+    Stores a list of missing files in the invalidation database
+    :param list missing: A list of tuples, where each tuple is a name, size pair
+    """
+
     conn, curs = _connect(True)
 
     curs.executemany(
@@ -120,6 +124,17 @@ def report_missing(missing):
 
 
 def missing_files(site, acting=False):
+    """
+    Get the missing files from the consistency database.
+    If the caller identifies itself as acting on the list,
+    the list is moved into the history with the acted flag `True`.
+
+    :param str site: Name of a site to get missing files for
+    :param bool acting: Whether or not the caller is acting on the files
+    :returns: The LFNs that were missing
+    :rtype: list
+    """
+
     conn, curs = _connect()
 
     curs.execute(
