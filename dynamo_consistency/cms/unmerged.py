@@ -82,7 +82,8 @@ def report_contents(timestamp, site, files):
     if os.path.exists(db_dest):
         os.remove(db_dest)
     # Move this over to the web directory
-    shutil.move(db_name, config_dict['WebDir'])
+    if os.path.exists(config_dict['WebDir']):
+        shutil.move(db_name, config_dict['WebDir'])
 
 
 def clean_unmerged(site):

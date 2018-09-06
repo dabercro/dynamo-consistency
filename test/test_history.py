@@ -62,6 +62,21 @@ class TestHistory(unittest.TestCase):
         self.assertEqual(history.missing_files('TEST_SITE_NAME_2'),
                          sorted([miss[0] for miss in missing2]))
 
+    def test_two_runs(self):
+        missing2 = [('/store/mc/4/missing.root', 2),
+                    ('/store/mc/3/missing.root', 100),
+                    ]
+
+        history.start_run()
+        history.report_missing(self.missing)
+        history.finish_run()
+        history.start_run()
+        history.report_missing(missing2)
+        history.finish_run()
+
+        self.assertEqual(history.missing_files('TEST_SITE_NAME'),
+                         sorted([miss[0] for miss in missing2]))
+
     def test_acting(self):
         history.start_run()
         history.report_missing(self.missing)

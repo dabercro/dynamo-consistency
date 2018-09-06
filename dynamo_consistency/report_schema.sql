@@ -26,7 +26,7 @@ CREATE INDEX empty_directories_site ON empty_directories(site);
 CREATE TABLE empty_directories_history (
   site INTEGER,
   run INTEGER,
-  directory VARCHAR (512),
+  name VARCHAR (512),
   entered DATETIME,
   acted INTEGER,
   FOREIGN KEY(site) REFERENCES sites(rowid),

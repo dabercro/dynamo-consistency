@@ -4,6 +4,7 @@
 
 import os
 import sys
+import shutil
 import unittest
 
 from dynamo_consistency.cms import unmerged

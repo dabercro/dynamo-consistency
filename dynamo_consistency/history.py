@@ -121,7 +121,9 @@ def _current_siteid(curs):
 
 def _report_files(table, files):
     """
-    Reports to either invalid table or orphan table
+    Reports to either invalid table or orphan table.
+    Moves old files to the history table if they haven't been acted on yet.
+
     :param str table: Which table to use
     :param list files: Tuples of name, size of files to report
     """
@@ -130,6 +132,22 @@ def _report_files(table, files):
 
     _insert_directories(curs, files)
     siteid = _current_siteid(curs)
+
+    # Copy into history
+    curs.execute(
+        """
+        INSERT INTO {table}_history
+        (site, run, directory, name, size, entered, acted)
+        SELECT site, run, directory, {table}.name, size, entered, 0
+        FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
+    # Remove old entries
+    curs.execute(
+        """
+        DELETE FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
 
     curs.executemany(
         """
@@ -268,12 +286,29 @@ def report_empty(directories):
     conn, curs = _connect()
 
     siteid = _current_siteid(curs)
+    table = 'empty_directories'
+
+    # Copy into history
+    curs.execute(
+        """
+        INSERT INTO {table}_history
+        (site, run, name, entered, acted)
+        SELECT site, run, {table}.name, entered, 0
+        FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
+    # Remove old entries
+    curs.execute(
+        """
+        DELETE FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
 
     curs.executemany(
         """
-        INSERT INTO empty_directories (site, run, name)
+        INSERT INTO {table} (site, run, name)
         VALUES (?, ?, ?)
-        """,
+        """.format(table=table),
         [(siteid, RUN, name) for name in directories])
 
     conn.commit()

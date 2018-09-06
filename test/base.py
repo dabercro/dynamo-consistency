@@ -20,6 +20,10 @@ class TestBase(unittest.TestCase):
         ]
 
     def setUp(self):
+        for dirname in ['www', 'var']:
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname)
+
         if os.path.exists(TMP_DIR):
             print 'Desired directory location already exists!'
             exit(1)
