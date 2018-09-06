@@ -130,6 +130,17 @@ class TestUnfilled(TestBase):
         remover(self.tree)
         self.assertTrue(remover.get_removed_count())
 
+class TestWeird(unittest.TestCase):
+    def test_off_root(self):
+        tree = datatypes.DirectoryInfo('mc')
+        node = tree.get_node('test/an/empty')
+        node.mtime = 1
+        node.files = []
+        tree.setup_hash()
+        remover = EmptyRemover('test', lambda path: path == '/store/mc/test/an/empty')
+        remover(tree)
+        self.assertFalse(remover.get_removed_count())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -33,6 +33,22 @@ class EmptyRemover(object):
         self.removed = 0
         self.root = config.config_dict()['RootPath']
 
+    def fullname(self, name):
+        """
+        Get the full LFN of a path.
+        Checkes if the root is included, and adds it if necessary.
+
+        .. Note::
+           Won't work if the root name is the same as a relative path inside it.
+
+        :param str name: May be a relative path to the root
+        :returns: Full LFN
+        :rtype: str
+        """
+
+        return join(self.root, name) \
+            if not name.startswith(self.root) else name
+
     def __call__(self, tree):
         """
         Removes acceptable empty directories from the tree
@@ -41,7 +57,7 @@ class EmptyRemover(object):
         """
         tree.setup_hash()
         empties = [empty for empty in tree.empty_nodes_list()
-                   if not self.check(join(tree.name, empty))]
+                   if not self.check(self.fullname(empty))]
 
         LOG.debug('Sees %s', empties)
 
@@ -57,9 +73,7 @@ class EmptyRemover(object):
         for path in not_empty:
             empties.remove(path)
 
-        full_empties = [join(self.root, name) \
-                            if not name.startswith(self.root) else name \
-                            for name in empties]
+        full_empties = [self.fullname(name) for name in empties]
 
         history.report_empty(full_empties)
 
