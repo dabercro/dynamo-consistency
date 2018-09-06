@@ -28,7 +28,7 @@ CREATE TABLE empty_directories_history (
   run INTEGER,
   name VARCHAR (512),
   entered DATETIME,
-  acted INTEGER,
+  acted DATETIME,
   FOREIGN KEY(site) REFERENCES sites(rowid),
   FOREIGN KEY(run) REFERENCES runs(rowid)
 );
@@ -63,7 +63,7 @@ CREATE TABLE invalid_history (
   name VARCHAR (64),
   size BIGINT,
   entered DATETIME,
-  acted INTEGER,
+  acted DATETIME,
   FOREIGN KEY(site) REFERENCES sites(rowid),
   FOREIGN KEY(run) REFERENCES runs(rowid),
   FOREIGN KEY(directory) REFERENCES directories(rowid)
@@ -93,7 +93,7 @@ CREATE TABLE orphans_history (
   name VARCHAR (64),
   size BIGINT,
   entered DATETIME,
-  acted INTEGER,
+  acted DATETIME,
   FOREIGN KEY(site) REFERENCES sites(rowid),
   FOREIGN KEY(run) REFERENCES runs(rowid),
   FOREIGN KEY(directory) REFERENCES directories(rowid)
@@ -123,7 +123,7 @@ CREATE TABLE unmerged_history (
   name VARCHAR (64),
   size BIGINT,
   entered DATETIME,
-  acted INTEGER,
+  acted DATETIME,
   FOREIGN KEY(site) REFERENCES sites(rowid),
   FOREIGN KEY(run) REFERENCES runs(rowid),
   FOREIGN KEY(directory) REFERENCES directories(rowid)

@@ -191,7 +191,8 @@ def _get_files(table, site, acting):
             """
             INSERT INTO {table}_history
             (site, run, directory, name, size, entered, acted)
-            SELECT site, run, directory, {table}.name, size, entered, 1
+            SELECT site, run, directory, {table}.name, size,
+                   entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
             WHERE sites.name = ?
@@ -344,7 +345,8 @@ def emtpy_directories(site, acting=False):
             """
             INSERT INTO {table}_history
             (site, run, name, entered, acted)
-            SELECT site, run, {table}.name, entered, 1
+            SELECT site, run, {table}.name,
+                   entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
             WHERE sites.name = ?
