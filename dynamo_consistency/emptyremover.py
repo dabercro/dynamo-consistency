@@ -7,6 +7,8 @@ import logging
 from os.path import join
 
 from . import datatypes
+from . import history
+from . import config
 from .backend import registry
 
 
@@ -29,6 +31,7 @@ class EmptyRemover(object):
         self.site = site
         self.check = check or (lambda _: False)
         self.removed = 0
+        self.root = config.config_dict()['RootPath']
 
     def __call__(self, tree):
         """
@@ -39,6 +42,8 @@ class EmptyRemover(object):
         tree.setup_hash()
         empties = [empty for empty in tree.empty_nodes_list()
                    if not self.check(join(tree.name, empty))]
+
+        LOG.debug('Sees %s', empties)
 
         not_empty = []
 
@@ -52,7 +57,14 @@ class EmptyRemover(object):
         for path in not_empty:
             empties.remove(path)
 
-        self.removed += registry.delete(self.site, empties) if self.site else len(empties)
+        full_empties = [join(self.root, name) \
+                            if not name.startswith(self.root) else name \
+                            for name in empties]
+
+        history.report_empty(full_empties)
+
+        self.removed += registry.delete(self.site, full_empties) \
+            if self.site else len(full_empties)
 
     def get_removed_count(self):
         """

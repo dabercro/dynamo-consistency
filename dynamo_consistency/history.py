@@ -8,19 +8,11 @@ import sqlite3
 from . import config
 
 
-class NotRunning(Exception):
-    """
-    An exception to throw when inserting results, but no run has been started
-    """
-    pass
-
-
 RUN = 0
 
 
-def _connect(running=False):
+def _connect():
     """
-    :param bool running: This connection should only be done if running.
     :returns: A connection to the consistency database, along with a cursor.
               It creates the invalid table, if needed.
 
@@ -29,12 +21,7 @@ def _connect(running=False):
                  This connection needs to be closed by the caller
 
     :rtype: sqlite3.Connection, sqlite3.Cursor
-    :raises NotRunning: If `running` is `True`
-                        and the global `RUN` hasn't been set.
     """
-
-    if running and not RUN:
-        raise NotRunning('Not running. Bad call to update DB.')
 
     dbname = os.path.join(config.vardir('db'), 'consistency.db')
 
@@ -91,7 +78,7 @@ def finish_run():
     """
 
     global RUN # pylint: disable=global-statement
-    conn, curs = _connect(True)
+    conn, curs = _connect()
 
     curs.execute("""
                  UPDATE runs SET finished = DATETIME('NOW', 'LOCALTIME')
@@ -125,6 +112,9 @@ def _current_siteid(curs):
     :returns: The ID of the site
     :rtype: int
     """
+    if not RUN:
+        return None
+
     curs.execute('SELECT rowid FROM sites WHERE name = ?', (config.SITE, ))
     return curs.fetchone()[0]
 
@@ -136,7 +126,7 @@ def _report_files(table, files):
     :param list files: Tuples of name, size of files to report
     """
 
-    conn, curs = _connect(True)
+    conn, curs = _connect()
 
     _insert_directories(curs, files)
     siteid = _current_siteid(curs)
@@ -182,8 +172,8 @@ def _get_files(table, site, acting):
         curs.execute(
             """
             INSERT INTO {table}_history
-            (site, run, name, size, entered, acted)
-            SELECT site, run, {table}.name, size, entered, 1
+            (site, run, directory, name, size, entered, acted)
+            SELECT site, run, directory, {table}.name, size, entered, 1
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
             WHERE sites.name = ?
@@ -268,3 +258,73 @@ def unmerged_files(site, acting=False):
     :rtype: list
     """
     return _get_files('unmerged', site, acting)
+
+
+def report_empty(directories):
+    """
+    Adds emtpy directories to history database
+    :param list directories: A list of director names
+    """
+    conn, curs = _connect()
+
+    siteid = _current_siteid(curs)
+
+    curs.executemany(
+        """
+        INSERT INTO empty_directories (site, run, name)
+        VALUES (?, ?, ?)
+        """,
+        [(siteid, RUN, name) for name in directories])
+
+    conn.commit()
+    conn.close()
+
+
+def emtpy_directories(site, acting=False):
+    """
+    Get the list of empty directories.
+    If acting on them, the directories are moved into the history database.
+
+    :param str site: Name of a site to get empty directories for
+    :param bool acting: Whether or not the caller is acting on the list
+    :returns: The directory list
+    :rtype: list
+    """
+    conn, curs = _connect()
+
+    table = 'empty_directories'
+
+    curs.execute(
+        """
+        SELECT {table}.name FROM {table}
+        LEFT JOIN sites ON sites.rowid = {table}.site
+        WHERE sites.name = ?
+        ORDER BY {table}.name DESC
+        """.format(table=table), (site, ))
+
+    output = [out[0] for out in curs.fetchall()]
+
+    if acting:
+        curs.execute(
+            """
+            INSERT INTO {table}_history
+            (site, run, name, entered, acted)
+            SELECT site, run, {table}.name, entered, 1
+            FROM {table}
+            LEFT JOIN sites ON sites.rowid = {table}.site
+            WHERE sites.name = ?
+            """.format(table=table), (site, )
+            )
+        curs.execute(
+            """
+            DELETE FROM {table}
+            WHERE site IN (
+              SELECT rowid FROM sites
+              WHERE sites.name = ?
+            )
+            """.format(table=table), (site, ))
+
+    conn.commit()
+    conn.close()
+
+    return output

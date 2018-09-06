@@ -17,6 +17,7 @@ from . import remotelister
 from . import datatypes
 from . import summary
 from . import filters
+from . import history
 from .backend import registry
 from .backend import inventory
 from .backend import filelist_to_blocklist
@@ -86,6 +87,18 @@ def extras(site):
     return output
 
 
+def report_files(inv, remote, missing, orphans):
+    """
+    Reports files to the history database
+    :param dynamo_consistency.datatypes.DirectoryInfo inv: The inventory listing
+    :param dynamo_consistency.datatypes.DirectoryInfo remote: The remote listing
+    :param list missing: Missing files
+    :param list orphans: Orphan files
+    """
+    history.report_missing([(name, inv.get_file(name)['size']) for name in missing])
+    history.report_orphan([(name, remote.get_file(name)['size']) for name in orphans])
+
+
 # Need to make this smaller
 def compare_with_inventory(site):    # pylint: disable=too-many-locals
     """
@@ -117,6 +130,8 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
         inv_tree, site_tree, os.path.join(work, '%s_compare' % site),
         orphan_check=check_orphans.protected,
         missing_check=check_missing.protected)
+
+    report_files(inv_tree, site_tree, missing, orphan)
 
     LOG.info('Missing size: %i, Orphan size: %i', m_size, o_size)
 
@@ -157,13 +172,14 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
 
     is_debugged = summary.is_debugged(site)
 
+    # Only get the empty nodes that are not in the inventory tree
+    empties = [empty_node for empty_node in site_tree.empty_nodes_list() \
+                   if not inv_tree.get_node('/'.join(empty_node.split('/')[2:]),
+                                            make_new=False)]
+
     if is_debugged and not many_missing and not many_orphans:
-        # Only get the empty nodes that are not in the inventory tree
-        registry.delete(site,
-                        orphan + [empty_node for empty_node in site_tree.empty_nodes_list() \
-                                      if not inv_tree.get_node('/'.join(empty_node.split('/')[2:]),
-                                                               make_new=False)]
-                       )
+        registry.delete(site, orphan + empties)
+        history.report_empty(empties)
 
         no_source_files, unrecoverable = registry.transfer(
             site, [f for f in missing if f in prev_set or not prev_set])
@@ -215,7 +231,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
         return start, {
             'numfiles': site_tree.get_num_files(),
             'numnodes': remover.get_removed_count() + site_tree.count_nodes(),
-            'numempty': remover.get_removed_count() + len(site_tree.empty_nodes_list()),
+            'numempty': remover.get_removed_count() + len(empties),
             'nummissing': len(missing),
             'missingsize': m_size,
             'numorphan': len(orphan),
@@ -238,6 +254,8 @@ def main(site):
     :param str site: Site to run over
     """
 
+    history.start_run()
+
     start, report = compare_with_inventory(site)
 
     extras_results = extras(site)
@@ -256,3 +274,5 @@ def main(site):
             **report)
 
         summary.move_local_files(site)
+
+    history.finish_run()

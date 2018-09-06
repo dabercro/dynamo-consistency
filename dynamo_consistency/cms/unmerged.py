@@ -11,6 +11,7 @@ from cmstoolbox.unmergedcleaner import listdeletable
 
 from .. import config
 from .. import datatypes
+from .. import history
 from .. import remotelister
 from ..backend import registry
 from ..emptyremover import EmptyRemover
@@ -178,6 +179,8 @@ def clean_unmerged(site):
 
     report_contents(site_tree.timestamp, site,
                     [f for f in site_tree.get_files() if f not in to_delete])
+
+    history.report_unmerged([(name, site_tree.get_file(name)['size']) for name in to_delete])
 
     return registry.delete(site, to_delete), len(
         [f for f in to_delete if f.strip().endswith('.tar.gz')])

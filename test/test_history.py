@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import sys
 import unittest
 import shutil
 import sqlite3
@@ -32,9 +33,6 @@ class TestHistory(unittest.TestCase):
         self.assertFalse(history.RUN)
 
     def test_missing(self):
-        self.assertRaises(history.NotRunning,
-                          history.report_missing, self.missing)
-
         history.start_run()
         history.report_missing(self.missing)
         history.finish_run()
@@ -118,6 +116,18 @@ class TestHistory(unittest.TestCase):
 
         self.assertFalse(history.RUN)
 
+        # See dynamo_consistency.backend.test for expected results
+
+        self.assertEqual(history.missing_files(main.config.SITE),
+                         ['/store/data/runB/0003/missing.root'])
+        self.assertEqual(history.orphan_files(main.config.SITE),
+                         ['/store/data/runB/0001/orphan.root'])
+        self.assertEqual(history.emtpy_directories(main.config.SITE),
+                         ['/store/data/runC/0000/emtpy/dir',
+                          '/store/data/runC/0000/emtpy',
+                          '/store/data/runC/0000',
+                          '/store/data/runC'])
+
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])
