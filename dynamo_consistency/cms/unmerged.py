@@ -5,14 +5,19 @@ A module for handling the listing and cleaning of /store/unmerged
 import os
 import sqlite3
 import shutil
+import logging
 
 from cmstoolbox.unmergedcleaner import listdeletable
 
 from .. import config
 from .. import datatypes
+from .. import history
 from .. import remotelister
 from ..backend import registry
 from ..emptyremover import EmptyRemover
+
+
+LOG = logging.getLogger(__name__)
 
 
 def report_contents(timestamp, site, files):
@@ -123,22 +128,25 @@ def clean_unmerged(site):
 
         # If the directory is explicitly protected, of course don't delete it
         if bool(protected_tree.get_node(path, make_new=False)):
+            LOG.debug('%s is protected', path)
             return True
 
         for protected in listdeletable.PROTECTED_LIST:
             # If a subdirectory, don't delete
             if path.startswith(protected):
+                LOG.debug('%s is protected', path)
                 return True
             # We sorted the protected list, so we don't have to check all of them
             if path < protected:
                 break
 
+        LOG.debug('%s is NOT protected', path)
         return False
 
 
     # And do a listing of unmerged
     site_tree = remotelister.listing(    # pylint: disable=unexpected-keyword-arg
-        site, cache='unmerged',
+        site, cache='unmerged',          # cache keyword comes from cache decorator
         callback=EmptyRemover(site, check_protected))
 
     # Setup the config a bit more
@@ -171,6 +179,8 @@ def clean_unmerged(site):
 
     report_contents(site_tree.timestamp, site,
                     [f for f in site_tree.get_files() if f not in to_delete])
+
+    history.report_unmerged([(name, site_tree.get_file(name)['size']) for name in to_delete])
 
     return registry.delete(site, to_delete), len(
         [f for f in to_delete if f.strip().endswith('.tar.gz')])

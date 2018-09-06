@@ -47,3 +47,17 @@ class TestBase(unittest.TestCase):
         self.assertEqual(tree0.get_num_files(), tree1.get_num_files())
         self.assertEqual(tree0.get_num_files(True), tree1.get_num_files(True))
 
+
+
+class TestListing(TestBase):
+
+    def do_more_setup(self):
+        for name, size in self.file_list:
+            path = os.path.join(TMP_DIR, name[7:])
+            if not os.path.isdir(os.path.dirname(path)):
+                os.makedirs(os.path.dirname(path))
+            out = open(path, 'w')
+            out.write('\0' * size)
+            out.close()
+
+            os.utime(path, (1000000000, 1000000000))

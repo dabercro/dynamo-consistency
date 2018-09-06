@@ -17,6 +17,7 @@ from . import remotelister
 from . import datatypes
 from . import summary
 from . import filters
+from . import history
 from .backend import registry
 from .backend import inventory
 from .backend import filelist_to_blocklist
@@ -54,14 +55,12 @@ def make_filters(site):
     return (make(acceptable_orphans), make(acceptable_missing))
 
 
-def extras(site, site_tree=None, debugged=False):
+def extras(site):
     """
     Runs a bunch of functions after the main consistency check,
     depending on the presence of certain arguments and configuration
 
     :param str site: For use to pass to extras
-    :param dynamo_consistency.datatypes.DirectoryInfo site_tree: Same thing
-    :param bool debugged: If not debugged, the heavier things will not be run on the site
     :returns: Dictionary with interesting results. Keys include the following:
 
               - ``"unmerged"`` - A tuple listing unmerged files removed and unmerged logs
@@ -70,6 +69,8 @@ def extras(site, site_tree=None, debugged=False):
     """
 
     output = {}
+
+    debugged = summary.is_debugged(site)
 
     if debugged and opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
         # This is a really ugly thing, so we hide it here
@@ -83,39 +84,32 @@ def extras(site, site_tree=None, debugged=False):
                           os.path.join(work, '%s_compare_missing.txt' % site),
                           os.path.join(work, '%s_missing_datasets.txt' % site))
 
-    # Make a JSON file reporting storage usage
-    if site_tree and site_tree.get_num_files():
-        storage = {
-            'storeageservice': {
-                'storageshares': [{
-                    'numberoffiles': node.get_num_files(),
-                    'path': [os.path.normpath(os.path.join(site_tree.name, subdir))],
-                    'timestamp': str(int(time.time())),
-                    'totalsize': 0,
-                    'usedsize': node.get_directory_size()
-                    } for node, subdir in [(site_tree.get_node(path), path) for path in
-                                           [''] + [d.name for d in site_tree.directories]]
-                                  if node.get_num_files()]
-                }
-            }
-
-        with open(os.path.join(config.config_dict()['WebDir'], '%s_storage.json' % site), 'w') \
-                as storage_file:
-            json.dump(storage, storage_file)
-
     return output
 
 
+def report_files(inv, remote, missing, orphans):
+    """
+    Reports files to the history database
+    :param dynamo_consistency.datatypes.DirectoryInfo inv: The inventory listing
+    :param dynamo_consistency.datatypes.DirectoryInfo remote: The remote listing
+    :param list missing: Missing files
+    :param list orphans: Orphan files
+    """
+    history.report_missing([(name, inv.get_file(name)['size']) for name in missing])
+    history.report_orphan([(name, remote.get_file(name)['size']) for name in orphans])
+
+
 # Need to make this smaller
-def main(site):    # pylint: disable=too-many-locals
+def compare_with_inventory(site):    # pylint: disable=too-many-locals
     """
     Gets the listing from the dynamo database, and remote XRootD listings of a given site.
     The differences are compared to deletion queues and other things.
 
-    The differences that should be acted on are copied to the summary webpage
-    and entered into the dynamoregister database.
-
     :param str site: The site to run the check over
+    :returns: Start time of the running and
+              a dictionary of parameters to report to the summary webpage.
+              See :py:func:`summary.update_summary` parameters for returned keys.
+    :rtype: float, dict
     """
 
     start = time.time()
@@ -136,6 +130,8 @@ def main(site):    # pylint: disable=too-many-locals
         inv_tree, site_tree, os.path.join(work, '%s_compare' % site),
         orphan_check=check_orphans.protected,
         missing_check=check_missing.protected)
+
+    report_files(inv_tree, site_tree, missing, orphan)
 
     LOG.info('Missing size: %i, Orphan size: %i', m_size, o_size)
 
@@ -176,13 +172,14 @@ def main(site):    # pylint: disable=too-many-locals
 
     is_debugged = summary.is_debugged(site)
 
+    # Only get the empty nodes that are not in the inventory tree
+    empties = [empty_node for empty_node in site_tree.empty_nodes_list() \
+                   if not inv_tree.get_node('/'.join(empty_node.split('/')[2:]),
+                                            make_new=False)]
+
     if is_debugged and not many_missing and not many_orphans:
-        # Only get the empty nodes that are not in the inventory tree
-        registry.delete(site,
-                        orphan + [empty_node for empty_node in site_tree.empty_nodes_list() \
-                                      if not inv_tree.get_node('/'.join(empty_node.split('/')[2:]),
-                                                               make_new=False)]
-                       )
+        registry.delete(site, orphan + empties)
+        history.report_empty(empties)
 
         no_source_files, unrecoverable = registry.transfer(
             site, [f for f in missing if f in prev_set or not prev_set])
@@ -206,7 +203,62 @@ def main(site):    # pylint: disable=too-many-locals
               'w') as output_file:
         output_file.write('\n'.join(unrecoverable))
 
-    extras_results = extras(site, site_tree, is_debugged)
+    if (os.environ.get('ListAge') is None) and (os.environ.get('InventoryAge') is None):
+
+        # Make a JSON file reporting storage usage
+        if site_tree and site_tree.get_num_files():
+            storage = {
+                'storeageservice': {
+                    'storageshares': [{
+                        'numberoffiles': node.get_num_files(),
+                        'path': [os.path.normpath(os.path.join(site_tree.name, subdir))],
+                        'timestamp': str(int(time.time())),
+                        'totalsize': 0,
+                        'usedsize': node.get_directory_size()
+                        } for node, subdir in [(site_tree.get_node(path), path) for path in
+                                               [''] + [d.name for d in site_tree.directories]]
+                                      if node.get_num_files()]
+                    }
+                }
+
+            with open(os.path.join(config.config_dict()['WebDir'], '%s_storage.json' % site), 'w') \
+                    as storage_file:
+                json.dump(storage, storage_file)
+
+
+        unlisted = site_tree.get_unlisted()
+
+        return start, {
+            'numfiles': site_tree.get_num_files(),
+            'numnodes': remover.get_removed_count() + site_tree.count_nodes(),
+            'numempty': remover.get_removed_count() + len(empties),
+            'nummissing': len(missing),
+            'missingsize': m_size,
+            'numorphan': len(orphan),
+            'orphansize': o_size,
+            'numnosource': len(no_source_files),
+            'numunrecoverable': len(unrecoverable),
+            'numunlisted': len(unlisted),
+            'numbadunlisted': len([d for d in unlisted
+                                   if True not in
+                                   [i in d for i in config_dict['IgnoreDirectories']]]),
+            }
+
+    return {}
+
+def main(site):
+    """
+    Runs comparison, and extras based on command line.
+    Updates the summary table for normal runs.
+
+    :param str site: Site to run over
+    """
+
+    history.start_run()
+
+    start, report = compare_with_inventory(site)
+
+    extras_results = extras(site)
 
     unmerged, unmergedlogs = extras_results.get('unmerged', (0, 0))
 
@@ -214,24 +266,13 @@ def main(site):    # pylint: disable=too-many-locals
     # so don't update the summary table
     if (os.environ.get('ListAge') is None) and (os.environ.get('InventoryAge') is None):
 
-        unlisted = site_tree.get_unlisted()
-
         summary.update_summary(
             site=site,
             duration=time.time() - start,
-            numfiles=site_tree.get_num_files(),
-            numnodes=remover.get_removed_count() + site_tree.count_nodes(),
-            numempty=remover.get_removed_count() + len(site_tree.empty_nodes_list()),
-            nummissing=len(missing),
-            missingsize=m_size,
-            numorphan=len(orphan),
-            orphansize=o_size,
-            numnosource=len(no_source_files),
-            numunrecoverable=len(unrecoverable),
-            numunlisted=len(unlisted),
-            numbadunlisted=len([d for d in unlisted
-                                if True not in [i in d for i in config_dict['IgnoreDirectories']]]),
             numunmerged=unmerged,
-            numlogs=unmergedlogs)
+            numlogs=unmergedlogs,
+            **report)
 
         summary.move_local_files(site)
+
+    history.finish_run()

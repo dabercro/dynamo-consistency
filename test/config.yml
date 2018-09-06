@@ -12,6 +12,9 @@
 # - **IgnoreDirectories** - The check ignores any paths that contain any of the strings in this list.
 # - **InventoryAge** - The age, in days, of how old the information from the inventory can be
 # - **ListAge** - The age, in days, of how old the list of files directly from the site can be
+# - **ListDeletable** - Configuration for unmerged cleaning "listdeletable" module.
+#   Details on some of the configuration parameters are
+#   `here <https://cms-comp-ops-tools.readthedocs.io/en/v0.7/siteadmintoolkit.html#configuration>`_.
 # - **MaxMissing** - If more files than this number are missing,
 #   then there will be no automatic entry into the register
 # - **MaxOrphan** - If more than files than this number are orphan files at a site,
@@ -106,3 +109,6 @@ Unmerged:
   - T2_US_MIT
 
 UnmergedLogsAge: 60
+
+ListDeletable:
+   Placeholder: 0

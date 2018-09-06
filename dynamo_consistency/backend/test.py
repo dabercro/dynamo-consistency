@@ -21,7 +21,7 @@ _FILES = sorted([
     ('/store/mc/ttThings/0000/qwery.root', 30),
     ('/store/data/runB/0001/orphan.root', 45),
     ('/store/data/runA/0030/stuff.root', 10),
-    ('/store/data/runC/0000/emtpy/dir')
+    ('/store/data/runC/0000/emtpy/dir', )
     ])
 
 _INV = sorted([
@@ -30,7 +30,6 @@ _INV = sorted([
     ('/store/data/runB/0003/missing.root', 45),
     ('/store/data/runA/0030/stuff.root', 10),
     ])
-
 
 # These are all the methods needed from inventory
 class _Inventory(object):
@@ -44,11 +43,17 @@ class _Inventory(object):
 
 
 class _Registry(object):
-    @staticmethod
-    def delete(site, files):
+    def __init__(self):
+        self.deleted = []
+        self.transfered = []
+
+    def delete(self, site, files):
+        self.deleted = sorted(files) # This overwrites previous deletion call
         return len(files)
-    @staticmethod
-    def transfer(site, files):
+
+    def transfer(self, site, files):
+        # This overwrites previous transfer call
+        self.transfered = [(site, fil) for fil in files]
         return [], []
 
 
@@ -61,7 +66,10 @@ class _SiteInfo(object):
         return set(['TEST_SITE'])
 
 
-def _ls(path, location='tmp'):
+TMP_DIR = 'TempConsistency'
+
+
+def _ls(path, location=TMP_DIR):
 
     LOG.debug('_ls(%s, %s)', path, location)
 
@@ -80,7 +88,9 @@ def _ls(path, location='tmp'):
     dirs = []
     files = []
     for fil in _FILES:
+        LOG.debug('Considering %s against %s', fil, path)
         if fil[0].startswith(path):
+            LOG.debug('Match! %s and %s', fil[0], path)
             element = fil[0][len(path) + (not path.endswith('/')):].split('/')[0]
             if element.endswith('.root'):
                 files.append((element, fil[1], 1))
