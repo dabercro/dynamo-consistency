@@ -7,6 +7,29 @@ dynamo_consistency.backend for running tests with
 
 
 import os
+import logging
+import datetime
+
+from .. import config
+
+
+LOG = logging.getLogger(__name__)
+
+
+_FILES = sorted([
+    ('/store/mc/ttThings/0000/qwert.root', 20),
+    ('/store/mc/ttThings/0000/qwery.root', 30),
+    ('/store/data/runB/0001/orphan.root', 45),
+    ('/store/data/runA/0030/stuff.root', 10),
+    ('/store/data/runC/0000/emtpy/dir')
+    ])
+
+_INV = sorted([
+    ('/store/mc/ttThings/0000/qwert.root', 20),
+    ('/store/mc/ttThings/0000/qwery.root', 30),
+    ('/store/data/runB/0003/missing.root', 45),
+    ('/store/data/runA/0030/stuff.root', 10),
+    ])
 
 
 # These are all the methods needed from inventory
@@ -16,7 +39,8 @@ class _Inventory(object):
         return set()
     @staticmethod
     def list_files(site):
-        return list()
+        return [(name, size, datetime.datetime.fromtimestamp(1)) for
+                name, size in _INV]
 
 
 class _Registry(object):
@@ -39,13 +63,31 @@ class _SiteInfo(object):
 
 def _ls(path, location='tmp'):
 
-    full_path = os.path.join(location, path)
-    results = [os.path.join(full_path, res) for res in os.listdir(full_path)]
+    LOG.debug('_ls(%s, %s)', path, location)
 
-    dirs = [(os.path.basename(name), os.stat(name).st_mtime)
-            for name in results if os.path.isdir(name)]
-    files = [(os.path.basename(name), os.stat(name).st_size, os.stat(name).st_mtime)
-             for name in results if os.path.isfile(name)]
+    full_path = os.path.join(location, path[len(config.config_dict()['RootPath']) + 1:])
+
+    if os.path.exists(full_path):
+        results = [os.path.join(full_path, res) for res in os.listdir(full_path)]
+
+        dirs = [(os.path.basename(name), os.stat(name).st_mtime)
+                for name in results if os.path.isdir(name)]
+        files = [(os.path.basename(name), os.stat(name).st_size, os.stat(name).st_mtime)
+                 for name in results if os.path.isfile(name)]
+
+        return True, dirs, files
+
+    dirs = []
+    files = []
+    for fil in _FILES:
+        if fil[0].startswith(path):
+            element = fil[0][len(path) + (not path.endswith('/')):].split('/')[0]
+            if element.endswith('.root'):
+                files.append((element, fil[1], 1))
+            else:
+                dirs.append((element, 1))
+
+    LOG.debug('%s, %s, %s', True, dirs, files)
 
     return True, dirs, files
 

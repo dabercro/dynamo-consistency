@@ -167,7 +167,7 @@ def clean_unmerged(site):
 
     to_delete = set()
     with open(deletion_file, 'r') as d_file:
-        to_delete.update([l.strip() for l in d_file])
+        to_delete.update([l.strip() for l in d_file if l.strip()])
 
     report_contents(site_tree.timestamp, site,
                     [f for f in site_tree.get_files() if f not in to_delete])

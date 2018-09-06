@@ -249,6 +249,17 @@ def move_local_files(site):
             if os.path.exists(to_rm):
                 os.remove(to_rm)
 
+    web_config = os.path.join(webdir, 'consistency_config.json')
+    if os.path.exists(web_config):
+        with open(config.LOCATION, 'r') as this_conf:
+            with open(web_config, 'r') as web_conf:
+                if json.load(this_conf) == json.load(web_conf):
+                    LOG.debug('Configs %s and %s match.',
+                              config.LOCATION, web_config)
+                    return
+
+    shutil.copy(config.LOCATION, web_config)
+
 
 def running(site):
     """

@@ -95,17 +95,19 @@ class ListingThread(threading.Thread):
                     in_deque.append((location, name, prev_dirs, prev_files, failed_list))
 
                 in_lock.release()
-
-                if self.number in failed_list:
-                    time.sleep(10)
-
+                time.sleep(10 * (self.number in failed_list))
                 self.log.debug('Getting directory with (%s, %s, %s)',
                                location, name, failed_list)
 
                 # Call filler
                 full_path = os.path.join(location, name)
                 self.log.debug('Full path is %s', full_path)
-                okay, directories, files = self.filler(full_path)
+
+                try:
+                    okay, directories, files = self.filler(full_path)
+                except Exception: # pylint: disable=bare-except
+                    okay, directories, files = False, [], []
+
                 self.log.debug('Got from filler: Good? %s, %i directories, %i files',
                                okay, len(directories), len(files))
 
