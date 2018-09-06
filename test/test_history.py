@@ -2,7 +2,11 @@
 
 import os
 import unittest
+import shutil
+import sqlite3
 
+from dynamo_consistency import picker
+from dynamo_consistency import main
 from dynamo_consistency import history
 history.config.SITE = 'TEST_SITE_NAME'
 
@@ -13,12 +17,13 @@ class TestHistory(unittest.TestCase):
                ]
 
     def setUp(self):
-        db = 'var/db/consistency.db'
-        if os.path.exists(db):
-            os.remove(db)
+        for dirname in ['www', 'var']:
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname)
 
     def tearDown(self):
         history.RUN = None
+        history.config.SITE = 'TEST_SITE_NAME'
 
     def test_run(self):
         history.start_run()
@@ -72,6 +77,46 @@ class TestHistory(unittest.TestCase):
 
         self.assertFalse(history.missing_files(history.config.SITE))
 
+    def test_siteunique(self):
+        history.start_run()
+        history.finish_run()
+        history.start_run()
+        history.finish_run()
+
+        conn, curs = history._connect()
+
+        curs.execute('SELECT * FROM sites;')
+
+        result = list(curs.fetchall())
+
+        conn.close()
+
+        self.assertEqual(len(result), 1)
+
+    def test_orphan(self):
+        history.start_run()
+        history.report_orphan(self.missing)
+        history.finish_run()
+
+        self.assertEqual(history.orphan_files(history.config.SITE),
+                         sorted([miss[0] for miss in self.missing]))
+
+        self.assertFalse(history.missing_files(history.config.SITE))
+
+    def test_unmerged(self):
+        history.start_run()
+        history.report_unmerged(self.missing)
+        history.finish_run()
+
+        self.assertEqual(history.unmerged_files(history.config.SITE),
+                         sorted([miss[0] for miss in self.missing]))
+
+        self.assertFalse(history.missing_files(history.config.SITE))
+
+    def test_main(self):
+        main.main(picker.pick_site())
+
+        self.assertFalse(history.RUN)
 
 
 if __name__ == '__main__':

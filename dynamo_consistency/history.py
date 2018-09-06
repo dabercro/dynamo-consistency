@@ -63,10 +63,10 @@ def start_run():
 
     conn, curs = _connect()
 
-    curs.execute('INSERT OR IGNORE INTO sites (`name`) VALUES (?)',
+    curs.execute('INSERT OR IGNORE INTO sites (name) VALUES (?)',
                  (config.SITE, ))
     curs.execute("""
-                 INSERT INTO runs (`site`)
+                 INSERT INTO runs (site)
                  SELECT rowid FROM sites WHERE name = ?
                  """, (config.SITE, ))
 
@@ -104,23 +104,112 @@ def finish_run():
     conn.close()
 
 
-def report_missing(missing):
+def _insert_directories(curs, files):
     """
-    Stores a list of missing files in the invalidation database
-    :param list missing: A list of tuples, where each tuple is a name, size pair
+    Inserts the directories into the proper table, given a cursor.
+
+    :param sqlite3.Cursor curs: a cursor object to make the query
+    :param list files: List of file, size tuples
+    """
+
+    directories = set([os.path.dirname(name) for name, _ in files])
+    curs.executemany('INSERT OR IGNORE INTO directories (name) VALUES (?)',
+                     [(dirname, ) for dirname in directories])
+
+
+def _current_siteid(curs):
+    """
+    Get the site ID from the database
+
+    :param sqlite3.Cursor curs: A cursor from the database to read
+    :returns: The ID of the site
+    :rtype: int
+    """
+    curs.execute('SELECT rowid FROM sites WHERE name = ?', (config.SITE, ))
+    return curs.fetchone()[0]
+
+
+def _report_files(table, files):
+    """
+    Reports to either invalid table or orphan table
+    :param str table: Which table to use
+    :param list files: Tuples of name, size of files to report
     """
 
     conn, curs = _connect(True)
 
+    _insert_directories(curs, files)
+    siteid = _current_siteid(curs)
+
     curs.executemany(
         """
-        INSERT INTO invalid (site, run, name, size)
-        VALUES ((SELECT rowid FROM sites WHERE name = ?), ?, ?, ?)
-        """,
-        [(config.SITE, RUN, miss, size) for miss, size in missing])
+        INSERT INTO {table} (site, run, directory, name, size)
+        VALUES (?, ?, (SELECT rowid FROM directories WHERE name = ?), ?, ?)
+        """.format(table=table),
+        [(siteid, RUN, os.path.dirname(name),
+          os.path.basename(name), size)
+         for name, size in files])
 
     conn.commit()
     conn.close()
+
+
+def _get_files(table, site, acting):
+    """
+    Get list of files for a site from a given table.
+
+    :param str table: Table to read from
+    :param str site: Name of a site to get files for
+    :param bool acting: Whether or not the caller is acting on the files
+    :returns: The LFNs from the table
+    :rtype: list
+    """
+
+    conn, curs = _connect()
+
+    curs.execute(
+        """
+        SELECT directories.name, {table}.name FROM {table}
+        LEFT JOIN sites ON sites.rowid = {table}.site
+        LEFT JOIN directories ON directories.rowid = {table}.directory
+        WHERE sites.name = ?
+        ORDER BY directories.name, {table}.name
+        """.format(table=table), (site, ))
+
+    output = list([os.path.join(directory, out) for directory, out in curs.fetchall()])
+
+    if acting:
+        curs.execute(
+            """
+            INSERT INTO {table}_history
+            (site, run, name, size, entered, acted)
+            SELECT site, run, {table}.name, size, entered, 1
+            FROM {table}
+            LEFT JOIN sites ON sites.rowid = {table}.site
+            WHERE sites.name = ?
+            """.format(table=table), (site, )
+            )
+        curs.execute(
+            """
+            DELETE FROM {table}
+            WHERE site IN (
+              SELECT rowid FROM sites
+              WHERE sites.name = ?
+            )
+            """.format(table=table), (site, ))
+
+    conn.commit()
+    conn.close()
+
+    return output
+
+
+def report_missing(missing):
+    """
+    Stores a list of missing files in the invalidation table
+    :param list missing: A list of tuples, where each tuple is a name, size pair
+    """
+    _report_files('invalid', missing)
 
 
 def missing_files(site, acting=False):
@@ -134,40 +223,48 @@ def missing_files(site, acting=False):
     :returns: The LFNs that were missing
     :rtype: list
     """
+    return _get_files('invalid', site, acting)
 
-    conn, curs = _connect()
 
-    curs.execute(
-        """
-        SELECT invalid.name FROM invalid
-        LEFT JOIN sites ON sites.rowid = invalid.site
-        WHERE sites.name = ?
-        ORDER BY invalid.name
-        """, (site, ))
+def report_orphan(orphan):
+    """
+    Stores a list of orphan files in the orphan table
+    :param list orphan: A list of tuples, where each tuple is a name, size pair
+    """
+    _report_files('orphans', orphan)
 
-    output = list([out[0] for out in curs.fetchall()])
 
-    if acting:
-        curs.execute(
-            """
-            INSERT INTO invalid_history
-            (site, run, name, size, entered, acted)
-            SELECT site, run, invalid.name, size, entered, 1
-            FROM invalid
-            LEFT JOIN sites ON sites.rowid = invalid.site
-            WHERE sites.name = ?
-            """, (site, )
-            )
-        curs.execute(
-            """
-            DELETE FROM invalid
-            WHERE site IN (
-              SELECT rowid FROM sites
-              WHERE sites.name = ?
-            )
-            """, (site, ))
+def orphan_files(site, acting=False):
+    """
+    Get the orphan files from the consistency database.
+    If the caller identifies itself as acting on the list,
+    the list is moved into the history with the acted flag `True`.
 
-    conn.commit()
-    conn.close()
+    :param str site: Name of a site to get orphan files for
+    :param bool acting: Whether or not the caller is acting on the files
+    :returns: The LFNs that were orphan
+    :rtype: list
+    """
+    return _get_files('orphans', site, acting)
 
-    return output
+
+def report_unmerged(unmerged):
+    """
+    Stores a list of deletable unmerged files in the orphan table
+    :param list unmerged: A list of tuples, where each tuple is a name, size pair
+    """
+    _report_files('unmerged', unmerged)
+
+
+def unmerged_files(site, acting=False):
+    """
+    Get the deletable unmerged files from the consistency database.
+    If the caller identifies itself as acting on the list,
+    the list is moved into the history with the acted flag `True`.
+
+    :param str site: Name of a site to get unmerged files for
+    :param bool acting: Whether or not the caller is acting on the files
+    :returns: The LFNs in unmerged that are deletable
+    :rtype: list
+    """
+    return _get_files('unmerged', site, acting)
