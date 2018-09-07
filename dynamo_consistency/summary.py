@@ -49,26 +49,27 @@ ACT = 1
 
 def install_webpage():
     """
-    Installs files for webpage in configured **WebDir**
+    Installs files for webpage in configured **Web_Dir**
     """
 
-    webdir = config.config_dict()['WebDir']
-    if not os.path.exists(webdir):
-        os.makedirs(webdir)
+    web_dir = config.config_dict()['WebDir']
+
+    if not os.path.exists(web_dir):
+        os.makedirs(web_dir)
 
     sourcedir = os.path.join(os.path.dirname(__file__), 'web')
 
     # Files that should just be copied directly
     with open(os.path.join(sourcedir, 'files.txt')) as manifest:
         for line in manifest:
-            shutil.copy(os.path.join(sourcedir, line.strip()), webdir)
+            shutil.copy(os.path.join(sourcedir, line.strip()), web_dir)
 
     argv = [os.path.join(sourcedir, 'explanations.rst'),
-            os.path.join(webdir, 'explanations.html')]
+            os.path.join(web_dir, 'explanations.html')]
 
     publish_cmdline(writer_name='html', argv=argv)
 
-    dbfile = os.path.join(webdir, 'stats.db')
+    dbfile = os.path.join(web_dir, 'stats.db')
     if not os.path.exists(dbfile):
         # Initialize summary table
         with open(os.path.join(sourcedir, 'maketables.sql'), 'r') as script_file:
@@ -82,6 +83,20 @@ def install_webpage():
         conn.close()
 
 
+def webdir():
+    """
+    If the web directory does not exist, this function installs it
+    :returns: The web directory location
+    :rtype: str
+    """
+
+    output = config.config_dict()['WebDir']
+    if not os.path.exists(output):
+        install_webpage()
+
+    return output
+
+
 def _connect():
     """
     :returns: A connection to the summary database.
@@ -93,8 +108,7 @@ def _connect():
     :rtype: sqlite3.Connection
     """
 
-    webdir = config.config_dict()['WebDir']
-    dbname = os.path.join(webdir, 'stats.db')
+    dbname = os.path.join(webdir(), 'stats.db')
 
     if not os.path.exists(dbname):
         install_webpage()
@@ -102,14 +116,20 @@ def _connect():
     return sqlite3.connect(dbname)
 
 
-def get_sites():
+def get_sites(reporting=False):
     """
+    :param bool reporting: If true, only get sites that
+                           should be reported to dynamo
     :returns: The list of sites that are currently in the database
     :rtype: list
     """
     conn = _connect()
-    output = [res[0] for res in conn.execute('SELECT site FROM sites')]
+    output = [
+        res[0] for res in conn.execute('SELECT site FROM sites WHERE isgood = 1'
+                                       if reporting else
+                                       'SELECT site FROM sites')]
     conn.close()
+
     return output
 
 
@@ -201,20 +221,6 @@ def update_summary(    # pylint: disable=too-many-arguments
     return True
 
 
-def _webdir():
-    """
-    If the web directory does not exist, this function installs it
-    :returns: The web directory location
-    :rtype: str
-    """
-
-    webdir = config.config_dict()['WebDir']
-    if not os.path.exists(webdir):
-        install_webpage()
-
-    return webdir
-
-
 def move_local_files(site):
     """
     Move files in the working directory to the web page
@@ -222,7 +228,7 @@ def move_local_files(site):
     """
 
     # All of the files and summary will be dumped here
-    webdir = _webdir()
+    web_dir = webdir()
     workdir = config.vardir('work')
 
     # If there were permissions or connection issues, no files would be listed
@@ -239,17 +245,17 @@ def move_local_files(site):
         full = os.path.join(workdir, filename)
 
         if os.path.exists(full):
-            shutil.copy(full, webdir)
+            shutil.copy(full, web_dir)
             os.remove(full)
         else:
             LOG.warning('%s not present in working directory %s, removing from summary web page',
                         filename, workdir)
 
-            to_rm = os.path.join(webdir, filename)
+            to_rm = os.path.join(web_dir, filename)
             if os.path.exists(to_rm):
                 os.remove(to_rm)
 
-    web_config = os.path.join(webdir, 'consistency_config.json')
+    web_config = os.path.join(web_dir, 'consistency_config.json')
     if os.path.exists(web_config):
         with open(config.LOCATION, 'r') as this_conf:
             with open(web_config, 'r') as web_conf:
@@ -287,9 +293,7 @@ def update_config():
     """
     Updates the configuration file at the summary website
     """
-    webdir = _webdir()
-
-    webconf = os.path.join(webdir, 'consistency_config.json')
+    webconf = os.path.join(webdir(), 'consistency_config.json')
 
     if webconf == config.LOCATION:
         return

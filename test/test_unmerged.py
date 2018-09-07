@@ -4,6 +4,7 @@
 
 import os
 import sys
+import shutil
 import unittest
 
 from dynamo_consistency.cms import unmerged
@@ -34,17 +35,40 @@ class TestUnmerged(base.TestListing):
     def do_more_setup(self):
         super(TestUnmerged, self).do_more_setup()
 
+        registry._reset()
+
         for name in self.dir_list:
             path = os.path.join(TMP_DIR, name[7:])
             if not os.path.exists(path):
                 os.makedirs(path)
+                os.utime(path, (1000000000, 1000000000))
+                os.utime('/'.join(path.split('/')[:-1]), (1000000000, 1000000000))
 
     def test_deletion_file(self):
         unmerged.clean_unmerged('test')
         self.assertEqual(registry.deleted,
                          sorted(['/store/unmerged/notprot/000/qwert.root',
-                                '/store/unmerged/logs/000/logfile.tar.gz'
-                                ]))
+                                 '/store/unmerged/logs/000/logfile.tar.gz'
+                                 ]))
+
+        with open('var/cache/test/protectedLFNs.txt', 'r') as checklist:
+            self.assertEqual(len(list(checklist)), 2)
+
+    def test_deletion_dir(self):
+        path = os.path.join(TMP_DIR, 'unmerged/notprotected/by/anything')
+        os.makedirs(path)
+        os.utime(path, (1000000000, 1000000000))
+        os.utime('/'.join(path.split('/')[:-1]), (1000000000, 1000000000))
+        os.utime('/'.join(path.split('/')[:-2]), (1000000000, 1000000000))
+
+        unmerged.clean_unmerged('test')
+        self.assertEqual(registry.deleted,
+                         sorted(['/store/unmerged/notprot/000/qwert.root',
+                                 '/store/unmerged/logs/000/logfile.tar.gz',
+                                 '/store/unmerged/notprotected/by/anything',
+                                 '/store/unmerged/notprotected/by',
+                                 '/store/unmerged/notprotected',
+                                 ]))
 
 
 class TestSetup(unittest.TestCase):

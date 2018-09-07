@@ -13,6 +13,7 @@ from .. import config
 from .. import datatypes
 from .. import history
 from .. import remotelister
+from .. import summary
 from ..backend import registry
 from ..emptyremover import EmptyRemover
 
@@ -76,13 +77,14 @@ def report_contents(timestamp, site, files):
     conn.commit()
     conn.close()
 
-    config_dict = config.config_dict()
+    webdir = summary.webdir()
 
-    db_dest = os.path.join(config_dict['WebDir'], os.path.basename(db_name))
+    db_dest = os.path.join(webdir, os.path.basename(db_name))
     if os.path.exists(db_dest):
         os.remove(db_dest)
+
     # Move this over to the web directory
-    shutil.move(db_name, config_dict['WebDir'])
+    shutil.move(db_name, webdir)
 
 
 def clean_unmerged(site):
@@ -111,6 +113,11 @@ def clean_unmerged(site):
     # Get the list of protected directories
     listdeletable.PROTECTED_LIST = listdeletable.get_protected()
     listdeletable.PROTECTED_LIST.sort()
+
+    with open(os.path.join(config.vardir('cache/%s' % site),
+                           'protectedLFNs.txt'), 'w') as protected:
+        for lfn in listdeletable.PROTECTED_LIST:
+            protected.write(lfn + '\n')
 
     # Create a tree structure that will hold the protected directories
     protected_tree = datatypes.DirectoryInfo()
@@ -180,7 +187,7 @@ def clean_unmerged(site):
     report_contents(site_tree.timestamp, site,
                     [f for f in site_tree.get_files() if f not in to_delete])
 
-    history.report_unmerged([(name, site_tree.get_file(name)['size']) for name in to_delete])
+    history.report_unmerged([(name, site_tree.get_file(name)) for name in to_delete])
 
     return registry.delete(site, to_delete), len(
         [f for f in to_delete if f.strip().endswith('.tar.gz')])

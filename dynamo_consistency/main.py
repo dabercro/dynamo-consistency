@@ -95,8 +95,8 @@ def report_files(inv, remote, missing, orphans):
     :param list missing: Missing files
     :param list orphans: Orphan files
     """
-    history.report_missing([(name, inv.get_file(name)['size']) for name in missing])
-    history.report_orphan([(name, remote.get_file(name)['size']) for name in orphans])
+    history.report_missing([(name, inv.get_file(name)) for name in missing])
+    history.report_orphan([(name, remote.get_file(name)) for name in orphans])
 
 
 # Need to make this smaller
@@ -149,7 +149,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
     # Filter out missing files that were not missing previously
     config_dict = config.config_dict()
 
-    prev_missing = os.path.join(config_dict['WebDir'], '%s_compare_missing.txt' % site)
+    prev_missing = os.path.join(summary.webdir(), '%s_compare_missing.txt' % site)
     prev_set = set()
 
     if os.path.exists(prev_missing):
@@ -179,7 +179,11 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
 
     if is_debugged and not many_missing and not many_orphans:
         registry.delete(site, orphan + empties)
-        history.report_empty(empties)
+        strip_len = len(site_tree.name) + 1
+        history.report_empty(
+            [(empty,
+              site_tree.get_node(empty[strip_len:], make_new=False).mtime)
+             for empty in empties])
 
         no_source_files, unrecoverable = registry.transfer(
             site, [f for f in missing if f in prev_set or not prev_set])
@@ -221,7 +225,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
                     }
                 }
 
-            with open(os.path.join(config.config_dict()['WebDir'], '%s_storage.json' % site), 'w') \
+            with open(os.path.join(summary.webdir(), '%s_storage.json' % site), 'w') \
                     as storage_file:
                 json.dump(storage, storage_file)
 

@@ -13,9 +13,14 @@ history.config.SITE = 'TEST_SITE_NAME'
 
 class TestHistory(unittest.TestCase):
 
-    missing = [('/store/mc/1/missing.root', 100),
-               ('/store/mc/2/missing.root', 2),
+    missing = [('/store/mc/1/missing.root', {'size': 100, 'mtime': 3}),
+               ('/store/mc/2/missing.root', {'size': 2, 'mtime': 3}),
                ]
+
+    missing2 = [('/store/mc/4/missing.root', {'size': 2, 'mtime': 3}),
+                ('/store/mc/3/missing.root', {'size': 100, 'mtime': 3}),
+                ]
+
 
     def setUp(self):
         for dirname in ['www', 'var']:
@@ -42,16 +47,12 @@ class TestHistory(unittest.TestCase):
 
 
     def test_two_sites(self):
-        missing2 = [('/store/mc/4/missing.root', 2),
-                    ('/store/mc/3/missing.root', 100),
-                    ]
-
         history.start_run()
         history.report_missing(self.missing)
         history.finish_run()
         history.config.SITE = 'TEST_SITE_NAME_2'
         history.start_run()
-        history.report_missing(missing2)
+        history.report_missing(self.missing2)
         history.finish_run()
 
         history.config.SITE = 'TEST_SITE_NAME'
@@ -60,7 +61,28 @@ class TestHistory(unittest.TestCase):
                          sorted([miss[0] for miss in self.missing]))
 
         self.assertEqual(history.missing_files('TEST_SITE_NAME_2'),
-                         sorted([miss[0] for miss in missing2]))
+                         sorted([miss[0] for miss in self.missing2]))
+
+    def test_dups(self):
+        history.start_run()
+        history.report_missing(self.missing)
+        history.report_orphan(self.missing + self.missing2)
+        history.finish_run()
+        
+        self.assertEqual(history.orphan_files('TEST_SITE_NAME'),
+                         sorted([miss[0] for miss in self.missing2]))
+
+
+    def test_two_runs(self):
+        history.start_run()
+        history.report_missing(self.missing)
+        history.finish_run()
+        history.start_run()
+        history.report_missing(self.missing2)
+        history.finish_run()
+
+        self.assertEqual(history.missing_files('TEST_SITE_NAME'),
+                         sorted([miss[0] for miss in self.missing2]))
 
     def test_acting(self):
         history.start_run()

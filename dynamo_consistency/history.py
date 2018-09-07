@@ -4,6 +4,7 @@ Handles the invalidation of files through a separate read-write process
 
 import os
 import sqlite3
+from datetime import datetime
 
 from . import config
 
@@ -96,7 +97,7 @@ def _insert_directories(curs, files):
     Inserts the directories into the proper table, given a cursor.
 
     :param sqlite3.Cursor curs: a cursor object to make the query
-    :param list files: List of file, size tuples
+    :param list files: List of file, info dict tuples
     """
 
     directories = set([os.path.dirname(name) for name, _ in files])
@@ -121,9 +122,11 @@ def _current_siteid(curs):
 
 def _report_files(table, files):
     """
-    Reports to either invalid table or orphan table
+    Reports to either invalid table or orphan table.
+    Moves old files to the history table if they haven't been acted on yet.
+
     :param str table: Which table to use
-    :param list files: Tuples of name, size of files to report
+    :param list files: Tuples of name, info dict of files to report
     """
 
     conn, curs = _connect()
@@ -131,14 +134,31 @@ def _report_files(table, files):
     _insert_directories(curs, files)
     siteid = _current_siteid(curs)
 
+    # Copy into history
+    curs.execute(
+        """
+        INSERT INTO {table}_history
+        (site, run, directory, name, size, mtime, entered, acted)
+        SELECT site, run, directory, {table}.name, size, mtime, entered, 0
+        FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
+    # Remove old entries
+    curs.execute(
+        """
+        DELETE FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
+
     curs.executemany(
         """
-        INSERT INTO {table} (site, run, directory, name, size)
-        VALUES (?, ?, (SELECT rowid FROM directories WHERE name = ?), ?, ?)
+        INSERT INTO {table} (site, run, directory, name, size, mtime)
+        VALUES (?, ?, (SELECT rowid FROM directories WHERE name = ?), ?, ?, ?)
         """.format(table=table),
         [(siteid, RUN, os.path.dirname(name),
-          os.path.basename(name), size)
-         for name, size in files])
+          os.path.basename(name), info['size'],
+          datetime.fromtimestamp(info['mtime']))
+         for name, info in files])
 
     conn.commit()
     conn.close()
@@ -166,14 +186,16 @@ def _get_files(table, site, acting):
         ORDER BY directories.name, {table}.name
         """.format(table=table), (site, ))
 
-    output = list([os.path.join(directory, out) for directory, out in curs.fetchall()])
+    output = list([os.path.join(directory, out) for
+                   directory, out in curs.fetchall()])
 
     if acting:
         curs.execute(
             """
             INSERT INTO {table}_history
-            (site, run, directory, name, size, entered, acted)
-            SELECT site, run, directory, {table}.name, size, entered, 1
+            (site, run, directory, name, size, mtime, entered, acted)
+            SELECT site, run, directory, {table}.name, size, mtime,
+                   entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
             WHERE sites.name = ?
@@ -197,7 +219,8 @@ def _get_files(table, site, acting):
 def report_missing(missing):
     """
     Stores a list of missing files in the invalidation table
-    :param list missing: A list of tuples, where each tuple is a name, size pair
+    :param list missing: A list of tuples,
+                         where each tuple is a name, info dict pair
     """
     _report_files('invalid', missing)
 
@@ -219,9 +242,13 @@ def missing_files(site, acting=False):
 def report_orphan(orphan):
     """
     Stores a list of orphan files in the orphan table
-    :param list orphan: A list of tuples, where each tuple is a name, size pair
+    :param list orphan: A list of tuples,
+                        where each tuple is a name, info dict pair
     """
-    _report_files('orphans', orphan)
+    missing = set(missing_files(config.SITE))
+    _report_files('orphans',
+                  [info for info in orphan if info[0] not in missing]
+                 )
 
 
 def orphan_files(site, acting=False):
@@ -241,7 +268,8 @@ def orphan_files(site, acting=False):
 def report_unmerged(unmerged):
     """
     Stores a list of deletable unmerged files in the orphan table
-    :param list unmerged: A list of tuples, where each tuple is a name, size pair
+    :param list unmerged: A list of tuples,
+                          where each tuple is a name, info dict pair
     """
     _report_files('unmerged', unmerged)
 
@@ -263,18 +291,36 @@ def unmerged_files(site, acting=False):
 def report_empty(directories):
     """
     Adds emtpy directories to history database
-    :param list directories: A list of director names
+    :param list directories: A list of directory names and mtime (in seconds)
     """
     conn, curs = _connect()
 
     siteid = _current_siteid(curs)
+    table = 'empty_directories'
+
+    # Copy into history
+    curs.execute(
+        """
+        INSERT INTO {table}_history
+        (site, run, name, mtime, entered, acted)
+        SELECT site, run, {table}.name, {table}.mtime, entered, 0
+        FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
+    # Remove old entries
+    curs.execute(
+        """
+        DELETE FROM {table}
+        WHERE {table}.site = ? AND {table}.run != ?
+        """.format(table=table), (siteid, RUN))
 
     curs.executemany(
         """
-        INSERT INTO empty_directories (site, run, name)
-        VALUES (?, ?, ?)
-        """,
-        [(siteid, RUN, name) for name in directories])
+        INSERT INTO {table} (site, run, name, mtime)
+        VALUES (?, ?, ?, ?)
+        """.format(table=table),
+        [(siteid, RUN, name, datetime.fromtimestamp(mtime)) for
+         name, mtime in directories])
 
     conn.commit()
     conn.close()
@@ -309,7 +355,8 @@ def emtpy_directories(site, acting=False):
             """
             INSERT INTO {table}_history
             (site, run, name, entered, acted)
-            SELECT site, run, {table}.name, entered, 1
+            SELECT site, run, {table}.name,
+                   entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
             WHERE sites.name = ?
