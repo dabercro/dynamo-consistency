@@ -114,6 +114,12 @@ def clean_unmerged(site):
     listdeletable.PROTECTED_LIST = listdeletable.get_protected()
     listdeletable.PROTECTED_LIST.sort()
 
+    with open(os.path.join(
+            config.vardir('cache/%s' % site),
+            'protectedLFNs.txt'), 'w') as protected:
+        for lfn in listdeletable.PROTECTED_LIST:
+            protected.write(lfn + '\n')
+
     # Create a tree structure that will hold the protected directories
     protected_tree = datatypes.DirectoryInfo()
 

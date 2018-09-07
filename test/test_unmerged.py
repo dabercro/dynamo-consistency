@@ -51,6 +51,9 @@ class TestUnmerged(base.TestListing):
                                  '/store/unmerged/logs/000/logfile.tar.gz'
                                  ]))
 
+        with open('var/cache/test/protectedLFNs.txt', 'r') as checklist:
+            self.assertEqual(len(list(checklist)), 2)
+
     def test_deletion_dir(self):
         path = os.path.join(TMP_DIR, 'unmerged/notprotected/by/anything')
         os.makedirs(path)
