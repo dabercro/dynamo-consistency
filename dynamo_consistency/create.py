@@ -259,6 +259,7 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
 
             # Process the dir_info with some callback
             if callback:
+                LOG.debug('Checking callback')
                 callback(dir_info)
 
             # Ends only if all threads are done at the beginning of this check
