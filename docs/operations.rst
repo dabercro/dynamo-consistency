@@ -9,4 +9,7 @@ They are all installed along with the rest of the modules.
 
 .. automodule:: set_status_exe
 
+.. automodule:: consistency_invalidate_exe
+
 .. automodule:: consistency_web_install_exe
+
