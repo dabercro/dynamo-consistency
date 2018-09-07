@@ -124,10 +124,10 @@ def get_sites(reporting=False):
     :rtype: list
     """
     conn = _connect()
-    output = [res[0] for res in conn.execute(
-            'SELECT site FROM sites WHERE isgood = 1'
-            if reporting else
-            'SELECT site FROM sites')]
+    output = [
+        res[0] for res in conn.execute('SELECT site FROM sites WHERE isgood = 1'
+                                       if reporting else
+                                       'SELECT site FROM sites')]
     conn.close()
 
     return output

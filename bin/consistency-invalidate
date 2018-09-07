@@ -14,10 +14,11 @@ import logging
 
 from dynamo_consistency import opts
 from dynamo_consistency import history
+from dynamo_consistency import summary
 from dynamo_consistency.parser import pretty_exe
 
-from dynamo.core.executable import inventory
-from dynamo.registry.registry import RegistryDatabase
+from dynamo.core.executable import inventory          # pylint: disable=import-error
+from dynamo.registry.registry import RegistryDatabase # pylint: disable=import-error
 
 
 pretty_exe('consistency-web-install')
@@ -33,7 +34,7 @@ if __name__ == '__main__':
              if opts.SITE_PATTERN is None or opts.SITE_PATTERN in site]
 
     for site in sites:
-        for lfn in history.get_missing(site):
+        for lfn in history.missing_files(site, True):
             lfile = inventory.find_file(lfn)
             if lfile is None:
                 # something is wrong
