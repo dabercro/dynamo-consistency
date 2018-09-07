@@ -245,7 +245,10 @@ def report_orphan(orphan):
     :param list orphan: A list of tuples,
                         where each tuple is a name, info dict pair
     """
-    _report_files('orphans', orphan)
+    missing = set(missing_files(config.SITE))
+    _report_files('orphans',
+                  [info for info in orphan if info[0] not in missing]
+                 )
 
 
 def orphan_files(site, acting=False):
