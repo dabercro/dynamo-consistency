@@ -116,14 +116,20 @@ def _connect():
     return sqlite3.connect(dbname)
 
 
-def get_sites():
+def get_sites(reporting=False):
     """
+    :param bool reporting: If true, only get sites that
+                           should be reported to dynamo
     :returns: The list of sites that are currently in the database
     :rtype: list
     """
     conn = _connect()
-    output = [res[0] for res in conn.execute('SELECT site FROM sites')]
+    output = [res[0] for res in conn.execute(
+            'SELECT site FROM sites WHERE isgood = 1'
+            if reporting else
+            'SELECT site FROM sites')]
     conn.close()
+
     return output
 
 
