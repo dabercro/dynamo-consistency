@@ -63,19 +63,25 @@ class EmptyRemover(object):
 
         not_empty = []
 
+        strip_len = len(tree.name) + 1
+        empties_info = []
+
         for path in empties:
             try:
+                info = (
+                    self.fullname(path),
+                    tree.get_node(path[strip_len:], make_new=False).mtime
+                    )
                 tree.remove_node(path)
+                empties_info.append(info)
+
             except datatypes.NotEmpty as msg:
                 LOG.warning('While removing %s: %s', path, msg)
                 not_empty.append(path)
 
-        for path in not_empty:
-            empties.remove(path)
+        full_empties = [info[0] for info in empties_info]
 
-        full_empties = [self.fullname(name) for name in empties]
-
-        history.report_empty(full_empties)
+        history.report_empty(empties_info)
 
         self.removed += registry.delete(self.site, full_empties) \
             if self.site else len(full_empties)
