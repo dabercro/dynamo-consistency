@@ -21,7 +21,7 @@ from dynamo.core.executable import inventory          # pylint: disable=import-e
 from dynamo.registry.registry import RegistryDatabase # pylint: disable=import-error
 
 
-pretty_exe('consistency-web-install')
+pretty_exe('consistency-invalidate')
 
 
 if __name__ == '__main__':
