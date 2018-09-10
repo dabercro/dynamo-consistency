@@ -38,11 +38,13 @@ if __name__ == '__main__':
             lfile = inventory.find_file(lfn)
             if lfile is None:
                 # something is wrong
+                LOG.warning('Could not find file: %s', lfn)
                 continue
 
             block_replica = lfile.block.find_replica(inventory.sites[site])
             if block_replica is None:
                 # the file is not really missing any more
+                LOG.warning('Could not find block with %s at %s', lfn, site)
                 continue
 
             block_replica.delete_file(lfile)
