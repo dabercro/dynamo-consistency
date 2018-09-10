@@ -34,13 +34,13 @@ if __name__ == '__main__':
              if opts.SITE_PATTERN is None or opts.SITE_PATTERN in site]
 
     for site in sites:
-        for lfn in history.missing_files(site, True):
+        for lfn in history.missing_files(site):
             lfile = inventory.find_file(lfn)
             if lfile is None:
                 # something is wrong
                 continue
 
-            block_replica = lfile.block.find_replica(site)
+            block_replica = lfile.block.find_replica(inventory.sites[site])
             if block_replica is None:
                 # the file is not really missing any more
                 continue
@@ -55,3 +55,6 @@ if __name__ == '__main__':
                 INSERT INTO `local_invalidations`
                 (`site`, `lfn`) VALUES (%s, %s)
                 """, site, lfn)
+
+        # Now move them over
+        history.missing_files(site, True)
