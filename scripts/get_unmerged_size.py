@@ -16,7 +16,7 @@ with open(os.path.join(web_dir, '%s_unmerged.txt' % site), 'r') as deleted:
 
 if len(files):
     # Only load this in if we have files to check
-    unmerged = get_info(os.path.join(cache_dir, '%s/unmerged.pkl' % site))
+    unmerged = get_info(os.path.join(cache_dir, '%s/unmerged.pkl%s' % (site, os.environ.get('suff', ''))))
     # Print the sum of the file sizes
     print 'To delete: %s' % sum([unmerged.get_file(f)['size'] for f in files if not f.endswith('.')])
     print 'Total: %s' % unmerged.get_directory_size()
@@ -29,7 +29,7 @@ else:
 
 from cmstoolbox.unmergedcleaner import listdeletable
 
-listdeletable.set_config('/home/dabercro/dev_python/old_cfg/consistency_config.json', 'ListDeletable')
+listdeletable.set_config('/home/dabercro/dev_python/consistency_config.json', 'ListDeletable')
 listdeletable.PROTECTED_LIST = listdeletable.get_protected()
 listdeletable.PROTECTED_LIST.sort()
 
