@@ -7,7 +7,9 @@ import base
 
 class TestEmptyNode(base.TestBase):
     def do_more_setup(self):
+        # New node, don't delete
         self.tree.get_node('empty').mtime = time.time()
+        # Old node, inside. Do delete
         self.tree.get_node('empty/node').mtime = 1
         self.tree.setup_hash()
 
