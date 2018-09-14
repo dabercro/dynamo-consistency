@@ -16,6 +16,8 @@ pipeline {
 
     stage('Build') {
       steps {
+        // There's some incompatibility with old Python used
+        sh '$VENV; pip install "sphinx<1.8.0"'
         sh '$VENV; python setup.py install'
       }
     }
