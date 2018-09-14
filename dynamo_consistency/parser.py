@@ -11,7 +11,8 @@ from ._version import __version__
 
 # My executables
 # Also include exec.py because dynamo runs everything after renaming it to that
-EXES = ['exec.py', 'dynamo-consistency', 'set-status', 'consistency-web-install']
+EXES = ['exec.py', 'dynamo-consistency', 'set-status',
+        'consistency-web-install', 'consistency-invalidate']
 
 def get_parser(modname='__main__',
                prog=os.path.basename(sys.argv[0])):
@@ -37,7 +38,7 @@ def get_parser(modname='__main__',
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
-    if add_all:
+    if add_all or prog == 'consistency-invalidate':
         parser.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
                           help='Sets the pattern used to select a site to run on next.')
 
