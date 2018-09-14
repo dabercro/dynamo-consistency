@@ -29,6 +29,7 @@ import time
 import unittest
 import logging
 
+import base
 from base import TestBase
 from base import TestListing
 from base import TMP_DIR
@@ -415,4 +416,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         logging.basicConfig(level=logging.DEBUG)
 
-    unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])
+    unittest.main(argv=base.ARGS)

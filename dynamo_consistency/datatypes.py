@@ -336,7 +336,9 @@ class DirectoryInfo(object):
         for directory in self.directories:
             num_files += directory.get_num_files(unlisted, place_new)
 
-        if place_new and (not self.can_compare or self.mtime is None):
+        if place_new and (not self.can_compare or self.mtime is None or
+                          self.mtime + DirectoryInfo.ignore_age * 24 * 3600 > \
+                              self.timestamp):
             num_files += 1
 
         return num_files
@@ -471,11 +473,6 @@ class DirectoryInfo(object):
         """
 
         output = set()
-
-        if not self.can_compare or \
-                (self.mtime is not None and
-                 self.mtime + DirectoryInfo.ignore_age * 24 * 3600 > self.timestamp):
-            return output
 
         # Count direct subdirectories that are removed
         count_sub = 0

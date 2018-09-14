@@ -1,10 +1,13 @@
 import os
+import sys
 import shutil
 import unittest
 
 from dynamo_consistency import datatypes
 
 TMP_DIR = 'TempConsistency'
+
+ARGS = [a for a in sys.argv if a not in ['--info', '--debug']]
 
 class TestBase(unittest.TestCase):
 
