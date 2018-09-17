@@ -25,13 +25,13 @@ _PROVIDE = {
    A module that access contents of sites and other information
    from Dynamo's internal inventory.
 
-   .. py:func:: inventory.protected_datasets
+   .. py:function:: inventory.protected_datasets
 
       :param str site: Site to query
       :returns: The datasets that are protected by Dynamo
       :rtype: set
 
-   .. py:func:: list_files(site)
+   .. py:function:: list_files(site)
 
       :param str site: Site to query
       :returns: List of files at the site.
@@ -44,14 +44,14 @@ _PROVIDE = {
 
    Module that handles transfers and deletions
 
-   .. py:func:: registry.delete(site, files)
+   .. py:function:: registry.delete(site, files)
 
       Requests deletion of files from a site
 
       :param str site: The site to remove files from
       :param list files: List of LFNs of files (and directories) to remove
 
-   .. py:func:: registry.transfer(site, files)
+   .. py:function:: registry.transfer(site, files)
 
       Requests transfer of files to a site
 
@@ -63,30 +63,30 @@ Site information from inventory
 """,
 
     'get_listers': """
-.. py:func:: get_listers(site)
+.. py:function:: get_listers(site)
 
    :param str site: The name of the site that we want listers for
    :returns: A tuple containing a constructor (or function) and
              object creation parameters (or None) for passing to
-             :py:func:`dynamo_consistency.create.create_dirinfo`.
+             :py:function:`dynamo_consistency.create.create_dirinfo`.
    :rtype: tuple
 """,
     'check_site': """
-.. py:func:: check_site(site)
+.. py:function:: check_site(site)
 
    :param str site: Site to check status of
    :returns: True, if site is ready to run on
    :rtype: bool
 """,
     'deletion_requests': """
-.. py:func:: deletion_requests(site)
+.. py:function:: deletion_requests(site)
 
    :param str site: The site that we want the deletion requests for
    :returns: A set of datasets that have pending deletion requests
    :rtype: set
 """,
     'filelist_to_blocklist': """
-.. py:func:: filelist_to_blocklist(site, infile, outfile)
+.. py:function:: filelist_to_blocklist(site, infile, outfile)
 
    Converts a file of list of files to a summary of blocks and owning groups.
 
