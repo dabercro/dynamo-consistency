@@ -22,44 +22,56 @@ _PROVIDE = {
     'inventory': """
 .. py:module:: inventory
 
-   A module that access contents of sites and other information
-   from Dynamo's internal inventory.
+A module that access contents of sites and other information
+from Dynamo's internal inventory.
 
-   .. py:function:: inventory.protected_datasets
+.. py:function:: inventory.protected_datasets
 
-      :param str site: Site to query
-      :returns: The datasets that are protected by Dynamo
-      :rtype: set
+   :param str site: Site to query
+   :returns: The datasets that are protected by Dynamo
+   :rtype: set
 
-   .. py:function:: list_files(site)
+.. py:function:: list_files(site)
 
-      :param str site: Site to query
-      :returns: List of files at the site.
-                Each element of the list is a tuple with
-                (file name, size in bytes, datetime object)
-      :rtype: list
+   :param str site: Site to query
+   :returns: List of files at the site.
+             Each element of the list is a tuple with
+             (file name, size in bytes, datetime object)
+   :rtype: list
 """,
     'registry': """
 .. py:module:: registry
 
-   Module that handles transfers and deletions
+Module that handles transfers and deletions
 
-   .. py:function:: registry.delete(site, files)
+.. py:function:: registry.delete(site, files)
 
-      Requests deletion of files from a site
+   Requests deletion of files from a site
 
-      :param str site: The site to remove files from
-      :param list files: List of LFNs of files (and directories) to remove
+   :param str site: The site to remove files from
+   :param list files: List of LFNs of files (and directories) to remove
 
-   .. py:function:: registry.transfer(site, files)
+.. py:function:: registry.transfer(site, files)
 
-      Requests transfer of files to a site
+   Requests transfer of files to a site
 
-      :param str site: The site to transfer files to
-      :param list files: List of LFNs of files to transfer
+   :param str site: The site to transfer files to
+   :param list files: List of LFNs of files to transfer
 """,
     'siteinfo': """
+.. py:module:: siteinfo
+
 Site information from inventory
+
+.. py:function:: site_list()
+
+   :returns: List of sites known by Dynamo
+   :rtype: list
+
+.. py:function:: ready_sites()
+
+   :returns: Sites that are ready to run on
+   :rtype: set
 """,
 
     'get_listers': """
@@ -68,7 +80,7 @@ Site information from inventory
    :param str site: The name of the site that we want listers for
    :returns: A tuple containing a constructor (or function) and
              object creation parameters (or None) for passing to
-             :py:function:`dynamo_consistency.create.create_dirinfo`.
+             :py:func:`dynamo_consistency.create.create_dirinfo`.
    :rtype: tuple
 """,
     'check_site': """
@@ -121,10 +133,9 @@ for thing in _PROVIDE:
     setattr(_THIS, thing, getattr(mod, thing))
 
 __doc__ += '\n'.join(
-    [
-"""
+    ["""
 {head}
 {under}
 {description}""".format(head=key, under='-' * len(key), description=value)
-        for key, value in sorted(_PROVIDE.items())]
+     for key, value in sorted(_PROVIDE.items())]
 )
