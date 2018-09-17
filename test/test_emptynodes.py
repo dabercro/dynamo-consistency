@@ -20,6 +20,10 @@ class TestEmptyNode(base.TestBase):
     def test_emptyset(self):
         self.assertEqual(len(self.tree.empty_nodes_set()), 1)
         self.assertEqual(self.tree.empty_nodes_list(), ['/store/empty/node'])
+        # Make sure that we only get empty nodes if directory has been listed
+        self.old.files = None
+        self.assertFalse(self.tree.empty_nodes_set())
+
 
     def test_numfiles(self):
         self.assertEqual(self.old.get_num_files(place_new=False), 0)
