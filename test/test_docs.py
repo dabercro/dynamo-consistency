@@ -10,7 +10,7 @@ class TestBackendDocs(unittest.TestCase):
         lines = backend.__doc__.split('\n')
         for index, line in enumerate(lines):
             if re.match('^-+$', line):
-                self.assertTrue(re.search(':: %s\\b' % lines[index-1], lines[index + 2]))
+                self.assertTrue(re.search('::\s%s\\b' % lines[index-1], lines[index + 2]))
 
 
 if __name__ == '__main__':

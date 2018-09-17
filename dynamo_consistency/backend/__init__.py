@@ -25,13 +25,13 @@ _PROVIDE = {
 A module that access contents of sites and other information
 from Dynamo's internal inventory.
 
-.. py:function:: inventory.protected_datasets
+.. py:function:: dynamo_consistency.backend.inventory.protected_datasets(site)
 
    :param str site: Site to query
    :returns: The datasets that are protected by Dynamo
    :rtype: set
 
-.. py:function:: list_files(site)
+.. py:function::  dynamo_consistency.backend.inventory.list_files(site)
 
    :param str site: Site to query
    :returns: List of files at the site.
@@ -44,14 +44,14 @@ from Dynamo's internal inventory.
 
 Module that handles transfers and deletions
 
-.. py:function:: registry.delete(site, files)
+.. py:function::  dynamo_consistency.backend.registry.delete(site, files)
 
    Requests deletion of files from a site
 
    :param str site: The site to remove files from
    :param list files: List of LFNs of files (and directories) to remove
 
-.. py:function:: registry.transfer(site, files)
+.. py:function::  dynamo_consistency.backend.registry.transfer(site, files)
 
    Requests transfer of files to a site
 
@@ -63,12 +63,12 @@ Module that handles transfers and deletions
 
 Site information from inventory
 
-.. py:function:: site_list()
+.. py:function::  dynamo_consistency.backend.siteinfo.site_list()
 
    :returns: List of sites known by Dynamo
    :rtype: list
 
-.. py:function:: ready_sites()
+.. py:function::  dynamo_consistency.backend.siteinfo.ready_sites()
 
    :returns: Sites that are ready to run on
    :rtype: set
@@ -132,7 +132,7 @@ _THIS = sys.modules[__name__]
 for thing in _PROVIDE:
     setattr(_THIS, thing, getattr(mod, thing))
 
-__doc__ += '\n'.join(
+__doc__ += '\n'.join( # pylint: disable=redefined-builtin
     ["""
 {head}
 {under}
