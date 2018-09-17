@@ -19,6 +19,7 @@ class Killed(Exception):
 class Checker(object):
     """
     Checks the summary every few seconds if it should still be running
+
     :param str site: Site to check. If none, read from ``config.SITE``
     :param int timeout: Number of seconds between checks to summary table
     :param bool locking: True to get a lock before reading the database.

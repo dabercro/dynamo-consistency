@@ -7,7 +7,7 @@ class Filters(object):
     Holds multiple functions for filtering out file names from
     the :py:func:``dynamo_consistency.datatypes.compare`` function.
 
-    :param *args: An optional list of functions to build the filter
+    :param args: An optional list of functions to build the filter
     """
 
     def __init__(self, *args):

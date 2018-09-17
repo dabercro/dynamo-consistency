@@ -37,24 +37,43 @@ def deletion_requests(site):
     # PhEDEx APIs are ridiculous
     # Here I get the dataset names of approved deletion requests in a single list
     datasets_for_deletion = set(
-        [block['name'].split('#')[0] for block in sum(
-            [request['data']['dbs']['block'] for request in \
-                 deletion_request['phedex']['request']],
-            [])] + \
-        [dataset['name'] for dataset in sum(
-            [request['data']['dbs']['dataset'] for request in \
-                 deletion_request['phedex']['request']],
-            [])]
+        [block['name'].split('#')[0]
+         for request in deletion_request['phedex']['request']
+         for block in request['data']['dbs']['block']]
+        +
+        [dataset['name']
+         for request in deletion_request['phedex']['request']
+         for dataset in request['data']['dbs']['dataset']]
         ) if deletion_request else set()
 
     return datasets_for_deletion
+
+
+def get_files(site, dataset):
+    """
+    Get the list of file replicas at a site for a given dataset.
+    This is done via the PhEDEx ``filereplicas`` API.
+
+    :param str site: The name of the site to check
+    :param str dataset: The name of the dataset to check
+    :returns: A list of files at the site for a given dataset
+    :rtype: list
+    """
+
+    phedex_response = get_json(
+        'cmsweb.cern.ch', '/phedex/datasvc/json/prod/filereplicas',
+        {'node': site, 'dataset': dataset},
+        use_https=True)
+
+    return [fileinfo['name']
+            for block in phedex_response['phedex']['block']
+            for fileinfo in block['file']]
 
 
 def check_datasets(site, orphan_list_file):
     """
     Checks PhEDEx exhaustively to see if a dataset should exist at a site,
     according to PhEDEx, but has files marked as orphans according to our check.
-    This is done via the PhEDEx ``filereplicas`` API.
     The number of filereplicas for each dataset is printed to the terminal.
     Datasets that contain any filereplicas are returned by this function.
 
@@ -75,12 +94,7 @@ def check_datasets(site, orphan_list_file):
             dataset = '/%s/%s-%s/%s' % (split_name[4], split_name[3], split_name[6], split_name[5])
 
             if dataset not in datasets:
-                phedex_response = get_json(
-                    'cmsweb.cern.ch', '/phedex/datasvc/json/prod/filereplicas',
-                    {'node': site, 'dataset': dataset},
-                    use_https=True)
-
-                num_files = sum(len(block['file']) for block in phedex_response['phedex']['block'])
+                num_files = len(get_files(site, dataset))
 
                 datasets.add(dataset)
 
