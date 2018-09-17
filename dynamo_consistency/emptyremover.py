@@ -20,6 +20,7 @@ class EmptyRemover(object):
     This class handles the removal of empty directories from the tree
     by behaving as a callback.
     It also calls deletions for the registry at the same time.
+
     :param str site: Site name. If value is ``None``, then don't enter deletions
                      into the registry, but still remove node from tree
     :param function check: The function to check against orphans to not delete.
@@ -52,6 +53,7 @@ class EmptyRemover(object):
     def __call__(self, tree):
         """
         Removes acceptable empty directories from the tree
+
         :param tree: The tree that is periodically cleaned by this
         :type tree: :py:class:`datatypes.DirectoryInfo`
         """

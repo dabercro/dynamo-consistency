@@ -113,7 +113,7 @@ inventory = _Inventory()
 registry = _Registry()
 siteinfo = _SiteInfo()
 
-def filelist_to_blocklist(site, infile, outfile):
+def filelist_to_blocklist(infile, outfile):
     pass
 
 def get_listers(site):

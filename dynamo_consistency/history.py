@@ -219,6 +219,7 @@ def _get_files(table, site, acting):
 def report_missing(missing):
     """
     Stores a list of missing files in the invalidation table
+
     :param list missing: A list of tuples,
                          where each tuple is a name, info dict pair
     """
@@ -242,6 +243,7 @@ def missing_files(site, acting=False):
 def report_orphan(orphan):
     """
     Stores a list of orphan files in the orphan table
+
     :param list orphan: A list of tuples,
                         where each tuple is a name, info dict pair
     """
@@ -268,6 +270,7 @@ def orphan_files(site, acting=False):
 def report_unmerged(unmerged):
     """
     Stores a list of deletable unmerged files in the orphan table
+
     :param list unmerged: A list of tuples,
                           where each tuple is a name, info dict pair
     """
@@ -291,6 +294,7 @@ def unmerged_files(site, acting=False):
 def report_empty(directories):
     """
     Adds emtpy directories to history database
+
     :param list directories: A list of directory names and mtime (in seconds)
     """
     conn, curs = _connect()
