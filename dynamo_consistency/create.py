@@ -66,6 +66,7 @@ class ListingThread(threading.Thread):
         """
         Place the first set of parameters for the :py:class:`ListingThread` objects to start from.
         Should not be called once the threads are started.
+
         :param str directory: Name of the first directory to run over
         """
 
