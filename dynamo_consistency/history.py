@@ -43,7 +43,7 @@ def _connect():
 
 def start_run():
     """
-    Called in :py:func:dynamo_consistency.main.main`
+    Called in :py:func:`dynamo_consistency.main.main`
     to register the start of a consistency run
     """
 
@@ -74,7 +74,7 @@ def start_run():
 
 def finish_run():
     """
-    Called in :py:func:dynamo_consistency.main.main`
+    Called in :py:func:`dynamo_consistency.main.main`
     to register the end of a consistency run
     """
 
