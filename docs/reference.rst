@@ -7,6 +7,9 @@ These are the modules indended to be interacted with by a typical user.
 To see more details about the backend connections to dynamo
 and remote sites, see :ref:`backend-ref`.
 
+.. contents::
+   :local:
+
 .. _config-ref:
 
 cache.py

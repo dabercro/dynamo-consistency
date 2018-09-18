@@ -86,6 +86,7 @@ def install_webpage():
 def webdir():
     """
     If the web directory does not exist, this function installs it
+
     :returns: The web directory location
     :rtype: str
     """
