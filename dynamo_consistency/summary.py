@@ -224,6 +224,7 @@ def update_summary(    # pylint: disable=too-many-arguments
 def move_local_files(site):
     """
     Move files in the working directory to the web page
+
     :param str site: The site which has files ready to move
     """
 
@@ -270,6 +271,7 @@ def move_local_files(site):
 def running(site):
     """
     Show the site as running on the web page and note the start time
+
     :param str site: Site to run
     """
 
@@ -315,6 +317,7 @@ def update_config():
 def _set_site_col(site, col, val):
     """
     Sets one of the flags in the sites table
+
     :param str site: Site to set value on
     :param str col: Name of the column
     :param int val: What value to set
@@ -349,6 +352,7 @@ def _set_site_col(site, col, val):
 def set_status(site, status):
     """
     Sets the run status of a site.
+
     :param str site: Site name
     :param int status: Status flag
     :raises BadAction: If the status doesn't make sense
@@ -362,6 +366,7 @@ def set_status(site, status):
 def set_reporting(site, status):
     """
     Sets the reporint status of a site.
+
     :param str site: Site name
     :param int status: Status flag
     :raises BadAction: If the status doesn't make sense
@@ -375,6 +380,7 @@ def set_reporting(site, status):
 def unlock_site(site):
     """
     Sets the site running status back to 0 if running
+
     :param str site: Site to unlock
     """
 

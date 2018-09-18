@@ -90,6 +90,7 @@ def extras(site):
 def report_files(inv, remote, missing, orphans):
     """
     Reports files to the history database
+
     :param dynamo_consistency.datatypes.DirectoryInfo inv: The inventory listing
     :param dynamo_consistency.datatypes.DirectoryInfo remote: The remote listing
     :param list missing: Missing files

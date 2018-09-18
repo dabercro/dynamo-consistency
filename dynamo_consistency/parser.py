@@ -112,6 +112,7 @@ else:
     def pretty_exe(name):
         """
         Modifies the calling module's doc string
+
         :param str name: The desired heading for the new docstring
         """
 
