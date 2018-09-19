@@ -61,12 +61,16 @@ def list_files(site):
     now = time.time()
 
     for partition in inventory.sites[site].partitions.values():
+        LOG.debug('----------------------')
+        LOG.debug('Partition: %s', partition)
 
         for dataset_rep, blocks in partition.replicas.iteritems():
+            LOG.debug('Dataset Replicas: %s, %s', dataset_rep, blocks)
 
             block_replicas = blocks or dataset_rep.block_replicas
 
             for block_replica in block_replicas:
+                LOG.debug('Block Replicas: %s, %s', dataset_rep, blocks)
 
                 # If complete and owned,
                 # then we say this replica is "old enough" to be missing
@@ -76,6 +80,7 @@ def list_files(site):
                     now
 
                 for fileobj in block_replica.block.files:
+                    LOG.debug('File: %s, %s, %s', fileobj.lfn, fileobj.size, timestamp)
                     yield (fileobj.lfn, fileobj.size, datetime.fromtimestamp(timestamp))
 
 

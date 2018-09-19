@@ -2,6 +2,8 @@
 The bit of the summary table that also relies on accurate backend.
 """
 
+import logging
+
 from . import lock
 from . import config
 
@@ -10,6 +12,9 @@ from .summary import NoMatchingSite
 
 from .backend import siteinfo
 from .backend import check_site
+
+
+LOG = logging.getLogger(__name__)
 
 
 def pick_site(pattern=None):
@@ -48,12 +53,15 @@ def pick_site(pattern=None):
     # Track not ready sites so we can update the web view
     not_ready = []
 
+    LOG.debug('Potential sites: %s', sites)
+
     for site, isrunning in curs.execute(
             """
             SELECT sites.site, isrunning FROM sites
             LEFT JOIN stats ON sites.site=stats.site
             ORDER BY stats.entered ASC, sites.site ASC
             """):
+        LOG.debug('Considering %s (run status %s)', site, isrunning)
         if site in sites and \
                 (isrunning == 0 or isrunning == -1):
             if check_site(site):
