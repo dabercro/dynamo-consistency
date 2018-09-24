@@ -9,6 +9,7 @@ import os
 import sys
 import json
 import time
+import logging
 
 from .. import opts
 from .. import config
@@ -22,6 +23,8 @@ from ..dynamo import filelist_to_blocklist
 # Get the listers, taking GFAL from appropriate siteinfo
 from . import listers
 from .listers import get_listers
+
+LOG = logging.getLogger(__name__)
 
 # Getting datasets for filtering
 # protected_datasets actually in inventory module (not file)
@@ -41,7 +44,10 @@ if opts.CMS:
 
     def check_site(site):
         """Checks SAM tests and dynamo"""
-        return _READY(site) and is_sam_good(site)
+        sam = is_sam_good(site) or opts.NOSAM
+        ready = _READY(site)
+        LOG.debug('Site: %s, SAM: %s, Ready: %s', site, sam, ready)
+        return sam and ready
 
 else:
 

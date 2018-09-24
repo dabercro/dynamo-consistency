@@ -65,6 +65,8 @@ def get_parser(modname='__main__',
     if add_all:
         backend_group.add_option('--cms', action='store_true', dest='CMS',
                                  help='Run actions specific to CMS collaboration data.')
+        backend_group.add_option('--no-sam', action='store_true', dest='NOSAM',
+                                 help='Disables the SAM readiness check.')
         backend_group.add_option('--unmerged', action='store_true', dest='UNMERGED',
                                  help='Run actions on "/store/unmerged".')
 

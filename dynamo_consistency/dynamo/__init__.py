@@ -3,13 +3,18 @@ This sub-module includes all of the interaction with dynamo
 """
 
 
+import logging
+
 from collections import defaultdict
 
 from .. import opts
 
 
+LOG = logging.getLogger(__name__)
+
 # This is the old version of connecting to dynamo
 if opts.V1:
+    LOG.warning('Using v1 of dynamo interface')
     from .v1 import inventory
     from .v1 import registry
     from .v1 import siteinfo
