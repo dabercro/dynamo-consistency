@@ -318,12 +318,12 @@ GFAL_LOCATION = lambda _: ''
 
 def file_reader(filename, translator):
     """
-    Tries to download the files listings.
-    This function supports the format proposed by RAL site admins.
     :param str filename: Name of a file to read file information from
     :param func translator: A function that takes a line of a file as an arument
                             and transforms the line into input for
                             :py:func:`dynamo_consistencydatatypes.DirectoryInfo.add_file_list`.
+    :returns: A directory tree created from reading the input file
+    :rtype: dynamo_consistency.datatypes.DirectoryInfo
     """
 
     tree = datatypes.DirectoryInfo(
@@ -335,6 +335,10 @@ def file_reader(filename, translator):
                for directory in config_dict['DirectoryList']]
 
     def line_yielder():
+        """
+        Yields the translated lines of the input file
+        for :py:func:`dynamo_consistency.datatypes.DirectoryInfo.add_file_list`
+        """
         with open(filename, 'r') as inputfile:
             for line in inputfile:
                 for directory in dirlist:

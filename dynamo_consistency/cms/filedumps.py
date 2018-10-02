@@ -7,8 +7,7 @@ import os
 import time
 import datetime
 
-from ..config import vardir
-from .. import datatypes
+from .. import config
 
 
 class LineReader(object):
@@ -40,7 +39,7 @@ def read_ral_dump(endpoint, datestring=None):
     :rtype: tuple
     """
 
-    inputfile = os.path.join(vardir('scratch'), 'dump_%s' % config.SITE)
+    inputfile = os.path.join(config.vardir('scratch'), 'dump_%s' % config.SITE)
 
     os.system(
         'gfal-copy {endpoint}/store/accounting/dump_{date} {target}.raw'.format(
