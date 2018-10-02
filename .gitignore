@@ -1,5 +1,6 @@
 *~
 *.pyc
+build/*
 dist/*
 dynamo_consistency.egg-info/*
 

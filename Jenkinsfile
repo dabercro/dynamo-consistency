@@ -1,36 +1,27 @@
 pipeline {
-  agent any
-
-  environment {
-    VENV = 'source venv/bin/activate'
+  agent {
+    dockerfile {
+      args '-u root:root -v ${HOME}/public_html:/html'
+    }
   }
 
   stages {
 
-    stage('Virtual Env') {
+    stage('Installation') {
       steps {
-        sh 'if [ -d venv ]; then rm -rf venv; fi'
-        sh '/home/jenkins/python/bin/virtualenv venv'
-      }    
-    }
-
-    stage('Build') {
-      steps {
-        // There's some incompatibility with old Python used
-        sh '$VENV; pip install "sphinx<1.8.0"'
-        sh '$VENV; python setup.py install'
+        sh 'python setup.py install'
       }
     }
 
-    stage('Test') {
+    stage('Unit Tests') {
       steps {
-        sh '$VENV; opsspace-test'
+        sh 'opsspace-test'
       }
     }
 
     stage('Copy Coverage') {
       steps {
-        sh '$VENV; copy-coverage-html ${HOME}/public_html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
+        sh 'copy-coverage-html /html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
       }
     }
 

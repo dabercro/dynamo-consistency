@@ -20,7 +20,7 @@ setuptools.setup(
                       'docutils',
                       'MySQL-python',
                       'psutil',
-                      'cmstoolbox>=0.9.8'],  # Older version has slow unmerged cleaner
+                      'cmstoolbox>=0.10.4'],
     scripts=[s for s in glob.iglob('bin/*') if not s.endswith('~')],
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
