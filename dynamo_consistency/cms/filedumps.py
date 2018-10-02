@@ -10,7 +10,7 @@ import datetime
 from .. import config
 
 
-class LineReader(object):
+class LineReader(object): # pylint:disable=too-few-public-methods
     """
     A class that translates lines from a file dump.
     It tracks the time that it was initialized.
