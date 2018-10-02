@@ -13,3 +13,4 @@ They are all installed along with the rest of the modules.
 
 .. automodule:: consistency_web_install_exe
 
+.. automodule:: consistency_dump_tree_exe

@@ -5,7 +5,7 @@ import unittest
 
 import base
 
-from dynamo_consistency.backend.listers import file_reader
+from dynamo_consistency.backend.filereader import file_reader
 
 class TestFileDump(base.TestBase):
     def test_filedump(self):
