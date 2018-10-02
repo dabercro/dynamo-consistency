@@ -48,7 +48,7 @@ class TestBase(unittest.TestCase):
         tree1.setup_hash()
 
         self.assertEqual(tree0.hash, tree1.hash,
-                         '%s\n=\n%s' % (tree0.displays(), tree1.displays()))
+                         '\n%s\n=\n%s' % (tree0.displays(), tree1.displays()))
         self.assertEqual([fi['hash'] for fi in tree0._grab_first().files],
                          [fi['hash'] for fi in tree1._grab_first().files])
         self.assertEqual(tree0.get_num_files(), tree1.get_num_files())
