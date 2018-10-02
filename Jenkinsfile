@@ -2,6 +2,7 @@ pipeline {
   agent {
     dockerfile {
       args '-u root:root -v ${HOME}/public_html:/html'
+      dir 'test/sl7'
     }
   }
 
