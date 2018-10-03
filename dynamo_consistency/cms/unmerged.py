@@ -89,10 +89,11 @@ def report_contents(timestamp, site, files):
 
 def clean_unmerged(site):
     """
-    Lists the /store/unmerged area of a site, and then uses :ref:`unmerged-ref`
+    Lists the /store/unmerged area of a site, and then uses
+    :py:mod:`cmstoolbox.unmergedcleaner.listdeletable`
     to list files to delete and adds them to the registry.
 
-    ..Warning::
+    .. Warning::
 
       This function has a number of side effects to various module configurations.
       Definitely call this after running the main site consistency.
@@ -128,6 +129,7 @@ def clean_unmerged(site):
     def check_protected(path):
         """
         Determine if the path should be protected or not
+
         :param str path: full path of directory
         :returns: If the path should be protected
         :rtype: bool

@@ -33,6 +33,10 @@ def listing(site, callback=None):
 
     constructor, params = get_listers(site)
 
+    # If the "constructor" is the fully constructed DirectoryInfo, return
+    if constructor.__class__ == datatypes.DirectoryInfo:
+        return constructor
+
     config_dict = config.config_dict()
 
     directories = [

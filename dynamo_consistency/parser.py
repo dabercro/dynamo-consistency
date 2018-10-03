@@ -12,7 +12,8 @@ from ._version import __version__
 # My executables
 # Also include exec.py because dynamo runs everything after renaming it to that
 EXES = ['exec.py', 'dynamo-consistency', 'set-status',
-        'consistency-web-install', 'consistency-invalidate']
+        'consistency-web-install', 'consistency-invalidate',
+        'consistency-dump-tree']
 
 def get_parser(modname='__main__',
                prog=os.path.basename(sys.argv[0])):
@@ -38,10 +39,13 @@ def get_parser(modname='__main__',
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
-    if add_all or prog == 'consistency-invalidate':
+    if add_all or prog in ['consistency-invalidate', 'consistency-dump-tree']:
         parser.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
                           help='Sets the pattern used to select a site to run on next.')
 
+    if prog == 'consistency-dump-tree':
+        parser.add_option('--remote', action='store_true', dest='REMOTE',
+                          help='Dump the remote site listing instead of the inventory')
 
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 
@@ -70,12 +74,15 @@ def get_parser(modname='__main__',
         backend_group.add_option('--unmerged', action='store_true', dest='UNMERGED',
                                  help='Run actions on "/store/unmerged".')
 
+    if add_all or prog in ['consistency-dump-tree']:
         backend_group.add_option('--v1', action='store_true', dest='V1',
                                  help='Connect to Dynamo database directly')
+
+    if add_all:
         backend_group.add_option('--v1-reporting', action='store_true', dest='V1_REPORTING',
                                  help='Connect to Dynamo database directly for registry only')
 
-    if add_all or prog.startswith('test_'):
+    if add_all or prog in ['consistency-dump-tree'] or prog.startswith('test_'):
         backend_group.add_option('--test', action='store_true', dest='TEST',
                                  help='Run with a test instance of backend module.')
 

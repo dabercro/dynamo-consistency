@@ -81,6 +81,11 @@ Site information from inventory
    :returns: A tuple containing a constructor (or function) and
              object creation parameters (or None) for passing to
              :py:func:`dynamo_consistency.create.create_dirinfo`.
+
+             Optionally, the first parameter of the tuple can be a fully constructed
+             :py:class:`dynamo_consistency.datatypes.DirectoryInfo`.
+             In that case, the second returned value is ignored by
+             :py:func:`dynamo_consistency.remotelister.listing`.
    :rtype: tuple
 """,
     'check_site': """

@@ -1,0 +1,13 @@
+compare: 1 mtime: None my hash: 8a697c5ef515e01a1212f28dbdb37bf0bc563ccb path: /store
+compare: 1 mtime: None my hash: 464b5447894de2b0f8cb6589a41d75f2175a0fca path: /store/data
+compare: 1 mtime: None my hash: 0392cd4dd701c02d3ba48420b531125aa08b1ed7 path: /store/data/runA
+compare: 1 mtime: None my hash: 691ac7677e43e68a5dd9f5319ae662f82c4cadc2 path: /store/data/runA/0030
+mtime: 1 size: 10 my hash:cfe6b5d7279542edf7e74a6a6c7167069746693a name: stuff.root
+compare: 1 mtime: None my hash: 224742fa34d6e8fd7ffb2789fde7e3e66862c426 path: /store/data/runB
+compare: 1 mtime: None my hash: fb28e1343126e7a66085559dde1fed847377d896 path: /store/data/runB/0003
+mtime: 1 size: 45 my hash:be272dac6e8d7a36bef0f876314c78b1ee173c77 name: missing.root
+compare: 1 mtime: None my hash: c70a2614b3ec6c28807cc3e767b32e31aee1d4f0 path: /store/mc
+compare: 1 mtime: None my hash: b17e7cc0fa1fa2c4caae40771f0ddfea9fb0a64c path: /store/mc/ttThings
+compare: 1 mtime: None my hash: ab30f4d5ebf507c1be97da55d6e6d7f0d4e54bce path: /store/mc/ttThings/0000
+mtime: 1 size: 20 my hash:37c15187fa5ba3911263b9d6aea799b4051d2865 name: qwert.root
+mtime: 1 size: 30 my hash:40d6a4b8455b8f3a01e895c9de7c5cb13ebfaffa name: qwery.root

@@ -3,6 +3,7 @@ The bit of the summary table that also relies on accurate backend.
 """
 
 import logging
+import re
 
 from . import lock
 from . import config
@@ -22,7 +23,7 @@ def pick_site(pattern=None):
     This function also does the task of syncronizing the summary database with
     the inventory's list of sites that match the pattern.
 
-    :param str pattern: A string that should be contained in the site name
+    :param str pattern: A regex that needs to be contained in the site name
     :returns: The name of a site that is ready and hasn't run in the longest time
     :rtype: str
     :raises NoMatchingSite: If no site matches or is ready
@@ -31,7 +32,7 @@ def pick_site(pattern=None):
     # First add sites that match our pattern
     sites = siteinfo.site_list()
     if pattern:
-        sites = [site for site in sites if pattern in site]
+        sites = [site for site in sites if re.search(pattern, site)]
 
     if not sites:
         raise NoMatchingSite('Cannot find a site that matches %s' % pattern)

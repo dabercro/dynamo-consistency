@@ -1,2 +1,3 @@
 astroid<1.3
 pylint<1.4
+setuptools==36.8.0

@@ -16,7 +16,6 @@ import XRootD.client    # pylint: disable=import-error
 from . import redirectors
 from .. import config
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -329,8 +328,14 @@ def get_listers(site):
     """
 
     config_dict = config.config_dict()
-    access = config_dict.get('AccessMethod', {})
-    if access.get(site) == 'SRM':
+    access = config_dict.get('AccessMethod', {}).get(site)
+
+    if access == 'RAL-Reader':
+        from .filereader import file_reader
+        from ..cms.filedumps import read_ral_dump
+        return file_reader(*read_ral_dump(GFAL_LOCATION(site))), None
+
+    if access == 'SRM':
         num_threads = int(config_dict.get('GFALThreads'))
         LOG.info('threads = %i', num_threads)
 
@@ -375,7 +380,7 @@ def get_listers(site):
     # number as initialization arguments.
 
 
-    constructor = XRootDSubShell if access.get(site) == 'directx' else XRootDLister
+    constructor = XRootDSubShell if access == 'directx' else XRootDLister
     params = [(site, door, thread_num) for thread_num, door in enumerate(door_list)]
 
     return constructor, params
