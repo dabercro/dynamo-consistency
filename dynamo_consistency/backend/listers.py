@@ -333,7 +333,7 @@ def get_listers(site):
     if access == 'RAL-Reader':
         from .filereader import file_reader
         from ..cms.filedumps import read_ral_dump
-        return file_reader(*read_ral_dump(GFAL_LOCATION(site)))
+        return file_reader(*read_ral_dump(GFAL_LOCATION(site))), None
 
     if access == 'SRM':
         num_threads = int(config_dict.get('GFALThreads'))

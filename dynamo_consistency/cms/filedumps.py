@@ -4,10 +4,15 @@ A module to handle file dumps from sites
 
 
 import os
+import logging
 import time
 import datetime
+import subprocess
 
 from .. import config
+from .. import opts
+
+LOG = logging.getLogger(__name__)
 
 
 class LineReader(object): # pylint:disable=too-few-public-methods
@@ -39,15 +44,26 @@ def read_ral_dump(endpoint, datestring=None):
     :rtype: tuple
     """
 
-    inputfile = os.path.join(config.vardir('scratch'), 'dump_%s' % config.SITE)
+    inputfile = os.path.join(config.vardir('scratch'),
+                             'dump_%s' % (config.SITE or opts.SITE_PATTERN))
 
-    os.system(
-        'gfal-copy {endpoint}/store/accounting/dump_{date} {target}.raw'.format(
+    raw_file = '%s.raw' % inputfile
+    if os.path.exists(raw_file):
+        os.remove(raw_file)
+
+    cp_command = ' '.join([
+        'gfal-copy',
+        '{endpoint}/store/accounting/dump_{date}'.format(
             endpoint=endpoint,
-            date=datestring or datetime.datetime.utcnow().strftime('%y%m%d'),
-            target=inputfile
-            )
-        )
-    os.system('sort -o {target} {target}.raw'.format(target=inputfile))
+            date=datestring or datetime.datetime.utcnow().strftime('%Y%m%d')
+            ),
+        raw_file
+    ])
+    LOG.info('About to call: %s', cp_command)
+    subprocess.check_call([cp_command], shell=True)
+
+    sort_command = ' '.join(['sort', '-o', inputfile, raw_file])
+    LOG.info('About to call: %s', sort_command)
+    subprocess.check_call([sort_command], shell=True)
 
     return inputfile, LineReader()

@@ -43,6 +43,9 @@ def get_parser(modname='__main__',
         parser.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
                           help='Sets the pattern used to select a site to run on next.')
 
+    if prog == 'consistency-dump-tree':
+        parser.add_option('--remote', action='store_true', dest='REMOTE',
+                          help='Dump the remote site listing instead of the inventory')
 
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 
