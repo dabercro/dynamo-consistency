@@ -27,19 +27,19 @@ class TestPickRegex(unittest.TestCase):
     def setUp(self):
         os.remove(os.path.join(os.path.dirname(__file__), 'www', 'stats.db'))
 
-    def test_no_ral(self):
-        while True:
-            # Set all T2s to running
-            try:
-                self.assertFalse(picker.pick_site('^T2_') == 'T1_UK_RAL_Disk')
-            except picker.NoMatchingSite:
-                pass
+    def loop(self, pattern):
+        try:
+            while True:
+                self.assertFalse(picker.pick_site(pattern) == 'T1_UK_RAL_Disk')
+        except picker.NoMatchingSite:
+            pass
 
-            # Set all other T1s
-            try:
-                self.assertFalse(picker.pick_site('(?<!_RAL)_Disk') == 'T1_UK_RAL_Disk')
-            except picker.NoMatchingSite:
-                break
+    def test_no_ral(self):
+        # Set all T2s to running
+        self.loop('^T2_')
+
+        # Set all other T1s
+        self.loop('(?<!_RAL)_Disk')
 
         # Only RAL is left
         self.assertEqual(picker.pick_site(), 'T1_UK_RAL_Disk')

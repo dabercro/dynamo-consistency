@@ -23,7 +23,7 @@ def pick_site(pattern=None):
     This function also does the task of syncronizing the summary database with
     the inventory's list of sites that match the pattern.
 
-    :param str pattern: A string that should be contained in the site name
+    :param str pattern: A regex that needs to be contained in the site name
     :returns: The name of a site that is ready and hasn't run in the longest time
     :rtype: str
     :raises NoMatchingSite: If no site matches or is ready
