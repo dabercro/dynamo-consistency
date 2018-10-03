@@ -11,6 +11,7 @@ Dynamo Consistency
    cms
    reference
    backend
+   cmsmods
 
 Indices and tables
 ==================

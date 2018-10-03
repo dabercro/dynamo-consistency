@@ -5,8 +5,8 @@ Dumps the :py:class:`dynamo_consistency.datatypes.DirectoryInfo`
 tree into ``<VarDirectory>/cache/<SITE>/<NAME>.pkl``.
 By default, it dumps the tree that would be read from the inventory.
 
-If the ``[NAME]`` argument is not given,
-defaults to ``inventory.pkl`` or ``remote.pkl`` when using the ``--remote`` option.
+If the ``[NAME]`` argument is not given, defaults to ``inventory.pkl``
+or ``remote.pkl`` when using the ``--remote`` option.
 """
 
 __usage__ = '%prog [options] [NAME]'

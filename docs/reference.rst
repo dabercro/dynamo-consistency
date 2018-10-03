@@ -10,13 +10,13 @@ and remote sites, see :ref:`backend-ref`.
 .. contents::
    :local:
 
-.. _config-ref:
-
 cache.py
 --------
 
 .. automodule:: dynamo_consistency.cache
    :members:
+
+.. _config-ref:
 
 config.py
 ---------
