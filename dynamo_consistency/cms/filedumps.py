@@ -17,7 +17,7 @@ LOG = logging.getLogger(__name__)
 
 class LineReader(object): # pylint:disable=too-few-public-methods
     """
-    A class that translates lines from a file dump.
+    A callable object that translates lines from a file dump.
     It tracks the time that it was initialized.
     """
 
@@ -38,6 +38,7 @@ class LineReader(object): # pylint:disable=too-few-public-methods
 def read_ral_dump(endpoint, datestring=None):
     """
     Copies file from remote site and lists
+
     :param str endpoint: The SE to copy the file dump from
     :param str datestring: An optional datestring to force source file name
     :returns: A tuple of the filename and translator
