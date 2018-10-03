@@ -15,4 +15,7 @@ from dynamo_consistency.parser import pretty_exe
 pretty_exe('consistency-dump-tree')
 
 if __name__ == '__main__':
-    inventorylister.listing(opts.SITE_PATTERN, cache=args[1] if len(args) > 1 else 'inventory') # pylint: disable=unexpected-keyword-arg
+    inventorylister.listing( # pylint: disable=unexpected-keyword-arg
+        opts.SITE_PATTERN,
+        cache=args[1] if len(args) > 1 else 'inventory'
+    )
