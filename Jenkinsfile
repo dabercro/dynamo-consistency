@@ -7,28 +7,26 @@ def run(os) {
         sh """
            test ! -d ${os} || rm -rf ${os}
            mkdir ${os}
-           cp `git ls-files` ${os}
+           cp --parents `git ls-files` ${os}
            """
       }
 
-      dir(os) {
-        stage("${os}: Installation") {
-          sh 'python setup.py install'
-        }
-
-        stage("${os}: Unit Tests") {
-          sh 'opsspace-test'
-        }
-
-        stage("${os}: Copy Coverage") {
-          if (os == 'sl7') {
-            sh 'copy-coverage-html /html/coverage/${JOB_NAME}/${BUILD_NUMBER}'
-          } else {
-            echo 'Not going to store coverage results'
-          }
-        }
-
+      stage("${os}: Installation") {
+        sh "cd ${os}; python setup.py install"
       }
+
+      stage("${os}: Unit Tests") {
+        sh "cd ${os}; opsspace-test"
+      }
+
+      stage("${os}: Copy Coverage") {
+        if (os == 'sl7') {
+          sh "cd ${os}; copy-coverage-html /html/coverage/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+        } else {
+          echo 'Not going to store coverage results'
+        }
+      }
+
     }
   }
 }
