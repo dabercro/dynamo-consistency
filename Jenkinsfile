@@ -1,9 +1,17 @@
 def run(os) {
   return {
-    node {
-      checkout scm
-      docker.build("dynamo-consistency-${os}:${env.BUILD_ID}", "test/${os}").inside('-u root:root -v ${HOME}/public_html:/html') {
 
+    docker.build("dynamo-consistency-${os}:${env.BUILD_ID}", "test/${os}").inside('-u root:root -v ${HOME}/public_html:/html') {
+
+      stage("${os}: Copy Source") {
+        sh """
+           test ! -d ${os} || rm -rf ${os}
+           mkdir ${os}
+           cp `git ls-files` ${os}
+           """
+      }
+
+      dir(os) {
         stage("${os}: Installation") {
           sh 'python setup.py install'
         }
@@ -27,6 +35,9 @@ def run(os) {
 
 def osList = ['sl6', 'sl7']
 
-parallel osList.collectEntries{
-  ["${it}": run(it)]
+node {
+  checkout scm
+  parallel osList.collectEntries{
+    ["${it}": run(it)]
+  }
 }

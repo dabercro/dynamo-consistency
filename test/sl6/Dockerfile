@@ -9,6 +9,7 @@ RUN yum -y install \
     gcc \
     mysql-devel \
     libyaml-devel \
+    git \
     perl
 
 RUN pip install -U 'pip==9.0.1'

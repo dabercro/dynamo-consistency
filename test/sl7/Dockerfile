@@ -9,6 +9,7 @@ RUN yum -y install \
     gcc \
     mariadb-devel \
     libyaml-devel \
+    git \
     perl
 
 RUN pip install -U 'pip==18.0'
