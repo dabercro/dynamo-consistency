@@ -9,7 +9,11 @@ else
     consistency-dump-tree --test --site TEST_SITE
 fi
 
-diff dumptest.txt <(python -c "from dynamo_consistency.datatypes import get_info; get_info('var/cache/TEST_SITE/inventory.pkl').display()") || exit 1
+diff txtfiles/dumptest.txt <(python -c "from dynamo_consistency.datatypes import get_info; get_info('var/cache/TEST_SITE/inventory.pkl').display()") || exit 1
 
 consistency-dump-tree --test --site TEST_SITE funny_name
-diff dumptest.txt <(python -c "from dynamo_consistency.datatypes import get_info; get_info('var/cache/TEST_SITE/funny_name.pkl').display()") || exit 2
+diff txtfiles/dumptest.txt <(python -c "from dynamo_consistency.datatypes import get_info; get_info('var/cache/TEST_SITE/funny_name.pkl').display()") || exit 2
+
+# Check the remote switch
+consistency-dump-tree --test --site TEST_SITE --remote
+diff txtfiles/remotelist.txt <(python -c "from dynamo_consistency.datatypes import get_info; get_info('var/cache/TEST_SITE/remote.pkl').display()") || exit 3

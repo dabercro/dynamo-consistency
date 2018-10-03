@@ -1,0 +1,18 @@
+compare: 1 mtime: None my hash: 10f8ecffecea67fc0aa5ed771fd09734af40c468 path: /store
+compare: 1 mtime: None my hash: 2d71607399eb7092997cb351a6912db77ba561d5 path: /store/data
+compare: 1 mtime: 1 my hash: 0392cd4dd701c02d3ba48420b531125aa08b1ed7 path: /store/data/runA
+compare: 1 mtime: 1 my hash: 691ac7677e43e68a5dd9f5319ae662f82c4cadc2 path: /store/data/runA/0030
+mtime: 1 size: 10 my hash:cfe6b5d7279542edf7e74a6a6c7167069746693a name: stuff.root
+compare: 1 mtime: 1 my hash: 75b5923f6c5ddbf4d7d1e465fc95b5d6d4a95969 path: /store/data/runB
+compare: 1 mtime: 1 my hash: 9561d8e96bfdd159ff253c88c6f4a621cd75554d path: /store/data/runB/0001
+mtime: 1 size: 45 my hash:be5b78edd5c9143e289a21f325ac3913cb33b1ff name: orphan.root
+compare: 1 mtime: 1 my hash: 5ee713c9849ae5f4cd8fcb22f104192c72ac1a7b path: /store/data/runC
+compare: 1 mtime: 1 my hash: f7bd84cb7d5c9d680b9ba3809af4437142018185 path: /store/data/runC/0000
+compare: 1 mtime: 1 my hash: c19da5010534da3daff854592590454ab2989ed6 path: /store/data/runC/0000/emtpy
+compare: 1 mtime: 1 my hash: 7ee737c83ee689c96ef37d3a029068c390ebc8f8 path: /store/data/runC/0000/emtpy/dir
+compare: 0 mtime: None my hash: f95a147df39126137c40485bb444948e4e1bee21 path: /store/hidata
+compare: 1 mtime: None my hash: c70a2614b3ec6c28807cc3e767b32e31aee1d4f0 path: /store/mc
+compare: 1 mtime: 1 my hash: b17e7cc0fa1fa2c4caae40771f0ddfea9fb0a64c path: /store/mc/ttThings
+compare: 1 mtime: 1 my hash: ab30f4d5ebf507c1be97da55d6e6d7f0d4e54bce path: /store/mc/ttThings/0000
+mtime: 1 size: 20 my hash:37c15187fa5ba3911263b9d6aea799b4051d2865 name: qwert.root
+mtime: 1 size: 30 my hash:40d6a4b8455b8f3a01e895c9de7c5cb13ebfaffa name: qwery.root
