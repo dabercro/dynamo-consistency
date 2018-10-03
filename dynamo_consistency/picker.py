@@ -3,6 +3,7 @@ The bit of the summary table that also relies on accurate backend.
 """
 
 import logging
+import re
 
 from . import lock
 from . import config
@@ -31,7 +32,7 @@ def pick_site(pattern=None):
     # First add sites that match our pattern
     sites = siteinfo.site_list()
     if pattern:
-        sites = [site for site in sites if pattern in site]
+        sites = [site for site in sites if re.search(pattern, site)]
 
     if not sites:
         raise NoMatchingSite('Cannot find a site that matches %s' % pattern)
