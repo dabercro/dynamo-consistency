@@ -42,10 +42,11 @@ def change_logfile(*filenames):
     parents = []
 
     # Sort the loggers so that we come to the parents first
-    for logger in sorted(
-        [logger for logger in logging.Logger.manager.loggerDict.values()
-         if isinstance(logger, logging.Logger)],
-        key=lambda logger: logger.name):
+    for logger in \
+            sorted([logger for logger in
+                    logging.Logger.manager.loggerDict.values()
+                    if isinstance(logger, logging.Logger)],
+                   key=lambda logger: logger.name):
 
         # Don't reconfigure a logger with a parent
         if True in [logger.name.startswith(parent) for parent in parents]:

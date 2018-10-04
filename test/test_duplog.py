@@ -43,6 +43,9 @@ class TestLogs(unittest.TestCase):
             if os.path.exists(directory):
                 shutil.rmtree(directory)
 
+    def tearDown(self):
+        os.remove('logs/test.log')
+
     def test_duplog(self):
         summary.unlock_site('TEST_SITE')
         
