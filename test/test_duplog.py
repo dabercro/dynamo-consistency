@@ -22,14 +22,14 @@ from dynamo_consistency.dynamo.v1 import registry
 
 class Dummy(object):
     @staticmethod
-    def query(_):
+    def query(*_):
         pass
     @staticmethod
     def close():
         pass
 
-registry._get_registery = lambda: Dummy()
 backend.registry = registry
+backend.registry._get_registry = Dummy
 
 from dynamo_consistency import logsetup
 from dynamo_consistency import main
