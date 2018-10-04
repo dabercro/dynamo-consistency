@@ -7,7 +7,6 @@ dynamo_consistency.egg-info/*
 test/www/*
 test/var/*
 test/html*
+test/logs/*
 
 test/.coverage
-
-prod/*.txt
