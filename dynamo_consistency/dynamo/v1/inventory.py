@@ -13,6 +13,7 @@ LOG = logging.getLogger(__name__)
 def _get_inventory():
     """
     The connection returned by this must be closed by the caller
+
     :returns: A connection to the inventory database.
     :rtype: :py:class:`MySQL`
     """

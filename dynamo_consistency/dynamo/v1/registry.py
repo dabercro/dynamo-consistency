@@ -19,6 +19,7 @@ LOG = logging.getLogger(__name__)
 def _get_registry():
     """
     The connection returned by this must be closed by the caller
+
     :returns: A connection to the registry database.
     :rtype: :py:class:`MySQL`
     """
@@ -43,6 +44,7 @@ def _get_registry():
 def delete(site, files):
     """
     Enters files into the deletion queue for a site
+
     :param str site: Site to execute deletion
     :param list files: Full LFNs of files or directories to delete
     :returns: Number of files deleted, in case ``files`` is an rvalue or something
@@ -67,6 +69,7 @@ def delete(site, files):
 def transfer(site, files):
     """
     Requests a transfer for files from other sites
+
     :param str site: The target site for the transfer
     :param list files: List of file LFNs to transfer
     :returns: Two lists of files.

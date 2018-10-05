@@ -86,7 +86,7 @@ class EmptyRemover(object):
         history.report_empty(empties_info)
 
         self.removed += registry.delete(self.site, full_empties) \
-            if self.site else len(full_empties)
+            if self.site and full_empties else len(full_empties)
 
     def get_removed_count(self):
         """

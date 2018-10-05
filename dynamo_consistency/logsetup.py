@@ -39,9 +39,20 @@ def change_logfile(*filenames):
 
         new_hldrs.append(fhdl)
 
-    for logger in logging.Logger.manager.loggerDict.values():
-        if not isinstance(logger, logging.Logger):
+    parents = []
+
+    # Sort the loggers so that we come to the parents first
+    for logger in \
+            sorted([logger for logger in
+                    logging.Logger.manager.loggerDict.values()
+                    if isinstance(logger, logging.Logger)],
+                   key=lambda logger: logger.name):
+
+        # Don't reconfigure a logger with a parent
+        if True in [logger.name.startswith(parent) for parent in parents]:
             continue
+
+        parents.append(logger.name)
 
         hdlr_copy = list(logger.handlers)
         for hdlr in hdlr_copy:
