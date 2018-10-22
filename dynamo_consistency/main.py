@@ -87,7 +87,7 @@ def extras(site):
     return output
 
 
-def report_files(inv, remote, missing, orphans):
+def report_files(inv, remote, missing, orphans, prev_set=None):
     """
     Reports files to the history database
 
@@ -95,8 +95,10 @@ def report_files(inv, remote, missing, orphans):
     :param dynamo_consistency.datatypes.DirectoryInfo remote: The remote listing
     :param list missing: Missing files
     :param list orphans: Orphan files
+    :param set prev_set: Set of files that were missing in the previous run
     """
-    history.report_missing([(name, inv.get_file(name)) for name in missing])
+    history.report_missing([(name, inv.get_file(name)) for name in missing if
+                            prev_set is None or name in prev_set])
     history.report_orphan([(name, remote.get_file(name)) for name in orphans])
 
 
@@ -114,38 +116,6 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
     """
 
     start = time.time()
-
-    inv_tree = inventorylister.listing(site)
-
-    # Reset the DirectoryList for the XRootDLister to run on
-    config.DIRECTORYLIST = [directory.name for directory in inv_tree.directories]
-    remover = EmptyRemover(site)
-    site_tree = remotelister.listing(site, remover)
-
-    check_orphans, check_missing = make_filters(site)
-
-    work = config.vardir('work')
-
-    # Do the comparison
-    missing, m_size, orphan, o_size = datatypes.compare(
-        inv_tree, site_tree, os.path.join(work, '%s_compare' % site),
-        orphan_check=check_orphans.protected,
-        missing_check=check_missing.protected)
-
-    report_files(inv_tree, site_tree, missing, orphan)
-
-    LOG.info('Missing size: %i, Orphan size: %i', m_size, o_size)
-
-    # Determine if files should be entered into the registry
-
-    config_dict = config.config_dict()
-
-    many_missing = len(missing) > int(config_dict['MaxMissing'])
-    many_orphans = len(orphan) > int(config_dict['MaxOrphan'])
-
-    # Track files with no sources
-    no_source_files = []
-    unrecoverable = []
 
     # Filter out missing files that were not missing previously
     config_dict = config.config_dict()
@@ -170,6 +140,38 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
                     os.path.join(config.vardir('web_bak'),
                                  prev_new_name)
                    )
+    else:
+        prev_set = None
+
+    inv_tree = inventorylister.listing(site)
+
+    # Reset the DirectoryList for the XRootDLister to run on
+    config.DIRECTORYLIST = [directory.name for directory in inv_tree.directories]
+    remover = EmptyRemover(site)
+    site_tree = remotelister.listing(site, remover)
+
+    check_orphans, check_missing = make_filters(site)
+
+    work = config.vardir('work')
+
+    # Do the comparison
+    missing, m_size, orphan, o_size = datatypes.compare(
+        inv_tree, site_tree, os.path.join(work, '%s_compare' % site),
+        orphan_check=check_orphans.protected,
+        missing_check=check_missing.protected)
+
+    report_files(inv_tree, site_tree, missing, orphan, prev_set)
+
+    LOG.info('Missing size: %i, Orphan size: %i', m_size, o_size)
+
+    # Determine if files should be entered into the registry
+
+    many_missing = len(missing) > int(config_dict['MaxMissing'])
+    many_orphans = len(orphan) > int(config_dict['MaxOrphan'])
+
+    # Track files with no sources
+    no_source_files = []
+    unrecoverable = []
 
     is_debugged = summary.is_debugged(site)
 

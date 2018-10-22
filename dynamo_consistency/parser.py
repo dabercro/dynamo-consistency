@@ -80,7 +80,9 @@ def get_parser(modname='__main__',
 
     if add_all:
         backend_group.add_option('--v1-reporting', action='store_true', dest='V1_REPORTING',
-                                 help='Connect to Dynamo database directly for registry only')
+                                 help='Connect to Dynamo database directly for registry only.')
+        backend_group.add_option('--cnf', metavar='FILE', dest='CNF', default='/etc/my.cnf',
+                                 help='Point to a non-default location of a ``my.cnf`` file.')
 
     if add_all or prog in ['consistency-dump-tree'] or prog.startswith('test_'):
         backend_group.add_option('--test', action='store_true', dest='TEST',

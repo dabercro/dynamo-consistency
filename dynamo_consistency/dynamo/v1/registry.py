@@ -26,7 +26,7 @@ def _get_registry():
     # Super quick bad hack to point to the right thing if inside server
     if (os.environ.get('DYNAMO_SPOOL') or os.environ['USER'] == 'dynamo') \
             and opts.CMS:
-        return MySQL(config_file='/etc/my.cnf',
+        return MySQL(config_file=opts.CNF,
                      db='dynamoregister', config_group='mysql-dynamo')
 
     # This is also really bad. Only works at MIT.
@@ -34,7 +34,7 @@ def _get_registry():
         config.config_dict().get('DBConfig', {}).get(
             'Registry',
             { # Default registry config
-                'config_file': os.path.join(os.environ['HOME'], 'my.cnf'),
+                'config_file': opts.CNF,
                 'db': 'dynamoregister',
                 'config_group': 'mysql-register-test'
             }
