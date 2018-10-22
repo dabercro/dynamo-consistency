@@ -87,7 +87,7 @@ def extras(site):
     return output
 
 
-def report_files(inv, remote, missing, orphans, prev_set):
+def report_files(inv, remote, missing, orphans, prev_set=None):
     """
     Reports files to the history database
 
