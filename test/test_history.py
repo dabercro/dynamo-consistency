@@ -150,6 +150,21 @@ class TestHistory(unittest.TestCase):
                           '/store/data/runC/0000',
                           '/store/data/runC'])
 
+    def test_prevmissing(self):
+        # Check that missing only shows up after two consecutive, if missing file there
+        site = picker.pick_site()
+
+        with open('www/%s_compare_missing.txt' % site, 'w') as missing:
+            pass
+
+        main.main(site)
+        self.assertFalse(main.registry.transfered)
+        self.assertFalse(history.missing_files(site))
+
+        main.main(site)
+        self.assertEqual(history.missing_files(main.config.SITE),
+                         ['/store/data/runB/0003/missing.root'])
+
 
 if __name__ == '__main__':
     unittest.main(argv=[a for a in sys.argv if a not in ['--info', '--debug']])
