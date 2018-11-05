@@ -5,7 +5,7 @@ This module defines any filters that are used specifically for CMS.
 import logging
 
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 class DatasetFilter(object):
