@@ -74,8 +74,16 @@ def extras(site):
 
     if debugged and opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
         # This is a really ugly thing, so we hide it here
-        from .cms.unmerged import clean_unmerged
-        output['unmerged'] = clean_unmerged(site)
+        from .cms import unmerged
+
+        for logger in [unmerged.LOG, unmerged.listdeletable.LOG]:
+            for hdlr in list(unmerged.LOG.handlers):
+                logger.removeHandler(hdlr)
+
+            for hdlr in LOG.handlers:
+                logger.addHandler(hdlr)
+
+        output['unmerged'] = unmerged.clean_unmerged(site)
 
     work = config.vardir('work')
 
@@ -89,7 +97,9 @@ def extras(site):
 
 def report_files(inv, remote, missing, orphans, prev_set=None):
     """
-    Reports files to the history database
+    Reports files to the history database.
+    If ``prev_set`` is given, only missing files that
+    also appear in this set will be invalidated.
 
     :param dynamo_consistency.datatypes.DirectoryInfo inv: The inventory listing
     :param dynamo_consistency.datatypes.DirectoryInfo remote: The remote listing
@@ -251,7 +261,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
                                    [i in d for i in config_dict['IgnoreDirectories']]]),
             }
 
-    return {}
+    return start, {}
 
 def main(site):
     """
