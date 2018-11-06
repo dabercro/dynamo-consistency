@@ -32,6 +32,12 @@ class Lister(object):
         config_dict = config.config_dict()
         self.log = logging.getLogger(__name__ if thread_num is None else \
                                          '%s--thread%i' % (__name__, thread_num))
+
+        for hdlr in list(self.log.handlers):
+            self.log.removeHandler(hdlr)
+        for hdlr in LOG.handlers:
+            self.log.addHandler(hdlr)
+
         self.ignore_list = config_dict.get('IgnoreDirectories', [])
         self.path_prefix = config_dict.get('PathPrefix', {}).get(site, '')
         self.tries = config_dict.get('Retries', 0) + 1
