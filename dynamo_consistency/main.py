@@ -52,7 +52,9 @@ def make_filters(site):
 
     make = lambda accept: filters.Filters(DatasetFilter(accept).protected, pattern_filter)
 
-    return (make(acceptable_orphans), make(acceptable_missing))
+    # If no orphans are to be listed, mark everything for keeping
+    return (filters.FullFilter() if opts.NOORPHAN else make(acceptable_orphans),
+            make(acceptable_missing))
 
 
 def extras(site):

@@ -67,6 +67,8 @@ def get_parser(modname='__main__',
         'These options will change the backend loaded and actions taken')
 
     if add_all:
+        backend_group.add_option('--no-orphan', action='store_true', dest='NOORPHAN',
+                                 help='Do not delete any orphan files.')
         backend_group.add_option('--cms', action='store_true', dest='CMS',
                                  help='Run actions specific to CMS collaboration data.')
         backend_group.add_option('--no-sam', action='store_true', dest='NOSAM',
