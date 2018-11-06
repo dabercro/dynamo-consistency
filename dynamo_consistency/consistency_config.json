@@ -40,5 +40,6 @@
     "DELETION_FILE": "_unmerged.txt",
     "DIRS_TO_AVOID": ["logs", "tier0_harvest", "express", "data"],
     "MIN_AGE": 2419200
-  }
+  },
+  "DeleteOrphans": 1
 }

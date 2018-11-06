@@ -52,7 +52,11 @@ def make_filters(site):
 
     make = lambda accept: filters.Filters(DatasetFilter(accept).protected, pattern_filter)
 
-    return (make(acceptable_orphans), make(acceptable_missing))
+    # If no orphans are to be listed, mark everything for keeping
+    no_orphans = opts.NOORPHAN or (not config.config_dict().get('DeleteOrphans', True))
+
+    return (filters.FullFilter() if no_orphans else make(acceptable_orphans),
+            make(acceptable_missing))
 
 
 def extras(site):
@@ -199,7 +203,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
              for empty in empties])
 
         no_source_files, unrecoverable = registry.transfer(
-            site, [f for f in missing if f in prev_set or not prev_set])
+            site, [f for f in missing if not prev_set or f in prev_set])
 
     else:
 

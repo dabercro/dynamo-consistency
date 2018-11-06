@@ -3,6 +3,8 @@
 # - **AccessMethod** - A dictionary of access methods for sites. Sites default to XRootD,
 #   but setting a value of ``SRM`` causes the site to be listed by ``gfal-ls`` commands.
 # - **DirectoryList** - A list of directories inside of **RootPath** to check consistency.
+# - **DeleteOrphans** - By default, is true.
+#   If set to false, orphan files will all be filtered out so that none are deleted.
 # - **FreeMem** - The amount of free memory that is required before ``dynamo-consistency``
 #   tries to run a check. The memory is given in GBs.
 # - **GFALThreads** - The number of threads used by the GFAL listers
@@ -16,9 +18,9 @@
 #   Details on some of the configuration parameters are
 #   `here <https://cms-comp-ops-tools.readthedocs.io/en/v0.7/siteadmintoolkit.html#configuration>`_.
 # - **MaxMissing** - If more files than this number are missing,
-#   then there will be no automatic entry into the register
+#   then there will be no automatic entry into the register.
 # - **MaxOrphan** - If more than files than this number are orphan files at a site,
-#   then there will be no automatic entry into the register
+#   then there will be no automatic entry into the register.
 # - **NumThreads** - The number of threads used by the XRootD listers
 # - **PathPrefix** - A dictionary of prefixes to place before **RootPath** in the XRootD call.
 #   If the prefix is not set for a site, and it fails to list **RootPath**, it uses the default ``/cms``.
@@ -112,3 +114,5 @@ UnmergedLogsAge: 60
 
 ListDeletable:
    Placeholder: 0
+
+DeleteOrphans: 1
