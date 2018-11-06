@@ -1,0 +1,24 @@
+{
+  "Timeout": 60,
+  "InventoryAge": 5e-05,
+  "NumThreads": 1,
+  "ListAge": 5e-05,
+  "IgnoreAge": 1,
+  "RedirectorAge": 1,
+  "VarLocation": "var",
+  "PathPrefix": {},
+  "AccessMethod": {},
+  "RootPath": "/store",
+  "DirectoryList": [
+    "mc",
+    "data",
+    "hidata"
+  ],
+  "IgnoreDirectories": [],
+  "SaveCache": 0,
+  "WebDir": "www",
+  "MaxMissing": 100,
+  "MaxOrphan": 0,
+  "FreeMem": 0,
+  "DeleteOrphans": 0
+}
