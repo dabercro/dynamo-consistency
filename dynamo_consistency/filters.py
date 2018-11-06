@@ -75,7 +75,7 @@ class FullFilter(object):
     Always returns true
     """
 
-    def protected(self, _):
+    def protected(self, _):  # pylint: disable=no-self-use
         """
         Takes the file name as a dummy variable, but doesn't check it
         """
