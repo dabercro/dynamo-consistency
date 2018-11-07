@@ -15,7 +15,7 @@ EXES = ['exec.py', 'dynamo-consistency', 'set-status',
         'consistency-web-install', 'consistency-invalidate',
         'consistency-dump-tree']
 
-def get_parser(modname='__main__',
+def get_parser(modname='__main__', # pylint: disable=too-complex
                prog=os.path.basename(sys.argv[0])):
     """
     :param str modname: The module to fetch the ``__doc__`` optionally ``__usage__`` from.
