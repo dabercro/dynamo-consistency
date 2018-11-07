@@ -54,6 +54,8 @@ def get_parser(modname='__main__', # pylint: disable=too-complex
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 
     if add_all:
+        log_group.add_option('--update-summary', action='store_true', dest='UPDATESUMMARY',
+                             help='Forces the update of the summary table, even if loading trees')
         log_group.add_option('--email', action='store_true', dest='EMAIL',
                              help='Send an email on uncaught exception.')
 
