@@ -13,7 +13,8 @@ class TestForceUpdate(unittest.TestCase):
     def setUp(self):
         main.config.CONFIG = None
         summary.opts.UPDATESUMMARY = False
-        os.remove('www/stats.db')
+        if os.path.exists('www/stats.db'):
+            os.remove('www/stats.db')
         self.conn = summary._connect()
 
     def tearDown(self):
