@@ -47,6 +47,10 @@ def get_parser(modname='__main__',
         parser.add_option('--remote', action='store_true', dest='REMOTE',
                           help='Dump the remote site listing instead of the inventory')
 
+    if add_all or prog == 'consistency-dump-tree':
+        parser.add_option('--date-string', metavar='YYYYMMDD', dest='DATESTRING',
+                          help='Set the datestring to pull for RAL-Reader listers')
+
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 
     if add_all:
