@@ -14,6 +14,7 @@ import logging
 
 from docutils.core import publish_cmdline
 
+from . import opts
 from . import config
 from . import lock
 
@@ -397,3 +398,17 @@ def unlock_site(site):
 
     if res and res[0] > 0:
         set_status(site, READY)
+
+def do_update():
+    """
+    Determines if running under conditions where
+    the summary table should be updated
+
+    :returns: True if the update should happen
+    :rtype: bool
+    """
+
+    return opts.UPDATESUMMARY or (
+        (os.environ.get('ListAge') is None) and
+        (os.environ.get('InventoryAge') is None)
+    )

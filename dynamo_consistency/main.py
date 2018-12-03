@@ -224,7 +224,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
               'w') as output_file:
         output_file.write('\n'.join(unrecoverable))
 
-    if (os.environ.get('ListAge') is None) and (os.environ.get('InventoryAge') is None):
+    if summary.do_update():
 
         # Make a JSON file reporting storage usage
         if site_tree and site_tree.get_num_files():
@@ -285,7 +285,7 @@ def main(site):
 
     # If one of these is set by hand, then probably reloading cache,
     # so don't update the summary table
-    if (os.environ.get('ListAge') is None) and (os.environ.get('InventoryAge') is None):
+    if summary.do_update():
 
         summary.update_summary(
             site=site,

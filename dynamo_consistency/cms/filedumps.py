@@ -56,8 +56,10 @@ def read_ral_dump(endpoint, datestring=None):
         'gfal-copy',
         '{endpoint}/store/accounting/dump_{date}'.format(
             endpoint=endpoint,
-            date=datestring or datetime.datetime.utcnow().strftime('%Y%m%d')
-            ),
+            # Datestring can be set as a parameter in the function
+            # or in the cmdline options. Otherwise, just use today.
+            date=(datestring or opts.DATESTRING or
+                  datetime.datetime.utcnow().strftime('%Y%m%d'))),
         raw_file
     ])
     LOG.info('About to call: %s', cp_command)

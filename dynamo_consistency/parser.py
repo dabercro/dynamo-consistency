@@ -15,7 +15,7 @@ EXES = ['exec.py', 'dynamo-consistency', 'set-status',
         'consistency-web-install', 'consistency-invalidate',
         'consistency-dump-tree']
 
-def get_parser(modname='__main__',
+def get_parser(modname='__main__', # pylint: disable=too-complex
                prog=os.path.basename(sys.argv[0])):
     """
     :param str modname: The module to fetch the ``__doc__`` optionally ``__usage__`` from.
@@ -47,9 +47,15 @@ def get_parser(modname='__main__',
         parser.add_option('--remote', action='store_true', dest='REMOTE',
                           help='Dump the remote site listing instead of the inventory')
 
+    if add_all or prog == 'consistency-dump-tree':
+        parser.add_option('--date-string', metavar='YYYYMMDD', dest='DATESTRING',
+                          help='Set the datestring to pull for RAL-Reader listers')
+
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 
     if add_all:
+        log_group.add_option('--update-summary', action='store_true', dest='UPDATESUMMARY',
+                             help='Forces the update of the summary table, even if loading trees')
         log_group.add_option('--email', action='store_true', dest='EMAIL',
                              help='Send an email on uncaught exception.')
 
