@@ -99,23 +99,43 @@ def webdir():
     return output
 
 
+class LockedConn(object):
+    """
+    Holds a connection to the summary database.
+    Includes fh locking itself so that we don't crash over that
+    """
+
+    def __init__(self):
+        self.lock = lock.acquire('summary')
+
+        dbname = os.path.join(webdir(), 'stats.db')
+        if not os.path.exists(dbname):
+            install_webpage()
+
+        self.conn = sqlite3.connect(dbname)
+
+        # These are just proxies to the connection
+        for attr in ['cursor', 'commit', 'execute']:
+            setattr(self, attr, getattr(self.conn, attr))
+
+    def __del__(self):
+        """Clean up, just in case"""
+        self.close()
+
+    def close(self):
+        """Proxy to close and remove file lock"""
+        if self.lock:
+            lock.release(self.lock)
+            self.lock = None
+        self.conn.close()
+
+
 def _connect():
     """
     :returns: A connection to the summary database.
-
-              .. note::
-
-                 This connection needs to be closed by the caller
-
-    :rtype: sqlite3.Connection
+    :rtype: :py:class:`LockedConn`
     """
-
-    dbname = os.path.join(webdir(), 'stats.db')
-
-    if not os.path.exists(dbname):
-        install_webpage()
-
-    return sqlite3.connect(dbname)
+    return LockedConn()
 
 
 def get_sites(reporting=False):
@@ -326,26 +346,20 @@ def _set_site_col(site, col, val):
     :raises NoMatchingSite: If no site matches
     """
 
-    l_fh = lock.acquire('summary')
+    conn = _connect()
+    curs = conn.cursor()
 
-    try:
-        conn = _connect()
-        curs = conn.cursor()
+    updated = False
 
-        updated = False
+    curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
+    for check in curs.fetchall():
+        if check[0] == site:
+            curs.execute('UPDATE sites SET {0} = ? WHERE site = ?'.format(col),
+                         (val, site))
+            updated = True
 
-        curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
-        for check in curs.fetchall():
-            if check[0] == site:
-                curs.execute('UPDATE sites SET {0} = ? WHERE site = ?'.format(col),
-                             (val, site))
-                updated = True
-
-        conn.commit()
-        conn.close()
-
-    finally:
-        lock.release(l_fh)
+    conn.commit()
+    conn.close()
 
     if not updated:
         raise NoMatchingSite('Invalid site name: %s' % site)
