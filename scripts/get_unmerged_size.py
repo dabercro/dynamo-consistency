@@ -7,7 +7,7 @@ from dynamo_consistency.datatypes import get_info
 
 site = sys.argv[1]
 # Should actually get these from config JSON file
-cache_dir = '/local/dynamo/consistency/cache'
+cache_dir = '/slocal/dynamo/consistency/cache'
 web_dir = '/home/dynamo/consistency/web'
 
 # Load in files first
