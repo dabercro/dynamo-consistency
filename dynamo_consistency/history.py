@@ -7,9 +7,39 @@ import sqlite3
 from datetime import datetime
 
 from . import config
+from . import lock
 
 
 RUN = 0
+
+
+class LockedConn(object):
+    """
+    Similar to :py:class:`dynamo_consistency.summary.LockedConn`
+    We want to handle the history database here though
+    """
+    def __init__(self):
+        self.lock = lock.acquire('history')
+
+        dbname = os.path.join(config.vardir('db'), 'consistency.db')
+
+        new = not os.path.exists(dbname)
+
+        self.conn = sqlite3.connect(dbname)
+        self.curs = self.conn.cursor()
+
+        if new:
+            with open(os.path.join(os.path.dirname(__file__),
+                                   'report_schema.sql'), 'r') as script_file:
+                script_text = ''.join(script_file)
+
+            self.curs.executescript(script_text)
+
+    def close(self):
+        """Commit and close the connection"""
+        self.conn.commit()
+        self.conn.close()
+        lock.release(self.lock)
 
 
 def _connect():
@@ -23,22 +53,8 @@ def _connect():
 
     :rtype: sqlite3.Connection, sqlite3.Cursor
     """
-
-    dbname = os.path.join(config.vardir('db'), 'consistency.db')
-
-    new = not os.path.exists(dbname)
-
-    conn = sqlite3.connect(dbname)
-    curs = conn.cursor()
-
-    if new:
-        with open(os.path.join(os.path.dirname(__file__),
-                               'report_schema.sql'), 'r') as script_file:
-            script_text = ''.join(script_file)
-
-        curs.executescript(script_text)
-
-    return conn, curs
+    conn = LockedConn()
+    return conn, conn.curs
 
 
 def start_run():
@@ -68,7 +84,6 @@ def start_run():
 
     RUN = curs.fetchone()[0]
 
-    conn.commit()
     conn.close()
 
 
@@ -88,7 +103,6 @@ def finish_run():
 
     RUN = None
 
-    conn.commit()
     conn.close()
 
 
@@ -160,7 +174,6 @@ def _report_files(table, files):
           datetime.fromtimestamp(info['mtime']))
          for name, info in files])
 
-    conn.commit()
     conn.close()
 
 
@@ -210,7 +223,6 @@ def _get_files(table, site, acting):
             )
             """.format(table=table), (site, ))
 
-    conn.commit()
     conn.close()
 
     return output
@@ -326,7 +338,6 @@ def report_empty(directories):
         [(siteid, RUN, name, datetime.fromtimestamp(mtime)) for
          name, mtime in directories])
 
-    conn.commit()
     conn.close()
 
 
@@ -375,7 +386,6 @@ def emtpy_directories(site, acting=False):
             )
             """.format(table=table), (site, ))
 
-    conn.commit()
     conn.close()
 
     return output
