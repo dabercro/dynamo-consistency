@@ -4,12 +4,14 @@ Handles the invalidation of files through a separate read-write process
 
 import os
 import sqlite3
+import logging
 from datetime import datetime
 
 from . import config
 from . import lock
 
 
+LOG = logging.getLogger(__name__)
 RUN = 0
 
 
@@ -330,18 +332,24 @@ def report_empty(directories):
         WHERE {table}.site = ? AND {table}.run != ?
         """.format(table=table), (siteid, RUN))
 
-    curs.executemany(
-        """
-        INSERT INTO {table} (site, run, name, mtime)
-        VALUES (?, ?, ?, ?)
-        """.format(table=table),
-        [(siteid, RUN, name, datetime.fromtimestamp(mtime)) for
-         name, mtime in directories])
+    for name, mtime in directories:
+        try:
+            LOG.debug('Trying to insert empty directory %s', name)
+            curs.execute(
+                """
+                INSERT INTO {table} (site, run, name, mtime)
+                VALUES (?, ?, ?, ?)
+                """.format(table=table),
+                (siteid, RUN, name, datetime.fromtimestamp(mtime))
+                )
+        except sqlite3.IntegrityError:
+            LOG.error('Could not insert %s into %s (id %i, run %i)',
+                      name, config.SITE, siteid, RUN)
 
     conn.close()
 
 
-def emtpy_directories(site, acting=False):
+def empty_directories(site, acting=False):
     """
     Get the list of empty directories.
     If acting on them, the directories are moved into the history database.
@@ -369,8 +377,8 @@ def emtpy_directories(site, acting=False):
         curs.execute(
             """
             INSERT INTO {table}_history
-            (site, run, name, entered, acted)
-            SELECT site, run, {table}.name,
+            (site, run, name, mtime, entered, acted)
+            SELECT site, run, {table}.name, {table}.mtime,
                    entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site

@@ -29,14 +29,14 @@ class TestNoOrphanMain(unittest.TestCase):
         self.assertEqual(history.missing_files(main.config.SITE),
                          ['/store/data/runB/0003/missing.root'])
         self.assertFalse(history.orphan_files(main.config.SITE))
-        self.assertEqual(history.emtpy_directories(main.config.SITE),
+        self.assertEqual(history.empty_directories(main.config.SITE),
                          ['/store/data/runC/0000/emtpy/dir',
                           '/store/data/runC/0000/emtpy',
                           '/store/data/runC/0000',
                           '/store/data/runC'])
 
         self.assertEqual(sorted(main.registry.deleted, reverse=True),
-                         history.emtpy_directories(main.config.SITE))
+                         history.empty_directories(main.config.SITE))
 
     def test_flag(self):
         main.opts.NOORPHAN = True
