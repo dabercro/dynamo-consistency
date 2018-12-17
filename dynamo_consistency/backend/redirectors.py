@@ -132,11 +132,8 @@ def get_redirector(site, banned_doors=None):
                 if domain in line:
                     redirs.append(line.strip())
 
-        if not redirs:
-            LOG.error('Could not get redirector for %s with domain %s', site, domain)
-            return '', []
-
-        redirector = redirs[0]
+        if redirs:
+            redirector = redirs[0]
     else:
         redirs.append(redirector)
 
@@ -149,6 +146,10 @@ def get_redirector(site, banned_doors=None):
     with open(list_name, 'r') as list_file:
         local_list = [line.strip() for line in list_file \
                           if line.strip() not in banned_doors and domain in line]
+
+    if not os.path.getsize(list_name):
+        LOG.error('Redirector list %s is empty, removing', list_name)
+        os.remove(list_name)
 
     LOG.info('From %s, got doors %s', redirector, local_list)
     LOG.info('Full list from global redirectors: %s', redirs)
