@@ -4,12 +4,44 @@ Handles the invalidation of files through a separate read-write process
 
 import os
 import sqlite3
+import logging
 from datetime import datetime
 
 from . import config
+from . import lock
 
 
+LOG = logging.getLogger(__name__)
 RUN = 0
+
+
+class LockedConn(object):
+    """
+    Similar to :py:class:`dynamo_consistency.summary.LockedConn`
+    We want to handle the history database here though
+    """
+    def __init__(self):
+        self.lock = lock.acquire('history')
+
+        dbname = os.path.join(config.vardir('db'), 'consistency.db')
+
+        new = not os.path.exists(dbname)
+
+        self.conn = sqlite3.connect(dbname)
+        self.curs = self.conn.cursor()
+
+        if new:
+            with open(os.path.join(os.path.dirname(__file__),
+                                   'report_schema.sql'), 'r') as script_file:
+                script_text = ''.join(script_file)
+
+            self.curs.executescript(script_text)
+
+    def close(self):
+        """Commit and close the connection"""
+        self.conn.commit()
+        self.conn.close()
+        lock.release(self.lock)
 
 
 def _connect():
@@ -23,22 +55,8 @@ def _connect():
 
     :rtype: sqlite3.Connection, sqlite3.Cursor
     """
-
-    dbname = os.path.join(config.vardir('db'), 'consistency.db')
-
-    new = not os.path.exists(dbname)
-
-    conn = sqlite3.connect(dbname)
-    curs = conn.cursor()
-
-    if new:
-        with open(os.path.join(os.path.dirname(__file__),
-                               'report_schema.sql'), 'r') as script_file:
-            script_text = ''.join(script_file)
-
-        curs.executescript(script_text)
-
-    return conn, curs
+    conn = LockedConn()
+    return conn, conn.curs
 
 
 def start_run():
@@ -68,7 +86,6 @@ def start_run():
 
     RUN = curs.fetchone()[0]
 
-    conn.commit()
     conn.close()
 
 
@@ -88,7 +105,6 @@ def finish_run():
 
     RUN = None
 
-    conn.commit()
     conn.close()
 
 
@@ -160,7 +176,6 @@ def _report_files(table, files):
           datetime.fromtimestamp(info['mtime']))
          for name, info in files])
 
-    conn.commit()
     conn.close()
 
 
@@ -210,7 +225,6 @@ def _get_files(table, site, acting):
             )
             """.format(table=table), (site, ))
 
-    conn.commit()
     conn.close()
 
     return output
@@ -318,19 +332,24 @@ def report_empty(directories):
         WHERE {table}.site = ? AND {table}.run != ?
         """.format(table=table), (siteid, RUN))
 
-    curs.executemany(
-        """
-        INSERT INTO {table} (site, run, name, mtime)
-        VALUES (?, ?, ?, ?)
-        """.format(table=table),
-        [(siteid, RUN, name, datetime.fromtimestamp(mtime)) for
-         name, mtime in directories])
+    for name, mtime in directories:
+        try:
+            LOG.debug('Trying to insert empty directory %s', name)
+            curs.execute(
+                """
+                INSERT INTO {table} (site, run, name, mtime)
+                VALUES (?, ?, ?, ?)
+                """.format(table=table),
+                (siteid, RUN, name, datetime.fromtimestamp(mtime))
+                )
+        except sqlite3.IntegrityError:
+            LOG.error('Could not insert %s into %s (id %i, run %i)',
+                      name, config.SITE, siteid, RUN)
 
-    conn.commit()
     conn.close()
 
 
-def emtpy_directories(site, acting=False):
+def empty_directories(site, acting=False):
     """
     Get the list of empty directories.
     If acting on them, the directories are moved into the history database.
@@ -358,8 +377,8 @@ def emtpy_directories(site, acting=False):
         curs.execute(
             """
             INSERT INTO {table}_history
-            (site, run, name, entered, acted)
-            SELECT site, run, {table}.name,
+            (site, run, name, mtime, entered, acted)
+            SELECT site, run, {table}.name, {table}.mtime,
                    entered, DATETIME('NOW', 'LOCALTIME')
             FROM {table}
             LEFT JOIN sites ON sites.rowid = {table}.site
@@ -375,7 +394,6 @@ def emtpy_directories(site, acting=False):
             )
             """.format(table=table), (site, ))
 
-    conn.commit()
     conn.close()
 
     return output

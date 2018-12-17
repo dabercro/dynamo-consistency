@@ -109,7 +109,7 @@ class Lister(object):
         if not okay:
             okay, directories, files = self.list(path, retries + 1)
 
-        return okay, directories, files
+        return okay, sorted(set(directories)), sorted(set(files))
 
 
 def ct_timestamp(line):

@@ -144,7 +144,7 @@ class TestHistory(unittest.TestCase):
                          ['/store/data/runB/0003/missing.root'])
         self.assertEqual(history.orphan_files(main.config.SITE),
                          ['/store/data/runB/0001/orphan.root'])
-        self.assertEqual(history.emtpy_directories(main.config.SITE),
+        self.assertEqual(history.empty_directories(main.config.SITE),
                          ['/store/data/runC/0000/emtpy/dir',
                           '/store/data/runC/0000/emtpy',
                           '/store/data/runC/0000',
@@ -164,6 +164,37 @@ class TestHistory(unittest.TestCase):
         main.main(site)
         self.assertEqual(history.missing_files(main.config.SITE),
                          ['/store/data/runB/0003/missing.root'])
+
+    def test_multiplemissing(self):
+        site = picker.pick_site()
+        history.start_run()
+        history.report_empty([('/store/test/empty/dir', 100)])
+        history.report_empty([('/store/test/empty/dir', 100)])
+        history.finish_run()
+
+        self.assertEqual(history.empty_directories(site),
+                         ['/store/test/empty/dir'])
+
+
+        history.start_run()
+        history.report_empty([('/store/test/empty/dir2', 100),
+                              ('/store/test/empty/dir2', 100)])
+        history.finish_run()
+
+        self.assertEqual(history.empty_directories(site),
+                         ['/store/test/empty/dir2'])
+
+    def test_act(self):
+        site = picker.pick_site()
+        history.start_run()
+        history.report_empty([('/store/test/empty/dir', 100)])
+        history.finish_run()
+        
+        self.assertEqual(history.empty_directories(site),
+                         ['/store/test/empty/dir'])
+        self.assertEqual(history.empty_directories(site, True),
+                         ['/store/test/empty/dir'])
+        self.assertFalse(history.empty_directories(site))
 
 
 if __name__ == '__main__':

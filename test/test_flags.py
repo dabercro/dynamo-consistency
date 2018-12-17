@@ -60,7 +60,7 @@ class TestSize(unittest.TestCase):
         self.assertEqual(datatypes.compare(invent, remote)[1], 400)
 
 
-class TestEmtpyDirs(unittest.TestCase):
+class TestEmptyDirs(unittest.TestCase):
     # We had a bug where non-existant directories in the inventory was comparable
     # since a subset of subdirectories were comparable.
     # However, some of these subdirectories were also new, but deleted anyway.
