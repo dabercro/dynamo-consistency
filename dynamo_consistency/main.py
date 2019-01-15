@@ -34,14 +34,15 @@ def make_filters(site):
     Creates filters proper for running environment and options
 
     :param str site: Site to get activity at
-    :returns: Two :py:class:`filters.Filter` objects that can be used
-              to check orphans and missing files respectively
-    :rtype: :py:class:`filters.Filter`, :py:class:`filters.Filter`
+    :returns: Three :py:class:`filters.Filter` objects that can be used
+              to check orphans, missing files, and ignored directories respectively
+    :rtype: :py:class:`filters.Filter`, :py:class:`filters.Filter`,
+            :py:class:`filters.PatternFilter`
     """
 
     ignore_list = config.config_dict().get('IgnoreDirectories', [])
 
-    pattern_filter = filters.PatternFilter(ignore_list).protected
+    pattern_filter = filters.PatternFilter(ignore_list)
 
     # First, datasets in the deletions queue can be missing
     acceptable_missing = deletion_requests(site)
@@ -50,13 +51,15 @@ def make_filters(site):
     # Orphan files may be a result of deletion requests
     acceptable_orphans.update(acceptable_missing)
 
-    make = lambda accept: filters.Filters(DatasetFilter(accept).protected, pattern_filter)
+    make = lambda accept: filters.Filters(DatasetFilter(accept).protected,
+                                          pattern_filter.protected)
 
     # If no orphans are to be listed, mark everything for keeping
     no_orphans = opts.NOORPHAN or (not config.config_dict().get('DeleteOrphans', True))
 
     return (filters.FullFilter() if no_orphans else make(acceptable_orphans),
-            make(acceptable_missing))
+            DatasetFilter(acceptable_missing),
+            pattern_filter)
 
 
 def extras(site):
@@ -159,12 +162,12 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
 
     inv_tree = inventorylister.listing(site)
 
+    check_orphans, check_missing, ignored_patterns = make_filters(site)
+
     # Reset the DirectoryList for the XRootDLister to run on
     config.DIRECTORYLIST = [directory.name for directory in inv_tree.directories]
-    remover = EmptyRemover(site)
+    remover = EmptyRemover(site, ignored_patterns.protected)
     site_tree = remotelister.listing(site, remover)
-
-    check_orphans, check_missing = make_filters(site)
 
     work = config.vardir('work')
 
