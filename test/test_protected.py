@@ -2,15 +2,13 @@
 
 import unittest
 
-import base
-
 from dynamo_consistency import picker
 from dynamo_consistency import main
 from dynamo_consistency import history
-from dynamo_consistency.backend import listers
 from dynamo_consistency.backend import test
-from dynamo_consistency import remotelister
 
+import base
+import redefine_lister
 
 test._FILES = sorted([
     ('/store/mc/ttThings/0000/qwert.root', 20),
@@ -25,19 +23,6 @@ test._INV = sorted([
     ('/store/data/runC/RAW/0000/reg.root', 100),
     ('/store/data/runC/RAW/0000/missing.root', 100)
     ])
-
-
-# Do the listing through the listers.Lister interface
-# so that the IgnoreDirectories list of the old version is used
-class TestLister(listers.Lister):
-    def __init__(self):
-        super(TestLister, self).__init__(0, 'TEST')
-
-    def ls_directory(self, path):
-        return test._ls(path)
-
-
-remotelister.get_listers = lambda _: (TestLister, [(), ()])
 
 
 class TestProtected(base.TestBase):

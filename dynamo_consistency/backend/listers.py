@@ -11,12 +11,18 @@ import time
 import subprocess
 from datetime import datetime
 
-import XRootD.client    # pylint: disable=import-error
+try:
+    import XRootD.client    # pylint: disable=import-error
+except ImportError:
+    pass
 
 from . import redirectors
 from .. import config
 
 LOG = logging.getLogger(__name__)
+
+
+FILTER_IGNORED = False
 
 
 class Lister(object):
@@ -38,6 +44,7 @@ class Lister(object):
         for hdlr in LOG.handlers:
             self.log.addHandler(hdlr)
 
+        self.ignore_list = config_dict.get('IgnoreDirectories', [])
         self.path_prefix = config_dict.get('PathPrefix', {}).get(site, '')
         self.tries = config_dict.get('Retries', 0) + 1
 
@@ -73,6 +80,12 @@ class Lister(object):
                   The modification times are in seconds from epoch and the file size is in bytes.
         :rtype: bool, list, list
         """
+        # Skip over paths that include part of the list of ignored directories
+        if FILTER_IGNORED:
+            for pattern in self.ignore_list:
+                if pattern in path:
+                    self.log.warning('Ignoring %s because of ignored pattern %s', path, pattern)
+                    return False, [], []
 
         if retries >= self.tries:
             self.log.error('Giving up on %s due to too many retries', path)
