@@ -192,19 +192,8 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
 
     is_debugged = summary.is_debugged(site)
 
-    # Only get the empty nodes that are not in the inventory tree
-    empties = [empty_node for empty_node in site_tree.empty_nodes_list() \
-                   if not inv_tree.get_node('/'.join(empty_node.split('/')[2:]),
-                                            make_new=False)]
-
     if is_debugged and not many_missing and not many_orphans:
-        registry.delete(site, orphan + empties)
-        strip_len = len(site_tree.name) + 1
-        history.report_empty(
-            [(empty,
-              site_tree.get_node(empty[strip_len:], make_new=False).mtime)
-             for empty in empties])
-
+        registry.delete(site, orphan)
         no_source_files, unrecoverable = registry.transfer(
             site, [f for f in missing if not prev_set or f in prev_set])
 
@@ -255,7 +244,7 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
         return start, {
             'numfiles': site_tree.get_num_files(),
             'numnodes': remover.get_removed_count() + site_tree.count_nodes(),
-            'numempty': remover.get_removed_count() + len(empties),
+            'numempty': remover.get_removed_count(),
             'nummissing': len(missing),
             'missingsize': m_size,
             'numorphan': len(orphan),
