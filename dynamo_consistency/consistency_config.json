@@ -19,7 +19,9 @@
     "data",
     "hidata"
   ],
-  "IgnoreDirectories": [],
+  "IgnoreDirectories": [
+    "/RAW"
+  ],
   "GlobalRedirectors": [
     "cms-xrd-global.cern.ch"
   ],

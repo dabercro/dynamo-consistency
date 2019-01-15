@@ -12,6 +12,7 @@ from dynamo_consistency.backend.test import TMP_DIR
 from dynamo_consistency.backend import registry
 
 import base
+import redefine_lister
 
 
 unmerged.listdeletable.get_protected = lambda: [
@@ -24,10 +25,12 @@ class TestUnmerged(base.TestListing):
     file_list = [
         ('/store/unmerged/protected/000/qwert.root', 20),
         ('/store/unmerged/notprot/000/qwert.root', 20),
-        ('/store/unmerged/logs/000/logfile.tar.gz', 20)
+        ('/store/unmerged/logs/000/logfile.tar.gz', 20),
+        ('/store/unmerged/ignore/RAW/000/file.root', 20)
         ]
 
     dir_list = [
+        '/store/unmerged/ignore/RAW/empty',
         '/store/unmerged/protected/empty',
         '/store/unmerged/protected2',
         ]

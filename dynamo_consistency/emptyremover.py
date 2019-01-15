@@ -33,6 +33,8 @@ class EmptyRemover(object):
         self.check = check or (lambda _: False)
         self.removed = 0
         self.root = config.config_dict()['RootPath']
+        # This is a set of directories that have a filtered directory inside
+        self.not_empty = set()
 
     def fullname(self, name):
         """
@@ -59,11 +61,10 @@ class EmptyRemover(object):
         """
         tree.setup_hash()
         empties = [empty for empty in tree.empty_nodes_list()
-                   if not self.check(self.fullname(empty))]
+                   if not self.check(self.fullname(empty)) and
+                   empty not in self.not_empty]
 
         LOG.debug('Sees %s', empties)
-
-        not_empty = []
 
         strip_len = len(tree.name) + 1
         empties_info = []
@@ -79,7 +80,7 @@ class EmptyRemover(object):
 
             except datatypes.NotEmpty as msg:
                 LOG.warning('While removing %s: %s', path, msg)
-                not_empty.append(path)
+                self.not_empty.add(path)
 
         full_empties = [info[0] for info in empties_info]
 

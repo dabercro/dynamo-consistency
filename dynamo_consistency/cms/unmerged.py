@@ -15,6 +15,7 @@ from .. import history
 from .. import remotelister
 from .. import summary
 from ..backend import registry
+from ..backend import listers
 from ..emptyremover import EmptyRemover
 
 
@@ -103,7 +104,7 @@ def clean_unmerged(site):
     :rtype: int, int
     """
 
-    ## First, we do a bunch of hacky configuration changes for /store/unmerged
+    # First, we do a bunch of hacky configuration changes for /store/unmerged
     listdeletable.set_config(config.LOCATION, 'ListDeletable')
 
     # Set the directory list to unmerged only
@@ -152,6 +153,9 @@ def clean_unmerged(site):
         LOG.debug('%s is NOT protected', path)
         return False
 
+
+    # Turn on the filtering of ignored directories
+    listers.FILTER_IGNORED = True
 
     # And do a listing of unmerged
     site_tree = remotelister.listing(    # pylint: disable=unexpected-keyword-arg

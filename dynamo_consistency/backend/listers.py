@@ -11,12 +11,18 @@ import time
 import subprocess
 from datetime import datetime
 
-import XRootD.client    # pylint: disable=import-error
+try:
+    import XRootD.client    # pylint: disable=import-error
+except ImportError:
+    pass
 
 from . import redirectors
 from .. import config
 
 LOG = logging.getLogger(__name__)
+
+
+FILTER_IGNORED = False
 
 
 class Lister(object):
@@ -75,10 +81,11 @@ class Lister(object):
         :rtype: bool, list, list
         """
         # Skip over paths that include part of the list of ignored directories
-        for pattern in self.ignore_list:
-            if pattern in path:
-                self.log.warning('Ignoring %s because of ignored pattern %s', path, pattern)
-                return False, [], []
+        if FILTER_IGNORED:
+            for pattern in self.ignore_list:
+                if pattern in path:
+                    self.log.warning('Ignoring %s because of ignored pattern %s', path, pattern)
+                    return False, [], []
 
         if retries >= self.tries:
             self.log.error('Giving up on %s due to too many retries', path)
