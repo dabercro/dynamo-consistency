@@ -298,5 +298,6 @@ def main(site):
             **report)
 
         summary.move_local_files(site)
+        summary.update_config()
 
     history.finish_run()
