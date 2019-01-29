@@ -98,7 +98,7 @@ def check_datasets(site, orphan_list_file):
 
                 datasets.add(dataset)
 
-                print num_files, dataset
+                LOG.debug('%i: %s', num_files, dataset)
 
                 if num_files:
                     output.append((num_files, dataset))

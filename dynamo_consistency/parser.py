@@ -11,7 +11,7 @@ from ._version import __version__
 
 # My executables
 # Also include exec.py because dynamo runs everything after renaming it to that
-EXES = ['exec.py', 'dynamo-consistency', 'set-status',
+EXES = ['exec.py', 'check-phedex', 'dynamo-consistency', 'set-status',
         'consistency-web-install', 'consistency-invalidate',
         'consistency-dump-tree']
 
