@@ -5,6 +5,7 @@ import shutil
 import unittest
 
 import dynamo_consistency
+from dynamo_consistency import config
 from dynamo_consistency import picker
 from dynamo_consistency import main
 from dynamo_consistency import history
@@ -47,6 +48,18 @@ class TestMoreLogDeletions(unittest.TestCase):
         main.main(site)
         unmerged = history.unmerged_files(site)
         self.assertTrue('/store/logs/prod/recent/test.tar.gz' in unmerged)
+        self.assertFalse('/store/logs/prod/nope/test.tar.gz' in unmerged)
+
+    def test_othersite(self):
+        dynamo_consistency.opts.MORELOGS = True
+        config.config_dict()
+        config.CONFIG['AdditionalLogDeletions']['TEST_SITE2'] = config.CONFIG['AdditionalLogDeletions'].pop('TEST_SITE')
+        site = picker.pick_site()
+
+        main.main(site)
+        self.assertTrue(history.orphan_files(site))
+        unmerged = history.unmerged_files(site)
+        self.assertFalse('/store/logs/prod/recent/test.tar.gz' in unmerged)
         self.assertFalse('/store/logs/prod/nope/test.tar.gz' in unmerged)
 
 
