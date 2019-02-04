@@ -81,6 +81,8 @@ def get_parser(modname='__main__', # pylint: disable=too-complex
                                  help='Disables the SAM readiness check.')
         backend_group.add_option('--unmerged', action='store_true', dest='UNMERGED',
                                  help='Run actions on "/store/unmerged".')
+        backend_group.add_option('--more-logs', action='store_true', dest='MORELOGS',
+                                 help='Clean any "AdditionalLogDeletions" directories.')
 
     if add_all or prog in ['consistency-dump-tree']:
         backend_group.add_option('--v1', action='store_true', dest='V1',

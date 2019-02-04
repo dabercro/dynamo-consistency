@@ -12,6 +12,7 @@ from cmstoolbox.unmergedcleaner import listdeletable
 from .. import config
 from .. import datatypes
 from .. import history
+from .. import opts
 from .. import remotelister
 from .. import summary
 from ..backend import registry
@@ -109,6 +110,15 @@ def clean_unmerged(site):
 
     # Set the directory list to unmerged only
     config.DIRECTORYLIST = ['unmerged']
+    logsdirs = ['unmerged/logs']
+    if opts.MORELOGS:
+        morelogs = config.CONFIG.get('AdditionalLogDeletions', {}).get(site, [])
+
+        LOG.debug('Adding more log directories: %s', morelogs)
+
+        config.DIRECTORYLIST.extend(morelogs)
+        logsdirs.extend(morelogs)
+
     # Set the IgnoreAge for directories to match the listdeletable config
     datatypes.DirectoryInfo.ignore_age = listdeletable.config.MIN_AGE/(24 * 3600)
 
@@ -118,8 +128,7 @@ def clean_unmerged(site):
 
     with open(os.path.join(config.vardir('cache/%s' % site),
                            'protectedLFNs.txt'), 'w') as protected:
-        for lfn in listdeletable.PROTECTED_LIST:
-            protected.write(lfn + '\n')
+        protected.write('\n'.join(listdeletable.PROTECTED_LIST) + '\n')
 
     # Create a tree structure that will hold the protected directories
     protected_tree = datatypes.DirectoryInfo()
@@ -172,19 +181,30 @@ def clean_unmerged(site):
     listdeletable.PROTECTED_LIST.sort()
 
     # Only consider things older than four weeks
-    listdeletable.get_unmerged_files = lambda: site_tree.get_files(listdeletable.config.MIN_AGE)
+    # Only look inside unmerged for the cleaning
+
+    rootpath = config.CONFIG['RootPath']
+    listdeletable.get_unmerged_files = lambda: [
+        os.path.join(rootpath, fil) for fil in
+        site_tree.get_node('unmerged').get_files(listdeletable.config.MIN_AGE)
+    ]
+
     # Do the cleaning
     listdeletable.main()
 
     config_dict = config.config_dict()
 
     # Delete the contents of the deletion file and the contents of the log directory that are old
-    if site_tree.get_node('unmerged/logs', make_new=False):
-        with open(deletion_file, 'a') as d_file:
-            d_file.write('\n' + '\n'.join(
-                site_tree.get_node('unmerged/logs').get_files(
-                    min_age=(int(config_dict['UnmergedLogsAge']) * 24 * 3600),
-                    path='/store/unmerged')))
+    with open(deletion_file, 'a') as d_file:
+        for logs in logsdirs:
+            node = site_tree.get_node(logs, make_new=False)
+            if node:
+                d_file.write('\n' + '\n'.join(
+                    node.get_files(
+                        min_age=(int(config_dict['UnmergedLogsAge']) * 24 * 3600),
+                        path=os.path.join(rootpath,
+                                          os.path.dirname(logs))
+                    )))
 
     to_delete = set()
     with open(deletion_file, 'r') as d_file:

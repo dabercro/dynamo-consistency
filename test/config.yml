@@ -2,6 +2,9 @@
 #
 # - **AccessMethod** - A dictionary of access methods for sites. Sites default to XRootD,
 #   but setting a value of ``SRM`` causes the site to be listed by ``gfal-ls`` commands.
+# - **AdditionalLogDeletions** - A dictionary that lists which directories have logs to be cleaned
+#   for different sites. These log directories are treated the same as log directories in ``/store/unmerged``.
+#   This means they use the **UnmergedLogsAge** parameter to determine cleaning policy.
 # - **DirectoryList** - A list of directories inside of **RootPath** to check consistency.
 # - **DeleteOrphans** - By default, is true.
 #   If set to false, orphan files will all be filtered out so that none are deleted.
@@ -112,7 +115,11 @@ Unmerged:
 
 UnmergedLogsAge: 60
 
+AdditionalLogDeletions:
+  T2_CH_CERN:
+    - "/store/logs/prod/recent"
+
 ListDeletable:
-   Placeholder: 0
+  Placeholder: 0
 
 DeleteOrphans: 1
