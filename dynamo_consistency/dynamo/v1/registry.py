@@ -5,6 +5,8 @@ Defines commands for submitting deletion and transfer requests
 import os
 import logging
 
+import MySQLdb
+
 from ... import opts
 from ... import config
 
@@ -51,7 +53,13 @@ def delete(site, files):
     :rtype: int
     """
 
-    reg_sql = _get_registry()
+    try:
+        reg_sql = _get_registry()
+    except MySQLdb.OperationalError as exce:
+        LOG.error('OperationalError! not actually deleting files')
+        LOG.error(exce)
+        return len(files)
+
     for path in files:
         path = path.strip()
         LOG.info('Deleting %s', path)
