@@ -5,7 +5,8 @@ Defines commands for submitting deletion and transfer requests
 import os
 import logging
 
-import MySQLdb
+# Problem on Travis
+import MySQLdb # pylint: disable=import-error
 
 from ... import opts
 from ... import config
