@@ -10,3 +10,5 @@ test/html*
 test/logs/*
 
 test/.coverage
+
+notime.txt

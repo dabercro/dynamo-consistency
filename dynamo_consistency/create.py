@@ -259,7 +259,7 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     while building and checker.isrunning():
         try:
             # Get the info from the queue
-            name, directories, files, _ = ListingThread.out_queue.get(True, 1)
+            name, directories, files, _ = ListingThread.out_queue.get(True, 0.05)
 
             # Create the nodes and files
             built = dir_info.get_node(name)
