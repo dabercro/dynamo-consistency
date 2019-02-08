@@ -77,9 +77,7 @@ def extras(site):
 
     output = {}
 
-    debugged = summary.is_debugged(site)
-
-    if debugged and opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
+    if opts.UNMERGED and site in config.config_dict().get('Unmerged', []):
         # This is a really ugly thing, so we hide it here
         from .cms import unmerged
 
@@ -190,12 +188,12 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
     no_source_files = []
     unrecoverable = []
 
-    is_debugged = summary.is_debugged(site)
-
-    if is_debugged and not many_missing and not many_orphans:
+    if not many_missing and not many_orphans:
         registry.delete(site, orphan)
+
+        # Don't report any until it shows up twice, or if this is first listing
         no_source_files, unrecoverable = registry.transfer(
-            site, [f for f in missing if not prev_set or f in prev_set])
+            site, [f for f in missing if prev_set is None or f in prev_set])
 
     else:
 

@@ -10,6 +10,7 @@ import MySQLdb # pylint: disable=import-error
 
 from ... import opts
 from ... import config
+from ... import summary
 
 from .mysql import MySQL
 
@@ -19,7 +20,7 @@ from .inventory import _get_inventory
 LOG = logging.getLogger(__name__)
 
 
-def _get_registry():
+def _get_registry(is_debugged):
     """
     The connection returned by this must be closed by the caller
 
@@ -28,11 +29,13 @@ def _get_registry():
     """
     # Super quick bad hack to point to the right thing if inside server
     if (os.environ.get('DYNAMO_SPOOL') or os.environ['USER'] == 'dynamo') \
-            and opts.CMS:
+            and opts.CMS and is_debugged:
         return MySQL(config_file=opts.CNF,
                      db='dynamoregister', config_group='mysql-dynamo')
 
     # This is also really bad. Only works at MIT.
+    LOG.warning('Connecting to test database')
+
     return MySQL(**(
         config.config_dict().get('DBConfig', {}).get(
             'Registry',
@@ -55,7 +58,7 @@ def delete(site, files):
     """
 
     try:
-        reg_sql = _get_registry()
+        reg_sql = _get_registry(summary.is_debugged(site))
     except MySQLdb.OperationalError as exce:
         LOG.error('OperationalError! not actually deleting files')
         LOG.error(exce)
@@ -91,7 +94,7 @@ def transfer(site, files):
     unrecoverable = []
 
     inv_sql = _get_inventory()
-    reg_sql = _get_registry()
+    reg_sql = _get_registry(summary.is_debugged(site))
 
     # Setup a query for sites, with added condition at the end
     site_query = """

@@ -165,7 +165,8 @@ def is_debugged(site):
     curs = conn.cursor()
     curs.execute('SELECT isgood FROM sites WHERE site = ?', (site, ))
 
-    debugged = curs.fetchone()[0]
+    result = curs.fetchone()
+    debugged = result[0] if result else False
 
     conn.close()
 

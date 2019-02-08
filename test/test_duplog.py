@@ -21,6 +21,8 @@ from dynamo_consistency import backend
 from dynamo_consistency.dynamo.v1 import registry
 
 class Dummy(object):
+    def __init__(self, _):
+        pass
     @staticmethod
     def query(*_):
         pass
