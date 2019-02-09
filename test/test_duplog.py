@@ -32,6 +32,7 @@ class Dummy(object):
 
 backend.registry = registry
 backend.registry._get_registry = Dummy
+registry.transfer = lambda *_: ([], [])
 
 from dynamo_consistency import logsetup
 from dynamo_consistency import main
