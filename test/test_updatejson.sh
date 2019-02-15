@@ -26,3 +26,5 @@ then
     exitcode=$(($exitcode + 2))
 
 fi
+
+exit $exitcode
