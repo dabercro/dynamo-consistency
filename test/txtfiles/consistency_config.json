@@ -1,0 +1,39 @@
+{
+  "Timeout": 60,
+  "Retries": 1,
+  "InventoryAge": 5e-05,
+  "NumThreads": 1,
+  "GFALThreads": 32,
+  "ListAge": 5e-05,
+  "IgnoreAge": 1,
+  "RedirectorAge": 1,
+  "VarLocation": "var",
+  "Redirectors": {},
+  "PathPrefix": {},
+  "AccessMethod": {},
+  "RootPath": "/store",
+  "DirectoryList": [
+    "mc",
+    "data"
+  ],
+  "IgnoreDirectories": [],
+  "GlobalRedirectors": [],
+  "SaveCache": 0,
+  "UseLoadBalancer": [],
+  "WebDir": "www",
+  "MaxMissing": 100,
+  "MaxOrphan": 1000,
+  "Unmerged": [],
+  "UnmergedLogsAge": 60,
+  "AdditionalLogDeletions": {},
+  "FreeMem": 0,
+  "ListDeletable": {
+    "LFN_TO_CLEAN": "/store/unmerged",
+    "UNMERGED_DIR_LOCATION": "/store/unmerged",
+    "WHICH_LIST": "files",
+    "DELETION_FILE": "_unmerged.txt",
+    "DIRS_TO_AVOID": [],
+    "MIN_AGE": 2419200
+  },
+  "DeleteOrphans": 1
+}

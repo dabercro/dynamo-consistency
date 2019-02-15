@@ -155,6 +155,28 @@ def get_sites(reporting=False):
     return output
 
 
+def get_status(site):
+    """
+    :returns: Running status of a site
+    :rtype: int
+    :raises NoMatchingSite: If no matching site is in the database
+    """
+
+    conn = _connect()
+    curs = conn.cursor()
+    curs.execute('SELECT isrunning FROM sites WHERE site = ?', (site, ))
+
+    result = curs.fetchone()
+    if not result:
+        raise NoMatchingSite('Invalid site name: %s' % site)
+
+    output = result[0]
+
+    conn.close()
+
+    return output
+
+
 def is_debugged(site):
     """
     :returns: If the site is cleared for acting on consistency results
@@ -351,6 +373,8 @@ def _set_site_col(site, col, val):
     curs = conn.cursor()
 
     updated = False
+
+    LOG.debug('Setting %s for %s to %i', col, site, val)
 
     curs.execute('SELECT site FROM sites WHERE site = ?', (site,))
     for check in curs.fetchall():
