@@ -32,7 +32,9 @@ class LineReader(object): # pylint:disable=too-few-public-methods
         """
 
         contents = line.split()
-        return contents[0], int(contents[2]), self.now
+
+        # The last column is time in *days* since epoch
+        return contents[0], int(contents[1]), (int(contents[2]) * 3600 * 24)
 
 
 def read_ral_dump(endpoint, datestring=None):
@@ -45,8 +47,14 @@ def read_ral_dump(endpoint, datestring=None):
     :rtype: tuple
     """
 
-    inputfile = os.path.join(config.vardir('scratch'),
-                             'dump_%s' % (config.SITE or opts.SITE_PATTERN))
+    dump = 'unmerged' if 'unmerged' in \
+           config.config_dict().get('DirectoryList', []) else \
+           'consistency'
+
+    inputfile = os.path.join(
+        config.vardir('scratch'),
+        '%s_%s' % (dump, config.SITE or opts.SITE_PATTERN)
+    )
 
     raw_file = '%s.raw' % inputfile
     if os.path.exists(raw_file):
@@ -54,8 +62,9 @@ def read_ral_dump(endpoint, datestring=None):
 
     cp_command = ' '.join([
         'gfal-copy',
-        '{endpoint}/store/accounting/dump_{date}'.format(
+        '{endpoint}/store/accounting/{dump}-{date}.tsv'.format(
             endpoint=endpoint,
+            dump=dump,
             # Datestring can be set as a parameter in the function
             # or in the cmdline options. Otherwise, just use today.
             date=(datestring or opts.DATESTRING or
@@ -64,6 +73,7 @@ def read_ral_dump(endpoint, datestring=None):
     ])
     LOG.info('About to call: %s', cp_command)
     subprocess.check_call([cp_command], shell=True)
+
 
     sort_command = ' '.join(['sort', '-o', inputfile, raw_file])
     LOG.info('About to call: %s', sort_command)

@@ -24,6 +24,7 @@ from .backend import filelist_to_blocklist
 from .backend import deletion_requests
 from .backend import DatasetFilter
 from .emptyremover import EmptyRemover
+from .logsetup import match_logs
 
 
 LOG = logging.getLogger(__name__)
@@ -81,12 +82,7 @@ def extras(site):
         # This is a really ugly thing, so we hide it here
         from .cms import unmerged
 
-        for logger in [unmerged.LOG, unmerged.listdeletable.LOG]:
-            for hdlr in list(unmerged.LOG.handlers):
-                logger.removeHandler(hdlr)
-
-            for hdlr in LOG.handlers:
-                logger.addHandler(hdlr)
+        match_logs(LOG, [unmerged.LOG, unmerged.listdeletable.LOG])
 
         output['unmerged'] = unmerged.clean_unmerged(site)
 

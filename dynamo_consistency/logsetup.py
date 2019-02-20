@@ -60,3 +60,17 @@ def change_logfile(*filenames):
 
         for fhdl in new_hldrs:
             logger.addHandler(fhdl)
+
+
+def match_logs(source, targets):
+    """
+    :param logging.Logger source: Logger that has handlers to use
+    :param list targets: List of loggers that need handlers updated
+    """
+
+    for logger in targets:
+        for hdlr in list(logger.handlers):
+            logger.removeHandler(hdlr)
+
+        for hdlr in source.handlers:
+            logger.addHandler(hdlr)
