@@ -5,23 +5,34 @@ def run(os) {
 
       stage("${os}: Copy Source") {
         sh """
-           test ! -d ${os} || rm -rf ${os}
-           mkdir ${os}
-           cp --parents `git ls-files` ${os}
+           mkdir /work
+           cp --parents `git ls-files` /work
            """
       }
 
       stage("${os}: Installation") {
-        sh "cd ${os}; python setup.py install"
+        sh "cd /work; python setup.py install"
       }
 
       stage("${os}: Unit Tests") {
-        sh "cd ${os}; opsspace-test"
+        sh """
+           cd /work
+           opsspace-test
+           if which dynamo
+           then
+               mysqld_safe&
+               sleep 2
+               test/dynamo/setupcert.sh
+               dynamod &
+               sleep 2
+               test/dynamo/testinventory.sh
+           fi
+           """
       }
 
       stage("${os}: Copy Coverage") {
         if (os == 'sl7') {
-          sh "cd ${os}; copy-coverage-html /html/coverage/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+          sh "cd /work; copy-coverage-html /html/coverage/${env.JOB_NAME}/${env.BUILD_NUMBER}"
         } else {
           echo 'Not going to store coverage results'
         }
