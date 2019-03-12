@@ -14,7 +14,5 @@ update-ca-trust extract
 
 cp /tmp/x509up_u500 /tmp/x509up_u0
 
-source /usr/local/dynamo/etc/profile.d/init.sh
-
 yes | dynamo-user-auth --user dynamo --dn "/C=US/ST=Mass/L=Bahston/O=Dynamo/OU=test/CN=localhost" --role admin
 dynamo-user-auth --user dynamo --role admin --target inventory

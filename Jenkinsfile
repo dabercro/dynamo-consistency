@@ -21,11 +21,12 @@ def run(os) {
            if which dynamo
            then
                mysqld_safe&
-               sleep 2
+               sleep 5
+               source /usr/local/dynamo/etc/profile.d/init.sh
                test/dynamo/setupcert.sh
                dynamod &
-               sleep 2
-               test/dynamo/testinventory.sh
+               sleep 5
+               su -c 'test/dynamo/testinventory.sh' dynamo
            fi
            """
       }
