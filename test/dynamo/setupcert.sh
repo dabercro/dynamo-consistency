@@ -16,3 +16,6 @@ cp /tmp/x509up_u500 /tmp/x509up_u0
 
 yes | dynamo-user-auth --user dynamo --dn "/C=US/ST=Mass/L=Bahston/O=Dynamo/OU=test/CN=localhost" --role admin
 dynamo-user-auth --user dynamo --role admin --target inventory
+
+# Let dynamo write stuff in work
+chown dynamo:dynamo /work

@@ -38,6 +38,3 @@ RUN sed -i 's/require rpm/#/g' /dynamo/install.sh
 RUN sed -i 's/require rpm/#/g' /dynamo/mysql/install.sh
 
 RUN printf "mysql_install_db --user=mysql\nmysqld_safe &\nsleep 5\nmysqladmin -u root password 'test'\ncd /dynamo\nprintf 'test\\n' | ./install.sh\necho \"GRANT ALL ON dynamo.* TO 'dynamo'@'localhost';\" | mysql -ptest\nkill %%1\n" | bash
-
-RUN mkdir /work
-RUN chown dynamo:dynamo /work
