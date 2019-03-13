@@ -28,7 +28,7 @@ RUN yum -y install \
 RUN pip install -U MySQL-python 'matplotlib<3' requests 'pip==18.0'
 RUN pip install 'cx_Oracle'
 
-# Get the Dynamo source
+# Get the Dynamo source. Fixed to a specific commit now.
 RUN printf 'git clone https://github.com/SmartDataProjects/dynamo.git\ncd dynamo\ngit checkout 330c00334bfd42dc82e5ca975a8568a7731c1979' | bash
 RUN printf 'cd dynamo\ncp defaults.json.template defaults.json\ncp dynamo.cfg.template dynamo.cfg\ncp mysql/grants.json.template mysql/grants.json' | bash
 
@@ -37,4 +37,4 @@ RUN printf 'cd dynamo\ncp defaults.json.template defaults.json\ncp dynamo.cfg.te
 RUN sed -i 's/require rpm/#/g' /dynamo/install.sh
 RUN sed -i 's/require rpm/#/g' /dynamo/mysql/install.sh
 
-RUN printf "mysql_install_db --user=mysql\nmysqld_safe &\nsleep 5\nmysqladmin -u root password 'test'\ncd /dynamo\nprintf 'test\\n' | ./install.sh\necho \"GRANT ALL ON dynamo.* TO 'dynamo'@'localhost';\" | mysql -ptest\nkill %%1\n" | bash
+RUN printf "mysql_install_db --user=mysql\nmysqld_safe &\nsleep 5\nmysqladmin -u root password 'test'\ncd /dynamo\nprintf 'test\\n' | ./install.sh\necho \"GRANT ALL ON dynamo.* TO 'dynamo'@'localhost'; GRANT ALL ON dynamoregister.* TO 'dynamo'@'localhost';\" | mysql -ptest\nkill %%1\n" | bash
