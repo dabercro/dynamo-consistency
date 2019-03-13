@@ -15,7 +15,7 @@ def run(os) {
       }
 
       stage("${os}: Unit Tests") {
-        sh """
+        sh '''
            cd /work
            opsspace-test
            if which dynamo
@@ -23,12 +23,17 @@ def run(os) {
                mysqld_safe&
                sleep 5
                source /usr/local/dynamo/etc/profile.d/init.sh
+
+               test/dynamo/fillsql.sh
+
+               # Start server
+
                test/dynamo/setupcert.sh
                dynamod &
                sleep 5
                su -c 'test/dynamo/testinventory.sh' dynamo
            fi
-           """
+           '''
       }
 
       stage("${os}: Copy Coverage") {
