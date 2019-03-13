@@ -37,11 +37,11 @@ CREATE TABLE `transfer_queue` (
 );
 ' | mysql -D dynamoregister
 
-dynamo "`which dynamo-consistency` --site T3_US_MIT --info --v1 --config $conf"
+dynamo "`which dynamo-consistency` --site T3_US_MIT --info --v1 --config $conf" || exit 4
 
 $check || exit 2
 
 # Check inventory object use
-dynamo "`which dynamo-consistency` --site T3_US_MIT --info --config $conf"
+dynamo "`which dynamo-consistency` --site T3_US_MIT --info --config $conf" || exit 5
 
 $check || exit 3
