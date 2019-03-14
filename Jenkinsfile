@@ -20,7 +20,7 @@ def run(os) {
            opsspace-test
            if which dynamo
            then
-               mysqld_safe&
+               mysqld_safe &
                sleep 5
                source /usr/local/dynamo/etc/profile.d/init.sh
 
