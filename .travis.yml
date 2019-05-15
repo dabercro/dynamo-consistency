@@ -7,6 +7,8 @@ matrix:
     - dist: trusty
       sudo: required
       python: 2.7
+before_install:
+  - if [ -z $nodoc ]; then sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-full; fi
 install:
   - python setup.py install
 script:
