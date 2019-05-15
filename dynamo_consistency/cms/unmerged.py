@@ -89,7 +89,7 @@ def report_contents(timestamp, site, files):
     shutil.move(db_name, webdir)
 
 
-def clean_unmerged(site):
+def clean_unmerged(site):  # pylint: disable=too-complex
     """
     Lists the /store/unmerged area of a site, and then uses
     :py:mod:`cmstoolbox.unmergedcleaner.listdeletable`
@@ -124,6 +124,12 @@ def clean_unmerged(site):
 
     # Get the list of protected directories
     listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+
+    # If list is empty, exit because something is wrong
+    if not listdeletable.PROTECTED_LIST:
+        LOG.error('No protected list was found... Not cleaning /store/unmerged')
+        return 0, 0
+
     listdeletable.PROTECTED_LIST.sort()
 
     with open(os.path.join(config.vardir('cache/%s' % site),
