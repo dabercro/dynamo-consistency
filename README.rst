@@ -20,7 +20,7 @@ comparing the listed contents to Dynamo's inventory database.
 
 Some executables, described in :ref:`execute-ref`, are provided to run the check.
 The package also includes a number of modules that can be imported independently
-to create custom consistency check runss.
+to create custom consistency check runs.
 These are described more in :ref:`frontend-ref`.
 A simple consistency check on a site can be done by doing the following
 when an instance of ``dynamo`` is installed::
@@ -38,7 +38,7 @@ when an instance of ``dynamo`` is installed::
 In this example,
 the list of file LFNs in the inventory and not at the site will be in ``results_missing.txt``.
 The list of file LFNs at the site and not in the inventory will be in ``results_orphan.txt``.
-The ``listing`` functions can be reimplemented to perform the check desired.
+The ``listing`` functions can be re-implemented to perform the check desired.
 This is detailed more in :ref:`backend-ref`.
 
 Installation
