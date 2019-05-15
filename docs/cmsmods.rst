@@ -1,3 +1,5 @@
+.. _cmsmod-ref:
+
 Reference for CMS-Specific Modules
 ==================================
 

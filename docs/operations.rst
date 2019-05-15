@@ -1,3 +1,5 @@
+.. _execute-ref:
+
 Executables
 ===========
 

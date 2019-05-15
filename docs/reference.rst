@@ -1,3 +1,5 @@
+.. _frontend-ref:
+
 Front End Reference
 ===================
 

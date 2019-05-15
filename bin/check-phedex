@@ -4,6 +4,7 @@
 This program is only useful for double-checking CMS sites.
 
 This program checks a site's orphan files against PhEDEx.
+Details on PhEDEx interface is in :ref:`cmsmod-ref`.
 If any of the datasets are supposed to be at the site,
 this gives a non-zero exit code.
 """

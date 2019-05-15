@@ -1,0 +1,27 @@
+[node distance=0.3cm, every edge/.style={arrow}]
+\node (start) [goodstep] at (0,0) {Init empty \\ file list};
+\node (realstart) [goodstep, below=of start] {Start \\ compare};
+\node (treecheck) [goodstep, right=of start] {Other \\ tree?};
+\node (tree) [goodstep, above=0.5cm of treecheck] {Hash \\ match?};
+\draw [->, thick] (treecheck) -- node [font=\scriptsize, left] {Yes} (tree);
+\node (nohash) [goodstep, below right=0.2cm and 0.6cm of tree] {For sub- \\ directory};
+\draw [->, thick] (tree) -- node [font=\scriptsize, above] {No} (nohash);
+\node (subdir) [goodstep, below=0.5cm of nohash] {if comparable \\
+  \textcolor{gray}{get other and} \\
+  add files \\ (start again)};
+\node (files) [goodstep, right=of nohash] {for file};
+\node (checkfile) [goodstep, below=0.5cm of files] {if comparable \\
+  \textcolor{gray}{and no matching} \\
+  \textcolor{gray}{hash in other,} \\ filter and append};
+\draw [->, thick] (treecheck) -- node [font=\scriptsize, below] {No} (nohash);
+\draw [->, dashed] (subdir) -- (realstart);
+\draw [->, thick] (nohash) -- node [font=\scriptsize, right] {Loop} (subdir);
+\draw [->, thick] (files) -- node [font=\scriptsize, right] {Loop} (checkfile);
+\node (final) [goodstep, above=of files] {return full \\ files list};
+\node (match) [goodstep, right=0.6cm of tree] {Return empty \\ file list};
+\draw [->, thick] (tree) -- node [font=\scriptsize, above] {Yes} (match);
+\path
+(realstart) edge (start)
+(start) edge (treecheck)
+(nohash) edge (files)
+(files) edge (final);

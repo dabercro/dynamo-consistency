@@ -20,7 +20,48 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinxcontrib.autoanysrc',
     'sphinxcontrib.programoutput',
+    'sphinxcontrib.tikz',
 ]
+
+# For readthedocs
+tikz_proc_suite = 'GhostScript'
+
+# Other tikz options
+tikz_latex_preamble = """
+\\tikzset{
+  goodstep/.style={
+    minimum width=2cm,
+    minimum height=1cm,
+    align=center,
+    draw=black,
+    rounded corners=0.1cm,
+    font=\\scriptsize
+  },
+  async/.style={
+    minimum width=2cm,
+    minimum height=1cm,
+    align=center,
+    draw=blue,
+    rounded corners=0.1cm,
+    font=\\scriptsize
+  },
+  direct/.style={
+    minimum width=2.5cm,
+    minimum height=0.75cm,
+    align=center,
+    draw=black,
+    rounded corners=0.25cm
+  },
+  note/.style={
+    minimum width=2cm,
+    minimum height=1cm,
+    align=center
+  },
+  arrow/.style={draw,thick,->,>=stealth}
+}
+"""
+
+tikz_tikzlibraries = 'arrows, positioning, intersections'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
