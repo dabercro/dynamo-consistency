@@ -16,8 +16,14 @@ def run(os) {
 
       stage("${os}: Unit Tests") {
         sh '''
+           # Get pdflatex in path
+           source /root/.bashrc
+
            cd /work
            opsspace-test
+
+           # If dynamo installed, run additional tests
+
            if which dynamo
            then
                mysqld_safe &

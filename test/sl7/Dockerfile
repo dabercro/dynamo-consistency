@@ -38,3 +38,10 @@ RUN sed -i 's/require rpm/#/g' /dynamo/install.sh
 RUN sed -i 's/require rpm/#/g' /dynamo/mysql/install.sh
 
 RUN printf "mysql_install_db --user=mysql\nmysqld_safe &\nsleep 5\nmysqladmin -u root password 'test'\ncd /dynamo\nprintf 'test\\n' | ./install.sh\necho \"GRANT ALL ON dynamo.* TO 'dynamo'@'localhost'; GRANT ALL ON dynamoregister.* TO 'dynamo'@'localhost';\" | mysql -ptest\nkill %%1\n" | bash
+
+# Install pdflatex
+RUN curl -L http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz > install-tl-unx.tar.gz && tar -xf install-tl-unx.tar.gz
+RUN cd install-tl-2* && printf 'S\nd\nR\nI\n' | ./install-tl
+RUN cd /usr/local/texlive/2*/bin/*/ && ./tlmgr install xcolor pgf pgfplots standalone xkeyval
+
+RUN echo "export PATH=`echo /usr/local/texlive/2*/bin/*/`:$PATH" >> ~/.bashrc
