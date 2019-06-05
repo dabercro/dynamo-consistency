@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
         logger.info('Running dynamo-consistency version %s',
                     dynamo_consistency.__version__)
-        logger.info('Arguments: %s', ' '.join(sys.argv))
+        logger.debug('Arguments: %s', ' '.join(sys.argv))
 
         main(site)
 
