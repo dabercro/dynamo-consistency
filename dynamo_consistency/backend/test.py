@@ -21,7 +21,9 @@ _FILES = sorted([
     ('/store/mc/ttThings/0000/qwery.root', 30),
     ('/store/data/runB/0001/orphan.root', 45),
     ('/store/data/runA/0030/stuff.root', 10),
-    ('/store/data/runC/0000/emtpy/dir', )
+    ('/store/data/runC/0000/emtpy/dir', ),
+    ('/store/logs/prod/recent/test.tar.gz', 20),
+    ('/store/logs/prod/nope/test.tar.gz', 20),
     ])
 
 _INV = sorted([
@@ -97,7 +99,7 @@ def _ls(path, location=TMP_DIR):
         if fil[0].startswith(path):
             LOG.debug('Match! %s and %s', fil[0], path)
             element = fil[0][len(path) + (not path.endswith('/')):].split('/')[0]
-            if element.endswith('.root'):
+            if element.endswith('.root') or element.endswith('.tar.gz'):
                 files.append((element, fil[1], 1))
             else:
                 dirs.append((element, 1))

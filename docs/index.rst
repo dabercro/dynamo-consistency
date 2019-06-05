@@ -6,8 +6,10 @@ Dynamo Consistency
    :caption: Contents:
 
    intro
-   operations
+   listing
+   compare
    webpage
+   operations
    cms
    reference
    backend

@@ -9,6 +9,13 @@ TMP_DIR = 'TempConsistency'
 
 ARGS = [a for a in sys.argv if a not in ['--info', '--debug']]
 
+class TestSimple(unittest.TestCase):
+    def setUp(self):
+        for dirname in ['www', 'var']:
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname)
+
+
 class TestBase(unittest.TestCase):
 
     file_list = [

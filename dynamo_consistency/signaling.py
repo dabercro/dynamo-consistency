@@ -18,4 +18,11 @@ def halt(signum, _):
 
     LOG.warning('Received signal %i. Terminating', signum)
 
-    summary.set_status(config.SITE, summary.HALT)
+    # If disabled, leave alone
+
+    status = summary.get_status(config.SITE)
+
+    LOG.debug('Site %s status is %i', config.SITE, status)
+
+    if status != summary.DISABLED:
+        summary.set_status(config.SITE, summary.HALT)

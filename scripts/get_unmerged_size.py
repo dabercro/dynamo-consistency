@@ -18,7 +18,8 @@ if len(files):
     # Only load this in if we have files to check
     unmerged = get_info(os.path.join(cache_dir, '%s/unmerged.pkl%s' % (site, os.environ.get('suff', ''))))
     # Print the sum of the file sizes
-    print 'To delete: %s' % sum([unmerged.get_file(f)['size'] for f in files if not f.endswith('.')])
+    to_delete = sum([unmerged.get_file(f)['size'] for f in files if not f.endswith('.')])
+    print 'To delete: %s (%s TBs)' % (to_delete, to_delete/pow(1024., 4))
     print 'Total: %s' % unmerged.get_directory_size()
 
 else:

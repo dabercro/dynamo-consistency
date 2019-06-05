@@ -62,12 +62,19 @@ class ListingThread(threading.Thread):
 
 
     @staticmethod
-    def put_first_dir(directory):
+    def put_first_dir(location, directory):
         """
         Place the first set of parameters for the :py:class:`ListingThread` objects to start from.
         Should not be called once the threads are started.
 
-        :param str directory: Name of the first directory to run over
+        :param str location: This is the beginning of the path where we will find ``first_dir``.
+                             For example, to find the first directory ``mc``, we also have to
+                             say where it is. For using CMS LFNs, location would be
+                             ``/store`` (where ``mc`` is inside).
+        :param str directory: Name of the first directory to run over inside of location
+        :returns: The name that the first DirectoryInfo object should be.
+                  This is just the first directory in the directory parameter.
+        :rtype: str
         """
 
         # Put in the first element for the queue
@@ -75,7 +82,17 @@ class ListingThread(threading.Thread):
         #                name of sub-node to place the listing (blank for first level),
         #                list of previous directories, list of previous files (for retries),
         #                list of queue numbers that have failed so far)
-        ListingThread._in_deque.append((directory, '', [], [], []))
+        split_list = directory.split('/')
+        dirinfo_name = split_list[0]
+        first_relative = '/'.join(split_list[1:])
+        LOG.debug('Taking %s, %s -> Starting from: %s, relative path: %s',
+                  location, directory, dirinfo_name, first_relative)
+
+        ListingThread._in_deque.append((os.path.join(location, dirinfo_name),
+                                        first_relative,
+                                        [], [], []))
+
+        return dirinfo_name
 
 
     def run(self):
@@ -206,15 +223,14 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
     else:
         n_threads = config.config_dict()['NumThreads'] or multiprocessing.cpu_count()
 
-    # First directory is location + first_dir
-    starting_dir = os.path.join(location, first_dir)
-    LOG.info('Listing directory %s with %i threads', starting_dir, n_threads)
+    LOG.info('Listing directory %s with %i threads',
+             os.path.join(location, first_dir), n_threads)
 
     master_conns = []
     slave_conns = []
     send_to_master = []
 
-    ListingThread.put_first_dir(starting_dir)
+    dirinfo_name = ListingThread.put_first_dir(location, first_dir)
 
     # Spawn threads to run on this run_queue function
     threads = []
@@ -235,14 +251,15 @@ def create_dirinfo( # pylint: disable=too-complex, too-many-locals, too-many-bra
 
     # Build the DirectoryInfo
     building = True
-    dir_info = DirectoryInfo(first_dir)
+    # If started in a nested directory, just build the first one
+    dir_info = DirectoryInfo(dirinfo_name)
 
     checker = messaging.Checker()
 
     while building and checker.isrunning():
         try:
             # Get the info from the queue
-            name, directories, files, _ = ListingThread.out_queue.get(True, 1)
+            name, directories, files, _ = ListingThread.out_queue.get(True, 0.25)
 
             # Create the nodes and files
             built = dir_info.get_node(name)

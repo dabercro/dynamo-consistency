@@ -1,0 +1,21 @@
+[node distance=0.5cm, every edge/.style={arrow}]
+\node (start) [goodstep] at (0, 0) {List directory};
+\node (good) [goodstep, right=of start] {Was the listing successful?};
+\node (yes) [below=of good] {Yes};
+\node (outqueue) [async, below=of yes] {Output name of \\ this directory \\
+  and lists of \\ subdirectories and files};
+\node (inqueue) [async, left=of yes] {For each in \\ queue};
+\node (master) [goodstep, right=of outqueue] {Get this from master \\
+  add directories \\ add files};
+\node (try) [async, above=of good] {Try again};
+\draw [->, thick] (good) -- node [left] {No} (try);
+\node (storestart) [goodstep, left=of outqueue] {Add starting directory \\
+  to listing queue};
+\path
+(start) edge (good)
+(inqueue) edge [bend left] node [left] {} (start)
+(outqueue) edge (master)
+(good) edge (yes)
+(yes) edge (inqueue) edge (outqueue)
+(try) edge [bend right] node [above] {} (start)
+(storestart) edge (inqueue);

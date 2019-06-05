@@ -60,28 +60,20 @@ def list_files(site):
 
     now = time.time()
 
-    for partition in inventory.sites[site].partitions.values():
-        LOG.debug('----------------------')
-        LOG.debug('Partition: %s', partition)
+    for dataset in inventory.datasets.itervalues():
+        for block in dataset.blocks:
+            for replica in block.replicas:
 
-        for dataset_rep, blocks in partition.replicas.iteritems():
-            LOG.debug('Dataset Replicas: %s, %s', dataset_rep, blocks)
+                if replica.site.name == site:
 
-            block_replicas = blocks or dataset_rep.block_replicas
+                    timestamp = 0 if \
+                                replica.is_complete() and \
+                                replica.group.id else \
+                                now
 
-            for block_replica in block_replicas:
-                LOG.debug('Block Replicas: %s, %s', dataset_rep, blocks)
-
-                # If complete and owned,
-                # then we say this replica is "old enough" to be missing
-                timestamp = 0 if \
-                    block_replica.is_complete() and \
-                    block_replica.group.id else \
-                    now
-
-                for fileobj in block_replica.block.files:
-                    LOG.debug('File: %s, %s, %s', fileobj.lfn, fileobj.size, timestamp)
-                    yield (fileobj.lfn, fileobj.size, datetime.fromtimestamp(timestamp))
+                    for fileobj in replica.block.files:
+                        LOG.debug('File: %s, %s, %s', fileobj.lfn, fileobj.size, timestamp)
+                        yield (fileobj.lfn, fileobj.size, datetime.fromtimestamp(timestamp))
 
 
 def filelist_to_blocklist(site, filelist):

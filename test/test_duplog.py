@@ -21,6 +21,8 @@ from dynamo_consistency import backend
 from dynamo_consistency.dynamo.v1 import registry
 
 class Dummy(object):
+    def __init__(self, _):
+        pass
     @staticmethod
     def query(*_):
         pass
@@ -30,6 +32,7 @@ class Dummy(object):
 
 backend.registry = registry
 backend.registry._get_registry = Dummy
+registry.transfer = lambda *_: ([], [])
 
 from dynamo_consistency import logsetup
 from dynamo_consistency import main

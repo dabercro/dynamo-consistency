@@ -31,9 +31,13 @@
   "MaxMissing": 100,
   "MaxOrphan": 1000,
   "Unmerged": [
-    "T2_US_MIT"
+    "T2_US_MIT",
+    "TEST_SITE"
   ],
   "UnmergedLogsAge": 60,
+  "AdditionalLogDeletions": {
+    "TEST_SITE": ["logs/prod/recent"]
+  },
   "FreeMem": 0,
   "ListDeletable": {
     "LFN_TO_CLEAN": "/store/unmerged",

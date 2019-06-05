@@ -12,6 +12,7 @@ for information about this tool.
 __usage__ = '%prog [options]'
 
 import os
+import sys
 import time
 import signal
 import logging
@@ -20,6 +21,7 @@ import traceback
 
 import psutil
 
+import dynamo_consistency
 from dynamo_consistency import opts
 from dynamo_consistency import config
 from dynamo_consistency import logsetup
@@ -85,6 +87,10 @@ if __name__ == '__main__':
                              strftime('%y%m%d_%H%M%S')
                         )
             )
+
+        logger.info('Running dynamo-consistency version %s',
+                    dynamo_consistency.__version__)
+        logger.debug('Arguments: %s', ' '.join(sys.argv))
 
         main(site)
 
