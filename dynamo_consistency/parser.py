@@ -39,17 +39,25 @@ def get_parser(modname='__main__', # pylint: disable=too-complex
 
     parser.add_option('--config', metavar='FILE', dest='CONFIG',
                       help='Sets the location of the configuration file to read.')
+
+    selection_group = optparse.OptionGroup(parser, 'Selection Options')
+
     if add_all or prog in ['consistency-invalidate', 'consistency-dump-tree']:
-        parser.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
-                          help='Sets the pattern used to select a site to run on next.')
+        selection_group.add_option('--site', metavar='PATTERN', dest='SITE_PATTERN',
+                                   help='Sets the pattern used to select a site to run on next.')
+
+    if add_all:
+        selection_group.add_option('--lock', metavar='NAME', dest='LOCK_NAME',
+                                   help='Sets the lock name that should be used for this run.',
+                                   default=None)
 
     if prog == 'consistency-dump-tree':
-        parser.add_option('--remote', action='store_true', dest='REMOTE',
-                          help='Dump the remote site listing instead of the inventory')
+        selection_group.add_option('--remote', action='store_true', dest='REMOTE',
+                                   help='Dump the remote site listing instead of the inventory')
 
     if add_all or prog == 'consistency-dump-tree':
-        parser.add_option('--date-string', metavar='YYYYMMDD', dest='DATESTRING',
-                          help='Set the datestring to pull for RAL-Reader listers')
+        selection_group.add_option('--date-string', metavar='YYYYMMDD', dest='DATESTRING',
+                                   help='Set the datestring to pull for RAL-Reader listers')
 
     log_group = optparse.OptionGroup(parser, 'Logging Options')
 

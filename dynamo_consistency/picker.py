@@ -18,12 +18,14 @@ from .backend import check_site
 LOG = logging.getLogger(__name__)
 
 
-def pick_site(pattern=None):
+def pick_site(pattern=None, lockname=None):
     """
     This function also does the task of syncronizing the summary database with
     the inventory's list of sites that match the pattern.
 
     :param str pattern: A regex that needs to be contained in the site name
+    :param str lockname: Name of the lock file that the site should use.
+                         Needs to be `''` for guaranteed no lock.
     :returns: The name of a site that is ready and hasn't run in the longest time
     :rtype: str
     :raises NoMatchingSite: If no site matches or is ready
@@ -64,7 +66,8 @@ def pick_site(pattern=None):
             """):
         LOG.debug('Considering %s (run status %s)', site, isrunning)
         if site in sites and \
-                (isrunning == 0 or isrunning == -1):
+                (isrunning == 0 or isrunning == -1) and \
+                (lockname is None or (lock.which(site) == lockname)):
             if check_site(site):
                 output = site
                 break

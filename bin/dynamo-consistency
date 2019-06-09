@@ -57,7 +57,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Get the site to run on
-    site = picker.pick_site(opts.SITE_PATTERN)
+    site = picker.pick_site(opts.SITE_PATTERN, opts.LOCK_NAME)
 
     # Check if needs lock (like for gfal)
     needed_lock = lock.which(site)

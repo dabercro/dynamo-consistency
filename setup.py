@@ -4,7 +4,10 @@ import setuptools
 import dynamo_consistency
 
 with open('README.rst', 'r') as fh:
-    long_description = fh.read()
+    long_description = ''.join([
+        line for line in fh if
+        ':ref:' not in line
+    ])
 
 setuptools.setup(
     name='dynamo-consistency',
