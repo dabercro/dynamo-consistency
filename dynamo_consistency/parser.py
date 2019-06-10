@@ -73,9 +73,6 @@ def get_parser(modname='__main__', # pylint: disable=too-complex
     log_group.add_option('--debug', action='store_true', dest='DEBUG',
                          help='Displays logs down to debug level.')
 
-    parser.add_option_group(log_group)
-
-
     backend_group = optparse.OptionGroup(
         parser, 'Behavior Options',
         'These options will change the backend loaded and actions taken')
@@ -106,8 +103,9 @@ def get_parser(modname='__main__', # pylint: disable=too-complex
         backend_group.add_option('--test', action='store_true', dest='TEST',
                                  help='Run with a test instance of backend module.')
 
-    if backend_group.option_list:
-        parser.add_option_group(backend_group)
+    for group in [selection_group, log_group, backend_group]:
+        if group.option_list:
+            parser.add_option_group(group)
 
     argv = sys.argv if prog in EXES else [
         arg for arg in sys.argv if arg in
