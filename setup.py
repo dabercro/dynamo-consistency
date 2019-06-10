@@ -4,12 +4,10 @@ import setuptools
 import dynamo_consistency
 
 with open('README.rst', 'r') as fh:
-    # Remove the reference, which doesn't render well
     long_description = ''.join([
-        line for line in fh
-        if not line.startswith('.. _') and
+        line for line in fh if
         ':ref:' not in line
-        ])
+    ])
 
 setuptools.setup(
     name='dynamo-consistency',
@@ -25,7 +23,7 @@ setuptools.setup(
                       'docutils',
                       'MySQL-python',
                       'psutil',
-                      'cmstoolbox>=0.11.1'],
+                      'cmstoolbox>=0.14.1'],
     scripts=[s for s in glob.iglob('bin/*') if not s.endswith('~')],
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
