@@ -123,7 +123,11 @@ def clean_unmerged(site):  # pylint: disable=too-complex
     datatypes.DirectoryInfo.ignore_age = listdeletable.config.MIN_AGE/(24 * 3600)
 
     # Get the list of protected directories
-    listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    try:
+        listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    except listdeletable.SuspiciousConditions:
+        LOG.error('Problem with protected list, returning nothing')
+        return 0, 0
 
     # If list is empty, exit because something is wrong
     if not listdeletable.PROTECTED_LIST:
@@ -183,7 +187,12 @@ def clean_unmerged(site):  # pylint: disable=too-complex
     listdeletable.config.DELETION_FILE = deletion_file
 
     # Reset the protected list in case the listing took a long time
-    listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    try:
+        listdeletable.PROTECTED_LIST = listdeletable.get_protected()
+    except listdeletable.SuspiciousConditions:
+        LOG.error('Problem with protected list, returning nothing')
+        return 0, 0
+
     listdeletable.PROTECTED_LIST.sort()
 
     # Only consider things older than four weeks

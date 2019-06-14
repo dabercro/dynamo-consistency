@@ -14,6 +14,10 @@ class TestSimple(unittest.TestCase):
         for dirname in ['www', 'var']:
             if os.path.exists(dirname):
                 shutil.rmtree(dirname)
+        self.do_more_setup()
+
+    def do_more_setup(self):
+        pass
 
 
 class TestBase(unittest.TestCase):
