@@ -22,9 +22,11 @@ test._FILES.extend([
     ('/store/unmerged/notprot/000/qwert.root', 20)
 ])
 
+
 class TestUnmergedCrash(base.TestSimple):
 
     def do_more_setup(self):
+        print 'here'
         # Empty list should cause crash
         unmerged.listdeletable.get_protected = lambda: []
 
@@ -32,7 +34,10 @@ class TestUnmergedCrash(base.TestSimple):
         site = picker.pick_site()
         summary.running(site)
 
-        main.main(site)
+        try:
+            main.main(site)
+        except Exception as e:
+            pass
 
         summary.unlock_site(site)
 
