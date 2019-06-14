@@ -34,19 +34,26 @@ class TestUnmergedCrash(base.TestSimple):
         site = picker.pick_site()
         summary.running(site)
 
-        try:
-            main.main(site)
-        except Exception as e:
-            pass
+        main.main(site)
 
         summary.unlock_site(site)
 
         self.assertFalse(history.unmerged_files(site))
 
+        # Test for completed run report
+        conn = summary.LockedConn()
+        results = conn.execute('SELECT * FROM stats;')
+        self.assertTrue(list(results))
+
+
+def exception_maker():
+    raise unmerged.listdeletable.SuspiciousConditions()
+
+
 class TestException(TestUnmergedCrash):
     def do_more_setup(self):
         # Exception should also be handled
-        unmerged.listdeletable.get_protected = lambda: exception_maker
+        unmerged.listdeletable.get_protected = lambda: exception_maker()
 
 
 if __name__ == '__main__':
