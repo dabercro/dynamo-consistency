@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import os
 import unittest
 
 from dynamo_consistency import picker
@@ -21,7 +22,8 @@ test._FILES = sorted([
 test._INV = sorted([
     ('/store/mc/ttThings/0000/qwert.root', 20),
     ('/store/data/runC/RAW/0000/reg.root', 100),
-    ('/store/data/runC/RAW/0000/missing.root', 100)
+    ('/store/data/runC/RAW/0000/missing.root', 100),
+    ('/store/hidata/boom/0000/pancake.root', 200),
     ])
 
 
@@ -45,6 +47,17 @@ class TestProtected(base.TestBase):
         # Don't delete directories in the protected folders
         self.assertFalse(history.empty_directories(main.config.SITE))
 
+    def test_unlisted(self):
+        # Check unlisted stuff here too
+        unlisted_name = os.path.join(main.summary.webdir(),
+                                     '%s_unlisted.txt' % main.config.SITE)
+
+        self.assertTrue(os.path.exists(unlisted_name))
+
+        with open(unlisted_name, 'r') as unlisted_file:
+            contents = list(unlisted_file)
+            self.assertEqual(len(contents), 1)
+            self.assertEqual('/store/hidata\n', contents[0])
 
 if __name__ == '__main__':
     unittest.main(argv=base.ARGS)

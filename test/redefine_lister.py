@@ -9,6 +9,8 @@ class TestLister(listers.Lister):
         super(TestLister, self).__init__(0, 'TEST')
 
     def ls_directory(self, path):
+        if 'hidata' in path:
+            return False, [], []
         return test._ls(path)
 
 remotelister.get_listers = lambda _: (TestLister, [(), ()])

@@ -159,7 +159,9 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
     check_orphans, check_missing, ignored_patterns = make_filters(site)
 
     # Reset the DirectoryList for the XRootDLister to run on
-    config.DIRECTORYLIST = [directory.name for directory in inv_tree.directories]
+    new_dir_list = [directory.name for directory in inv_tree.directories]
+    LOG.debug('Setting new directory list: %s', new_dir_list)
+    config.DIRECTORYLIST = new_dir_list
     remover = EmptyRemover(site, ignored_patterns.protected)
     site_tree = remotelister.listing(site, remover)
 
@@ -234,6 +236,11 @@ def compare_with_inventory(site):    # pylint: disable=too-many-locals
 
 
         unlisted = site_tree.get_unlisted()
+
+        with open(os.path.join(summary.webdir(), '%s_unlisted.txt' % site), 'w') \
+                as unlisted_file:
+            unlisted_file.write('\n'.join(unlisted) +
+                                ('\n' if unlisted else ''))
 
         return start, {
             'numfiles': site_tree.get_num_files(),
