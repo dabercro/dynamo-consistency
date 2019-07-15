@@ -49,8 +49,12 @@ class TestBase(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(TMP_DIR):
             shutil.rmtree(TMP_DIR)
+        self.do_more_teardown()
 
     def do_more_setup(self):
+        pass
+
+    def do_more_teardown(self):
         pass
 
     def check_equal(self, tree0, tree1):
