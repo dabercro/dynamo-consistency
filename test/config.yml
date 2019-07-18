@@ -42,6 +42,8 @@
 #   If the list is empty, all the sites are managed centrally
 # - **UnmergedLogsAge** - The minimum age of the unmerged logs to be deleted, in days
 # - **UseLoadBalancer** - A list of sites where the main redirector of the site is used
+# - **UseTransferQueue** - If true, put missing files into tranfer queue table
+#   when using ``--v1`` for reporting. Defaults to true value.
 # - **VarLocation** - The location for the varying directory.
 #   Inside this directory will be::
 #
@@ -123,3 +125,5 @@ ListDeletable:
   Placeholder: 0
 
 DeleteOrphans: 1
+
+UseTransferQueue: 0

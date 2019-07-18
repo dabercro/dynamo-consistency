@@ -124,17 +124,18 @@ def transfer(site, files):
             if not sites:
                 unrecoverable.append(line)
 
-        # Don't add transfers if too many missing files
-        for location in sites:
-            reg_sql.query(
-                """
-                INSERT IGNORE INTO `transfer_queue`
-                (`file`, `site_from`, `site_to`, `status`, `reqid`)
-                VALUES (%s, %s, %s, 'new', 0)
-                """,
-                line, location, site)
+        # Add transfers to transfer queue
+        if config.config_dict().get('UseTransferQueue', 1):
+            for location in sites:
+                reg_sql.query(
+                    """
+                    INSERT IGNORE INTO `transfer_queue`
+                    (`file`, `site_from`, `site_to`, `status`, `reqid`)
+                    VALUES (%s, %s, %s, 'new', 0)
+                    """,
+                    line, location, site)
 
-            LOG.info('Copying %s from %s', line, location)
+                LOG.info('Copying %s from %s', line, location)
 
     reg_sql.close()
     inv_sql.close()
