@@ -6,6 +6,7 @@ Dynamo Consistency
    :caption: Contents:
 
    intro
+   install
    listing
    compare
    webpage
