@@ -50,7 +50,7 @@ These files can also be filtered with path patterns.
 This allows for cleaning of directories that are written to with a high frequency that Dynamo does not try to track.
 
 A summary of results, as well as the run status, of the consistency check are displayed in a webpage.
-The page consists of a table that includes links to lists of orphan and missing files.
+The page consists of a table that includes links to logs and lists of orphan and missing files.
 Cells are color coded to allow operators to quickly catch problematic sites.
 Historic data for each site is also accessible through this page.
 
