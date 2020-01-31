@@ -109,7 +109,7 @@ def clean_unmerged(site):  # pylint: disable=too-complex
     listdeletable.set_config(config.LOCATION, 'ListDeletable')
 
     # Set the directory list to unmerged only
-    config.DIRECTORYLIST = ['unmerged']
+    config.DIRECTORYLIST = ['unmerged/PhaseIIMTDTDRAutumn18MiniAOD']
     logsdirs = ['unmerged/logs']
     if opts.MORELOGS:
         morelogs = config.CONFIG.get('AdditionalLogDeletions', {}).get(site, [])
@@ -176,6 +176,11 @@ def clean_unmerged(site):  # pylint: disable=too-complex
     # Turn on the filtering of ignored directories
     listers.FILTER_IGNORED = True
 
+    # Overwrite the RootPath, if needed
+    new_root = config.CONFIG['ListDeletable'].get('AlternateRoot', {}).get(site)
+    if new_root:
+        config.CONFIG['RootPath'] = new_root
+
     # And do a listing of unmerged
     site_tree = remotelister.listing(    # pylint: disable=unexpected-keyword-arg
         site, cache='unmerged',          # cache keyword comes from cache decorator
@@ -200,7 +205,7 @@ def clean_unmerged(site):  # pylint: disable=too-complex
 
     rootpath = config.CONFIG['RootPath']
     listdeletable.get_unmerged_files = lambda: [
-        os.path.join(rootpath, fil) for fil in
+        os.path.join('/store', fil) for fil in
         site_tree.get_node('unmerged').get_files(listdeletable.config.MIN_AGE)
     ]
 
