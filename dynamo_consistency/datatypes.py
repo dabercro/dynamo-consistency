@@ -559,10 +559,13 @@ class DirectoryInfo(object):
         :raises BadPath: if the file_name does not start with ``self.name``
         """
 
+        LOG.debug('Getting file info for: %s', file_name)
+
         if not file_name.startswith(self.name):
             raise BadPath('self.name is %s, file_name is %s' % (self.name, file_name))
 
-        exploded_name = file_name[len(self.name) + 1:].split('/')
+        exploded_name = file_name[len(self.name) +
+                                  (1 if self.name[-1] != '/' else 0):].split('/')
         desired_name = exploded_name[-1]
         node = self.get_node('/'.join(exploded_name[:-1]))
 
