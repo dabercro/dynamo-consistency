@@ -89,7 +89,7 @@ def report_contents(timestamp, site, files):
     shutil.move(db_name, webdir)
 
 
-def clean_unmerged(site):  # pylint: disable=too-complex
+def clean_unmerged(site):  # pylint: disable=too-complex, too-many-branches
     """
     Lists the /store/unmerged area of a site, and then uses
     :py:mod:`cmstoolbox.unmergedcleaner.listdeletable`
