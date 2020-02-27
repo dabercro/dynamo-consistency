@@ -89,7 +89,7 @@ def report_contents(timestamp, site, files):
     shutil.move(db_name, webdir)
 
 
-def clean_unmerged(site):  # pylint: disable=too-complex
+def clean_unmerged(site):  # pylint: disable=too-complex, too-many-branches
     """
     Lists the /store/unmerged area of a site, and then uses
     :py:mod:`cmstoolbox.unmergedcleaner.listdeletable`
@@ -175,6 +175,12 @@ def clean_unmerged(site):  # pylint: disable=too-complex
 
     # Turn on the filtering of ignored directories
     listers.FILTER_IGNORED = True
+
+    # Overwrite the RootPath, if needed
+    new_root = config.CONFIG['ListDeletable'].get('AlternateRoot', {}).get(site)
+    if new_root:
+        config.CONFIG['RootPath'] = new_root
+        listdeletable.config.UNMERGED_DIR_LOCATION = os.path.join(new_root, 'unmerged')
 
     # And do a listing of unmerged
     site_tree = remotelister.listing(    # pylint: disable=unexpected-keyword-arg

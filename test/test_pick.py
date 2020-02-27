@@ -46,6 +46,21 @@ class TestPickRegex(unittest.TestCase):
         self.assertRaises(picker.NoMatchingSite, picker.pick_site)
 
 
+    def test_no_ral_or_fnal(self):
+        # Set all T2s to running
+        self.loop('^T2_')
+
+        # Set all other T1s
+        self.loop('(?<!(K_RAL|_FNAL))_Disk')
+
+        # Pick RAL
+        self.assertEqual(picker.pick_site('UK_RAL'), 'T1_UK_RAL_Disk')
+
+        # Only FNAL is left
+        self.assertEqual(picker.pick_site(), 'T1_US_FNAL_Disk')
+        self.assertRaises(picker.NoMatchingSite, picker.pick_site)
+
+
 
 if __name__ == '__main__':
     unittest.main(argv=base.ARGS)

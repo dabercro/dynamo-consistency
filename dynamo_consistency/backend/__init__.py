@@ -1,3 +1,5 @@
+#pylint: disable=undefined-variable
+
 """
 The "backend" handles all of the connections to dynamo objects and databases
 as well as connections for performing listings of remote or local filesystems.
@@ -136,6 +138,14 @@ _THIS = sys.modules[__name__]
 
 for thing in _PROVIDE:
     setattr(_THIS, thing, getattr(mod, thing))
+
+if opts.NO_INV:
+    siteinfo.site_list = lambda: [opts.SITE_PATTERN]
+    siteinfo.ready_sites = lambda: set([opts.SITE_PATTERN])
+    inventory.protected_datasets = lambda _: set()
+    inventory.list_files = lambda _: []
+    registry.transfer = lambda x, y: ([], [])
+    inventory.filelist_to_blocklist = lambda x, y: []
 
 __doc__ += '\n'.join( # pylint: disable=redefined-builtin
     ["""

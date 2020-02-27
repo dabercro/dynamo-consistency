@@ -23,7 +23,7 @@ setuptools.setup(
                       'docutils',
                       'MySQL-python',
                       'psutil',
-                      'cmstoolbox>=0.14.2'],
+                      'cmstoolbox>=0.14.4'],
     scripts=[s for s in glob.iglob('bin/*') if not s.endswith('~')],
     python_requires='>=2.6, <3',
     package_data={   # Test data for document building
