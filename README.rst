@@ -5,56 +5,56 @@ Introduction
 
 |build-status|
 
-Dynamo Consistency is the consistency plugin for Dynamo Dynamic Data Management System.
+Dynamo Consistency is a plugin for Dynamo Dynamic Data Management System that checks
+consistency between Dynamo's inventory and files actually located at managed sites.
 Even though Dynamo controls and tracks the history of file transfers between computing sites,
-a separate check is needed to ensure files are not lost or accumulated during user or system errors.
-Sites that can no longer access files after a power outage, for example,
-can cause other problems for the entire data management system.
-Transfers requested from the site to another site will fail for missing files.
-Sites are chosen incorrectly for production jobs that assume the presence of a local file.
-Last disk copies may also be missing, causing a delay for user requests for data.
-Another type of inconsistency is caused when files thought to be deleted are still on disk.
+a separate check is needed to ensure files are not lost or accumulated due to user or system errors.
+For example, sites that can no longer access some files after a power outage
+can cause problems for many related activities.
+File transfers requested from a inconsistent site to another site will fail when files are missing.
+Sites will be chosen incorrectly for production jobs that assume the presence of a local file.
+Last disk copies may also be missing, causing a delay when a user requests data.
+Another type of inconsistency arises when files thought to be deleted are still on disk.
 This leads to wasted disk space for files that are not accessed, except by accident.
-Dynamo Consistency does its check by regularly listing each remote site and
+Dynamo Consistency regularly checks consistency by listing each remote site and
 comparing the listed contents to Dynamo's inventory database.
+The results are reported back to Dynamo, which can then take corrective measures.
 
-Some executables, described in :ref:`execute-ref`, are provided to run the check.
-The package also includes a number of modules that can be imported independently
-to create custom consistency check runs.
-These are described more in :ref:`frontend-ref`.
-A simple consistency check on a site can be done by doing the following
-when an instance of ``dynamo`` is installed::
+A single executable ``dynamo-consistency`` is provided to run the consistency check.
+This executable can be used directly in Dynamo's scheduling system.
+Most of the behaviour is controlled via a simple JSON configuration file,
+with options for site selection, passed via command line arguments.
+This allows Dynamo to run separate schedules for differing site architectures.
 
-  from dynamo_consistency import config, datatypes, remotelister, inventorylister
+Because Dynamo runs in a heterogenous computing environment,
+different sites need to be listed remotely using different methods.
+Currently implemented are listings using XRootD Python bindings, the ``gfal-ls`` CLI, and a ``xrdfs`` subshell.
+These listers are easily extensible in Python,
+allowing for new site architectures to be checked by Dynamo Consistency as well.
 
-  config.LOCATION = '/path/to/config.json'
-  site = 'T2_US_MIT'                        # For example
+The default executable performs the check as expected,
+listing files that are not tracked by Dynamo as orphans
+and listing files that are not found at sites as missing,
+with the exception of a few configurable filters.
+Dynamo Consistency avoids listing orphan files that have a modification time that is recent.
+Paths to avoid deleting can also be set.
+Deletion and transfer requests that are queued are also used to filter the final report
+to avoid redundant actions from Dynamo.
 
-  inventory_listing = inventorylister.listing(site)
-  remote_listing = remotelister.listing(site)
+In addition to tracking the consistency between Dynamo's inventory and physical site storage,
+Dynamo Consistency can report all remote files older than a certain age in general directories.
+These files can also be filtered with path patterns, just as the regular consistency check.
+The time-based only reporting allows for cleaning of directories that Dynamo does not track.
+This is a setting recommended for large file systems that are written to with a high frequency.
 
-  datatypes.compare(inventory_listing, remote_listing, 'results')
+Summaries of check results, as well as the statuses of running checks, are displayed in a webpage.
+The page consists of a table that includes links to logs and lists of orphan and missing files.
+Cells are color coded to allow operators to quickly identify problematic sites.
+Historic summary data for each site is also accessible through this page.
 
-In this example,
-the list of file LFNs in the inventory and not at the site will be in ``results_missing.txt``.
-The list of file LFNs at the site and not in the inventory will be in ``results_orphan.txt``.
-The ``listing`` functions can be re-implemented to perform the check desired.
-This is detailed more in :ref:`backend-ref`.
-
-Installation
-++++++++++++
-
-Dynamo Consistency requires the `XRootD <http://xrootd.org/doc/python/xrootd-python-0.1.0/>`_ Python module to be installed separately.
-In addition, it uses the Dynamo Dynamic Data Management package to get inventory listings
-and to report results of the consistency check.
-Any other needed packages are installed with Dynamo Consistency during installation.
-
-The simplest way to install is through pip::
-
-  pip install dynamo-consistency
-
-The source code is maintained on `GitHub <https://github.com/SmartDataProjects/dynamo-consistency>`_.
-Other typical ``setuptools`` methods are supported by the repository's ``setup.py``.
+If the available configuration options and listers are not enough,
+advanced users can also directly use the Python API to run a custom consistency check.
+For more details on the Dynamo Consistency package, see https://dynamo-consistency.readthedocs.io.
 
 .. |build-status| image:: https://travis-ci.org/SmartDataProjects/dynamo-consistency.svg?branch=master
    :target: https://travis-ci.org/SmartDataProjects/dynamo-consistency
